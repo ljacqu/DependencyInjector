@@ -204,7 +204,7 @@ public class InjectorImplTest {
     @Test
     public void shouldForwardExceptionFromPostConstruct() {
         // given / when / then
-        expectInjectorException("Error executing @PostConstruct method");
+        expectInjectorException("Could not invoke method");
         injector.getSingleton(InvalidPostConstruct.ThrowsException.class);
     }
 

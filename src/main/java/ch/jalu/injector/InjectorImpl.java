@@ -215,7 +215,9 @@ public class InjectorImpl implements Injector {
      */
     private static void executePostConstructMethod(Object object) {
         Method postConstructMethod = InjectionHelper.getAndValidatePostConstructMethod(object.getClass());
-        ReflectionUtils.invokeMethod(postConstructMethod, object);
+        if (postConstructMethod != null) {
+            ReflectionUtils.invokeMethod(postConstructMethod, object);
+        }
     }
 
     private static void validateInstantiable(Class<?> clazz) {

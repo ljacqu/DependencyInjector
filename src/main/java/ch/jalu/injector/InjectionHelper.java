@@ -6,6 +6,7 @@ import ch.jalu.injector.instantiation.FieldInjection;
 import ch.jalu.injector.instantiation.Instantiation;
 import ch.jalu.injector.instantiation.InstantiationFallback;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Provider;
 import java.lang.reflect.Method;
@@ -26,6 +27,7 @@ public class InjectionHelper {
      * @param <T> the class' type
      * @return injection of the class or null if none detected
      */
+    @Nullable
     public static <T> Instantiation<T> getInjection(Class<T> clazz) {
         return firstNotNull(
             ConstructorInjection.provide(clazz),
@@ -39,6 +41,7 @@ public class InjectionHelper {
      * @param clazz the class to search
      * @return post construct method, or null
      */
+    @Nullable
     public static Method getAndValidatePostConstructMethod(Class<?> clazz) {
         Method postConstructMethod = null;
         for (Method method : clazz.getDeclaredMethods()) {
