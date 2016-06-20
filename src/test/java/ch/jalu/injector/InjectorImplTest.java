@@ -52,7 +52,7 @@ public class InjectorImplTest {
     @Test
     public void shouldInitializeElements() {
         // given / when
-        BetaManager betaManager = injector.get(BetaManager.class);
+        BetaManager betaManager = injector.getSingleton(BetaManager.class);
 
         // then
         assertThat(betaManager, not(nullValue()));
@@ -65,14 +65,14 @@ public class InjectorImplTest {
     public void shouldThrowForInvalidPackage() {
         // given / when / then
         expectInjectorException("outside of the allowed packages");
-        injector.get(InvalidClass.class);
+        injector.getSingleton(InvalidClass.class);
     }
 
     @Test
     public void shouldThrowForUnregisteredPrimitiveType() {
         // given / when / then
         expectInjectorException("Primitive types must be provided");
-        injector.get(int.class);
+        injector.getSingleton(int.class);
     }
 
     @Test
@@ -84,21 +84,21 @@ public class InjectorImplTest {
         injector.provide(Duration.class, duration);
 
         // when
-        ClassWithAnnotations object = injector.get(ClassWithAnnotations.class);
+        ClassWithAnnotations object = injector.getSingleton(ClassWithAnnotations.class);
 
         // then
         assertThat(object, not(nullValue()));
         assertThat(object.getSize(), equalTo(size));
         assertThat(object.getDuration(), equalTo(duration));
         // some sample check to make sure we only have one instance of GammaService
-        assertThat(object.getGammaService(), equalTo(injector.get(BetaManager.class).getDependencies()[1]));
+        assertThat(object.getGammaService(), equalTo(injector.getSingleton(BetaManager.class).getDependencies()[1]));
     }
 
     @Test
     public void shouldRecognizeCircularReferences() {
         // given / when / then
         expectInjectorException("Found cyclic dependency");
-        injector.get(CircularClasses.Circular3.class);
+        injector.getSingleton(CircularClasses.Circular3.class);
     }
 
     @Test
@@ -108,14 +108,14 @@ public class InjectorImplTest {
 
         // when / then
         expectInjectorException("must be registered beforehand");
-        injector.get(ClassWithAnnotations.class);
+        injector.getSingleton(ClassWithAnnotations.class);
     }
 
     @Test
     public void shouldThrowForFieldInjectionWithoutNoArgsConstructor() {
         // given / when / then
         expectInjectorException("Did not find injection method");
-        injector.get(BadFieldInjection.class);
+        injector.getSingleton(BadFieldInjection.class);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class InjectorImplTest {
         injector.provide(Duration.class, 13095L);
 
         // when
-        FieldInjectionWithAnnotations result = injector.get(FieldInjectionWithAnnotations.class);
+        FieldInjectionWithAnnotations result = injector.getSingleton(FieldInjectionWithAnnotations.class);
 
         // then
         assertThat(result.getSize(), equalTo(2809375));
@@ -140,7 +140,7 @@ public class InjectorImplTest {
     public void shouldThrowForAnnotationAsKey() {
         // given / when / then
         expectInjectorException("Cannot retrieve annotated elements in this way");
-        injector.get(Size.class);
+        injector.getSingleton(Size.class);
     }
 
     @Test
@@ -180,7 +180,7 @@ public class InjectorImplTest {
         injector.provide(Size.class, 15123);
 
         // when
-        PostConstructTestClass testClass = injector.get(PostConstructTestClass.class);
+        PostConstructTestClass testClass = injector.getSingleton(PostConstructTestClass.class);
 
         // then
         assertThat(testClass.wasPostConstructCalled(), equalTo(true));
@@ -191,42 +191,42 @@ public class InjectorImplTest {
     public void shouldThrowForInvalidPostConstructMethod() {
         // given / when / then
         expectInjectorException("@PostConstruct method may not be static or have any parameters");
-        injector.get(InvalidPostConstruct.WithParams.class);
+        injector.getSingleton(InvalidPostConstruct.WithParams.class);
     }
 
     @Test
     public void shouldThrowForStaticPostConstructMethod() {
         // given / when / then
         expectInjectorException("@PostConstruct method may not be static or have any parameters");
-        injector.get(InvalidPostConstruct.Static.class);
+        injector.getSingleton(InvalidPostConstruct.Static.class);
     }
 
     @Test
     public void shouldForwardExceptionFromPostConstruct() {
         // given / when / then
         expectInjectorException("Error executing @PostConstruct method");
-        injector.get(InvalidPostConstruct.ThrowsException.class);
+        injector.getSingleton(InvalidPostConstruct.ThrowsException.class);
     }
 
     @Test
     public void shouldThrowForMultiplePostConstructMethods() {
         // given / when / then
         expectInjectorException("Multiple methods with @PostConstruct");
-        injector.get(InvalidPostConstruct.MultiplePostConstructs.class);
+        injector.getSingleton(InvalidPostConstruct.MultiplePostConstructs.class);
     }
 
     @Test
     public void shouldThrowForPostConstructNotReturningVoid() {
         // given / when / then
         expectInjectorException("@PostConstruct method must have return type void");
-        injector.get(InvalidPostConstruct.NotVoidReturnType.class);
+        injector.getSingleton(InvalidPostConstruct.NotVoidReturnType.class);
     }
 
     @Test
     public void shouldThrowForAbstractNonRegisteredDependency() {
         // given / when / then
         expectInjectorException("cannot be instantiated");
-        injector.get(ClassWithAbstractDependency.class);
+        injector.getSingleton(ClassWithAbstractDependency.class);
     }
 
     @Test
@@ -236,7 +236,7 @@ public class InjectorImplTest {
         injector.register(ClassWithAbstractDependency.AbstractDependency.class, concrete);
 
         // when
-        ClassWithAbstractDependency cwad = injector.get(ClassWithAbstractDependency.class);
+        ClassWithAbstractDependency cwad = injector.getSingleton(ClassWithAbstractDependency.class);
 
         // then
         assertThat(cwad.getAbstractDependency() == concrete, equalTo(true));
@@ -256,7 +256,7 @@ public class InjectorImplTest {
     @Test
     public void shouldCreateNewUntrackedInstance() {
         // given / when
-        AlphaService singletonScoped = injector.get(AlphaService.class);
+        AlphaService singletonScoped = injector.getSingleton(AlphaService.class);
         AlphaService requestScoped = injector.newInstance(AlphaService.class);
 
         // then
@@ -276,7 +276,7 @@ public class InjectorImplTest {
     public void shouldFallbackToSimpleInstantiationForPlainClass() {
         // given / when
         InstantiationFallbackClasses.HasFallbackDependency result =
-            injector.get(InstantiationFallbackClasses.HasFallbackDependency.class);
+            injector.getSingleton(InstantiationFallbackClasses.HasFallbackDependency.class);
 
         // then
         assertThat(result, not(nullValue()));
@@ -287,7 +287,7 @@ public class InjectorImplTest {
     @Test
     public void shouldRetrieveExistingInstancesOnly() {
         // given
-        injector.get(GammaService.class);
+        injector.getSingleton(GammaService.class);
 
         // when
         AlphaService alphaService = injector.getIfAvailable(AlphaService.class);

@@ -3,10 +3,10 @@ package ch.jalu.injector;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.instantiation.Instantiation;
 import ch.jalu.injector.utils.InjectorUtils;
+import ch.jalu.injector.utils.ReflectionUtils;
 
 import javax.annotation.PostConstruct;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Dependency injector of AuthMe: initializes and injects services and tasks.
+ * Dependency injector implementation: initializes and injects classes.
  * <p>
  * Only constructor and field injection are supported, indicated with the JSR330
  * {@link javax.inject.Inject @Inject} annotation.
@@ -41,7 +41,7 @@ public class InjectorImpl implements Injector {
     }
 
     @Override
-    public <T> T get(Class<T> clazz) {
+    public <T> T getSingleton(Class<T> clazz) {
         return get(clazz, new HashSet<Class<?>>());
     }
 
@@ -69,14 +69,7 @@ public class InjectorImpl implements Injector {
         return instantiate(clazz, new HashSet<Class<?>>());
     }
 
-    /**
-     * Returns an instance of the given class if available. This simply returns the instance if present and
-     * otherwise {@code null}. Calling this method will not instantiate anything.
-     *
-     * @param clazz the class to retrieve the instance for
-     * @param <T> the class' type
-     * @return instance or null if none available
-     */
+    @Override
     public <T> T getIfAvailable(Class<T> clazz) {
         if (Annotation.class.isAssignableFrom(clazz)) {
             throw new InjectorException("Annotations may not be retrieved in this way!");
@@ -87,7 +80,7 @@ public class InjectorImpl implements Injector {
     /**
      * Returns an instance of the given class by retrieving it or by instantiating it if not yet present.
      *
-     * @param clazz the class to retrieve a value for
+     * @param clazz the class to retrieve the singleton instance for
      * @param traversedClasses the list of traversed classes
      * @param <T> the class' type
      * @return instance or associated value (for annotations)
@@ -222,14 +215,7 @@ public class InjectorImpl implements Injector {
      */
     private static void executePostConstructMethod(Object object) {
         Method postConstructMethod = InjectionHelper.getAndValidatePostConstructMethod(object.getClass());
-        if (postConstructMethod != null) {
-            try {
-                postConstructMethod.setAccessible(true);
-                postConstructMethod.invoke(object);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new InjectorException("Error executing @PostConstruct method", e);
-            }
-        }
+        ReflectionUtils.invokeMethod(postConstructMethod, object);
     }
 
     private static void validateInstantiable(Class<?> clazz) {
