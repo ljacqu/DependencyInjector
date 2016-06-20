@@ -23,7 +23,6 @@ import static org.junit.Assert.assertThat;
 /**
  * Test for {@link FieldInjection}.
  */
-
 public class FieldInjectionTest {
 
     @Test
