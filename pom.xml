@@ -56,6 +56,13 @@
             <artifactId>lombok</artifactId>
             <version>1.16.8</version>
         </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
