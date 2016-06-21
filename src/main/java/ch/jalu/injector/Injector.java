@@ -2,6 +2,7 @@ package ch.jalu.injector;
 
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 
 /**
  * The injector interface.
@@ -54,5 +55,16 @@ public interface Injector {
      */
     @Nullable
     <T> T getIfAvailable(Class<T> clazz);
+
+    /**
+     * Returns the singleton for the given class if available, and all singletons of children types. Typically used
+     * with interfaces in order to perform an action without knowing its concrete implementors.
+     * Trivially, using {@link Object} as {@code clazz} will return all known singletons.
+     *
+     * @param clazz the class to retrieve
+     * @param <T> the class' type
+     * @return list of singletons of the given type
+     */
+    <T> Collection<T> getSingletonsOfType(Class<T> clazz);
 
 }

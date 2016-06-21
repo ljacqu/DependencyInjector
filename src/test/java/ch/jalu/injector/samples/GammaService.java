@@ -1,25 +1,19 @@
 package ch.jalu.injector.samples;
 
+import lombok.Getter;
+
 import javax.inject.Inject;
 
 /**
  * Sample - class dependent on alpha service.
  */
-public class GammaService {
+@Getter
+public class GammaService implements Reloadable {
 
     private AlphaService alphaService;
-    private boolean wasReloaded;
 
     @Inject
     public GammaService(AlphaService alphaService) {
         this.alphaService = alphaService;
-    }
-
-    public AlphaService getAlphaService() {
-        return alphaService;
-    }
-
-    public boolean getWasReloaded() {
-        return wasReloaded;
     }
 }

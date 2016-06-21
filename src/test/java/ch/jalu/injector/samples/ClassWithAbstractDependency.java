@@ -1,10 +1,13 @@
 package ch.jalu.injector.samples;
 
+import lombok.Getter;
+
 import javax.inject.Inject;
 
 /**
  * Test with an abstract class declared as dependency.
  */
+@Getter
 public class ClassWithAbstractDependency {
 
     private final AlphaService alphaService;
@@ -14,14 +17,6 @@ public class ClassWithAbstractDependency {
     public ClassWithAbstractDependency(AlphaService as, AbstractDependency ad) {
         this.alphaService = as;
         this.abstractDependency = ad;
-    }
-
-    public AlphaService getAlphaService() {
-        return alphaService;
-    }
-
-    public AbstractDependency getAbstractDependency() {
-        return abstractDependency;
     }
 
     public static abstract class AbstractDependency {

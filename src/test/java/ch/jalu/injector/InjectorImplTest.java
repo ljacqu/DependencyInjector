@@ -16,14 +16,19 @@ import ch.jalu.injector.samples.InvalidPostConstruct;
 import ch.jalu.injector.samples.InvalidStaticFieldInjection;
 import ch.jalu.injector.samples.PostConstructTestClass;
 import ch.jalu.injector.samples.ProvidedClass;
+import ch.jalu.injector.samples.Reloadable;
 import ch.jalu.injector.samples.Size;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Collection;
+
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -36,7 +41,7 @@ public class InjectorImplTest {
 
     private final String ALLOWED_PACKAGE = getClass().getPackage().getName() + ".samples";
 
-    private InjectorImpl injector;
+    private Injector injector;
 
     // As we test many cases that throw exceptions, we use JUnit's ExpectedException Rule
     // to make sure that we receive the exception we expect
@@ -298,6 +303,32 @@ public class InjectorImplTest {
         assertThat(alphaService, not(nullValue()));
         // nothing caused this to be initialized
         assertThat(betaManager, nullValue());
+    }
+
+    @Test
+    public void shouldNotAllowRetrievalOfAnnotations() {
+        // given / when / then
+        expectInjectorException("Annotations may not be retrieved in this way");
+        injector.getIfAvailable(Size.class);
+    }
+
+    @Test
+    public void shouldGetAllSingletonsOfGivenType() {
+        // given
+        // trigger singleton registration
+        injector.getSingleton(AlphaService.class);
+        injector.getSingleton(BetaManager.class);
+        injector.getSingleton(GammaService.class);
+
+        // when
+        Collection<Reloadable> children1 = injector.getSingletonsOfType(Reloadable.class);
+        Collection<CircularClasses> children2 = injector.getSingletonsOfType(CircularClasses.class);
+        Collection<Object> children3 = injector.getSingletonsOfType(Object.class);
+
+        // then
+        assertThat(children1, hasSize(2));
+        assertThat(children2, empty());
+        assertThat(children3, hasSize(5)); // Alpha, Beta, Gamma + ProvidedClass + Injector
     }
 
     private void expectInjectorException(String message) {

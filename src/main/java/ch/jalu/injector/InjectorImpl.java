@@ -9,8 +9,11 @@ import javax.annotation.PostConstruct;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -75,6 +78,18 @@ public class InjectorImpl implements Injector {
             throw new InjectorException("Annotations may not be retrieved in this way!");
         }
         return clazz.cast(objects.get(clazz));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Collection<T> getSingletonsOfType(Class<T> clazz) {
+        List<T> instances = new ArrayList<>();
+        for (Object object : objects.values()) {
+            if (clazz.isInstance(object)) {
+                instances.add((T) object);
+            }
+        }
+        return instances;
     }
 
     /**
