@@ -1,5 +1,6 @@
 package ch.jalu.injector.instantiation;
 
+import ch.jalu.injector.exceptions.InjectorReflectionException;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import javax.inject.Inject;
@@ -42,7 +43,7 @@ public class ConstructorInjection<T> implements Instantiation<T> {
         try {
             return constructor.newInstance(values);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new UnsupportedOperationException(e);
+            throw new InjectorReflectionException("Could not invoke constructor", e, constructor);
         }
     }
 
@@ -77,9 +78,9 @@ public class ConstructorInjection<T> implements Instantiation<T> {
         return null;
     }
 
-    private static void validateNoNullValues(Object[] array) {
+    private void validateNoNullValues(Object[] array) {
         for (Object entry : array) {
-            InjectorUtils.checkNotNull(entry);
+            InjectorUtils.checkNotNull(entry, constructor.getDeclaringClass());
         }
     }
 

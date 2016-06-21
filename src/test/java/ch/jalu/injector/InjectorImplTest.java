@@ -18,6 +18,9 @@ import ch.jalu.injector.samples.PostConstructTestClass;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Reloadable;
 import ch.jalu.injector.samples.Size;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -69,14 +72,14 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForInvalidPackage() {
         // given / when / then
-        expectInjectorException("outside of the allowed packages");
+        expectInjectorException("outside of the allowed packages", Integer.class);
         injector.getSingleton(InvalidClass.class);
     }
 
     @Test
     public void shouldThrowForUnregisteredPrimitiveType() {
         // given / when / then
-        expectInjectorException("Primitive types must be provided");
+        expectInjectorException("Primitive types must be provided", int.class);
         injector.getSingleton(int.class);
     }
 
@@ -102,7 +105,7 @@ public class InjectorImplTest {
     @Test
     public void shouldRecognizeCircularReferences() {
         // given / when / then
-        expectInjectorException("Found cyclic dependency");
+        expectInjectorException("Found cyclic dependency", CircularClasses.Circular3.class);
         injector.getSingleton(CircularClasses.Circular3.class);
     }
 
@@ -112,14 +115,14 @@ public class InjectorImplTest {
         injector.provide(Size.class, 4523);
 
         // when / then
-        expectInjectorException("must be registered beforehand");
+        expectInjectorException("must be registered beforehand", Duration.class);
         injector.getSingleton(ClassWithAnnotations.class);
     }
 
     @Test
     public void shouldThrowForFieldInjectionWithoutNoArgsConstructor() {
         // given / when / then
-        expectInjectorException("Did not find injection method");
+        expectInjectorException("Did not find injection method", BadFieldInjection.class);
         injector.getSingleton(BadFieldInjection.class);
     }
 
@@ -144,14 +147,14 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForAnnotationAsKey() {
         // given / when / then
-        expectInjectorException("Cannot retrieve annotated elements in this way");
+        expectInjectorException("Cannot retrieve annotated elements in this way", Size.class);
         injector.getSingleton(Size.class);
     }
 
     @Test
     public void shouldThrowForSecondRegistration() {
         // given / when / then
-        expectInjectorException("There is already an object present");
+        expectInjectorException("There is already an object present", ProvidedClass.class);
         injector.register(ProvidedClass.class, new ProvidedClass(""));
     }
 
@@ -161,21 +164,21 @@ public class InjectorImplTest {
         injector.provide(Size.class, 12);
 
         // when / then
-        expectInjectorException("already registered");
+        expectInjectorException("already registered", Size.class);
         injector.provide(Size.class, -8);
     }
 
     @Test
     public void shouldThrowForNullValueAssociatedToAnnotation() {
         // given / when / then
-        expectInjectorException("may not be null");
+        expectInjectorException("may not be null", Duration.class);
         injector.provide(Duration.class, null);
     }
 
     @Test
     public void shouldThrowForRegisterWithNull() {
         // given / when / then
-        expectInjectorException("may not be null");
+        expectInjectorException("may not be null", String.class);
         injector.register(String.class, null);
     }
 
@@ -195,42 +198,46 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForInvalidPostConstructMethod() {
         // given / when / then
-        expectInjectorException("@PostConstruct method may not be static or have any parameters");
+        expectInjectorException("@PostConstruct method may not be static or have any parameters",
+            InvalidPostConstruct.WithParams.class);
         injector.getSingleton(InvalidPostConstruct.WithParams.class);
     }
 
     @Test
     public void shouldThrowForStaticPostConstructMethod() {
         // given / when / then
-        expectInjectorException("@PostConstruct method may not be static or have any parameters");
+        expectInjectorException("@PostConstruct method may not be static or have any parameters",
+            InvalidPostConstruct.Static.class);
         injector.getSingleton(InvalidPostConstruct.Static.class);
     }
 
     @Test
     public void shouldForwardExceptionFromPostConstruct() {
         // given / when / then
-        expectInjectorException("Could not invoke method");
+        expectInjectorException("Could not invoke method", InvalidPostConstruct.ThrowsException.class);
         injector.getSingleton(InvalidPostConstruct.ThrowsException.class);
     }
 
     @Test
     public void shouldThrowForMultiplePostConstructMethods() {
         // given / when / then
-        expectInjectorException("Multiple methods with @PostConstruct");
+        expectInjectorException("Multiple methods with @PostConstruct",
+            InvalidPostConstruct.MultiplePostConstructs.class);
         injector.getSingleton(InvalidPostConstruct.MultiplePostConstructs.class);
     }
 
     @Test
     public void shouldThrowForPostConstructNotReturningVoid() {
         // given / when / then
-        expectInjectorException("@PostConstruct method must have return type void");
+        expectInjectorException("@PostConstruct method must have return type void",
+            InvalidPostConstruct.NotVoidReturnType.class);
         injector.getSingleton(InvalidPostConstruct.NotVoidReturnType.class);
     }
 
     @Test
     public void shouldThrowForAbstractNonRegisteredDependency() {
         // given / when / then
-        expectInjectorException("cannot be instantiated");
+        expectInjectorException("cannot be instantiated", ClassWithAbstractDependency.AbstractDependency.class);
         injector.getSingleton(ClassWithAbstractDependency.class);
     }
 
@@ -254,7 +261,7 @@ public class InjectorImplTest {
         injector.register(BetaManager.class, new BetaManager());
 
         // when / then
-        expectInjectorException("There is already an object present");
+        expectInjectorException("There is already an object present", BetaManager.class);
         injector.register(BetaManager.class, new BetaManager());
     }
 
@@ -273,7 +280,7 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForStaticFieldInjection() {
         // given / when / then
-        expectInjectorException("is static but annotated with @Inject");
+        expectInjectorException("is static but annotated with @Inject", InvalidStaticFieldInjection.class);
         injector.newInstance(InvalidStaticFieldInjection.class);
     }
 
@@ -308,7 +315,7 @@ public class InjectorImplTest {
     @Test
     public void shouldNotAllowRetrievalOfAnnotations() {
         // given / when / then
-        expectInjectorException("Annotations may not be retrieved in this way");
+        expectInjectorException("Annotations may not be retrieved in this way", Size.class);
         injector.getIfAvailable(Size.class);
     }
 
@@ -331,9 +338,31 @@ public class InjectorImplTest {
         assertThat(children3, hasSize(5)); // Alpha, Beta, Gamma + ProvidedClass + Injector
     }
 
-    private void expectInjectorException(String message) {
+    private void expectInjectorException(String message, Class<?> concernedClass) {
         expectedException.expect(InjectorException.class);
         expectedException.expectMessage(containsString(message));
+        expectedException.expect(hasClass(concernedClass));
+    }
+
+    private static <T extends InjectorException> Matcher<T> hasClass(final Class<?> clazz) {
+        return new TypeSafeMatcher<T>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Expected exception with class '" + clazz.getSimpleName() + "'");
+            }
+
+            @Override
+            public void describeMismatchSafely(T item, Description mismatchDescription) {
+                String className = item.getClazz() == null ? "null" : item.getClazz().getSimpleName();
+                mismatchDescription.appendText("had class '" + className + "'");
+            }
+
+            @Override
+            protected boolean matchesSafely(T item) {
+                // No need to make this null safe, the clazz should ALWAYS be set
+                return clazz == item.getClazz();
+            }
+        };
     }
 
 }

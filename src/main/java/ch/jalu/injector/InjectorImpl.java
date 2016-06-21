@@ -1,5 +1,6 @@
 package ch.jalu.injector;
 
+import ch.jalu.injector.exceptions.AnnotationNotAllowedException;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.instantiation.Instantiation;
 import ch.jalu.injector.utils.InjectorUtils;
@@ -51,9 +52,9 @@ public class InjectorImpl implements Injector {
     @Override
     public <T> void register(Class<? super T> clazz, T object) {
         if (objects.containsKey(clazz)) {
-            throw new InjectorException("There is already an object present for " + clazz);
+            throw new InjectorException("There is already an object present for " + clazz, clazz);
         }
-        InjectorUtils.checkNotNull(object);
+        InjectorUtils.checkNotNull(object, clazz);
         objects.put(clazz, object);
     }
 
@@ -61,9 +62,9 @@ public class InjectorImpl implements Injector {
     public void provide(Class<? extends Annotation> annotation, Object value) {
         if (objects.containsKey(annotation)) {
             throw new InjectorException("Annotation @" + annotation.getClass().getSimpleName()
-                + " already registered");
+                + " already registered", annotation);
         }
-        InjectorUtils.checkNotNull(value);
+        InjectorUtils.checkNotNull(value, annotation);
         objects.put(annotation, value);
     }
 
@@ -75,7 +76,7 @@ public class InjectorImpl implements Injector {
     @Override
     public <T> T getIfAvailable(Class<T> clazz) {
         if (Annotation.class.isAssignableFrom(clazz)) {
-            throw new InjectorException("Annotations may not be retrieved in this way!");
+            throw new AnnotationNotAllowedException("Annotations may not be retrieved in this way!", clazz);
         }
         return clazz.cast(objects.get(clazz));
     }
@@ -102,7 +103,7 @@ public class InjectorImpl implements Injector {
      */
     private <T> T get(Class<T> clazz, Set<Class<?>> traversedClasses) {
         if (Annotation.class.isAssignableFrom(clazz)) {
-            throw new InjectorException("Cannot retrieve annotated elements in this way!");
+            throw new AnnotationNotAllowedException("Cannot retrieve annotated elements in this way!", clazz);
         } else if (objects.containsKey(clazz)) {
             return clazz.cast(objects.get(clazz));
         }
@@ -133,7 +134,7 @@ public class InjectorImpl implements Injector {
         if (instantiation == null) {
             throw new InjectorException("Did not find injection method for " + clazz + ". Make sure you have "
                 + "a constructor with @Inject or fields with @Inject. Fields with @Inject require "
-                + "the default constructor");
+                + "the default constructor", clazz);
         }
 
         validateInjectionHasNoCircularDependencies(instantiation.getDependencies(), traversedClasses);
@@ -162,7 +163,7 @@ public class InjectorImpl implements Injector {
                 Object value = objects.get(annotations[i]);
                 if (value == null) {
                     throw new InjectorException("Value for field with @" + annotations[i].getSimpleName()
-                        + " must be registered beforehand");
+                        + " must be registered beforehand", annotations[i]);
                 }
                 values[i] = value;
             }
@@ -180,7 +181,7 @@ public class InjectorImpl implements Injector {
         if (objects.containsKey(object.getClass())) {
             throw new IllegalStateException("There is already an object present for " + object.getClass());
         }
-        InjectorUtils.checkNotNull(object);
+        InjectorUtils.checkNotNull(object, null); // should never happen
         objects.put(object.getClass(), object);
     }
 
@@ -196,7 +197,7 @@ public class InjectorImpl implements Injector {
         for (Class<?> clazz : dependencies) {
             if (traversedClasses.contains(clazz)) {
                 throw new InjectorException("Found cyclic dependency - already traversed '" + clazz
-                    + "' (full traversal list: " + traversedClasses + ")");
+                    + "' (full traversal list: " + traversedClasses + ")", clazz);
             }
         }
     }
@@ -210,7 +211,7 @@ public class InjectorImpl implements Injector {
      */
     private void validatePackage(Class<?> clazz) {
         if (clazz.getPackage() == null) {
-            throw new InjectorException("Primitive types must be provided explicitly (or use an annotation).");
+            throw new InjectorException("Primitive types must be provided explicitly (or use an annotation).", clazz);
         }
         String packageName = clazz.getPackage().getName();
         for (String allowedPackage : ALLOWED_PACKAGES) {
@@ -218,8 +219,8 @@ public class InjectorImpl implements Injector {
                 return;
             }
         }
-        throw new InjectorException("Class " + clazz + " with package " + packageName + " is outside of the "
-            + "allowed packages. It must be provided explicitly or the package must be passed to the constructor.");
+        throw new InjectorException("Class " + clazz + " with package " + packageName + " is outside of the allowed "
+            + "packages. It must be provided explicitly or the package must be passed to the constructor.", clazz);
     }
 
     /**
@@ -237,7 +238,7 @@ public class InjectorImpl implements Injector {
 
     private static void validateInstantiable(Class<?> clazz) {
         if (clazz.isEnum() || clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
-            throw new InjectorException("Class " + clazz.getSimpleName() + " cannot be instantiated");
+            throw new InjectorException("Class " + clazz.getSimpleName() + " cannot be instantiated", clazz);
         }
     }
 

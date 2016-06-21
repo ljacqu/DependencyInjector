@@ -1,7 +1,9 @@
 package ch.jalu.injector.instantiation;
 
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.exceptions.InjectorReflectionException;
 import ch.jalu.injector.utils.InjectorUtils;
+import ch.jalu.injector.utils.ReflectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -48,22 +50,18 @@ public class FieldInjection<T> implements Instantiation<T> {
     @Override
     public T instantiateWith(Object... values) {
         InjectorUtils.checkArgument(values.length == fields.length,
-            "The number of values must be equal to the number of fields");
+            "The number of values must be equal to the number of fields", defaultConstructor.getDeclaringClass());
 
         T instance;
         try {
             instance = defaultConstructor.newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new UnsupportedOperationException(e);
+            throw new InjectorReflectionException("Could not invoke constructor", e, defaultConstructor);
         }
 
         for (int i = 0; i < fields.length; ++i) {
-            try {
-                InjectorUtils.checkNotNull(values[i]);
-                fields[i].set(instance, values[i]);
-            } catch (IllegalAccessException e) {
-                throw new UnsupportedOperationException(e);
-            }
+            InjectorUtils.checkNotNull(values[i], defaultConstructor.getDeclaringClass());
+            ReflectionUtils.setField(fields[i], instance, values[i]);
         }
         return instance;
     }
@@ -97,7 +95,7 @@ public class FieldInjection<T> implements Instantiation<T> {
             if (field.isAnnotationPresent(Inject.class)) {
                 if (Modifier.isStatic(field.getModifiers())) {
                     throw new InjectorException(String.format("Field '%s' in class '%s' is static but "
-                        + "annotated with @Inject", field.getName(), clazz.getSimpleName()));
+                        + "annotated with @Inject", field.getName(), clazz.getSimpleName()), clazz);
                 }
                 field.setAccessible(true);
                 fields.add(field);

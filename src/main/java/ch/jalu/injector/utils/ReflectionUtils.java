@@ -1,6 +1,5 @@
 package ch.jalu.injector.utils;
 
-import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.exceptions.InjectorReflectionException;
 
 import java.lang.reflect.Field;
@@ -27,7 +26,8 @@ public class ReflectionUtils {
         try {
             return field.get(instance);
         } catch (IllegalAccessException e) {
-            throw new InjectorException("Could not get value of field '" + field.getName() + "' for " + instance, e);
+            throw new InjectorReflectionException(
+                "Could not get value of field '" + field.getName() + "' for " + instance, e, field);
         }
     }
 
@@ -43,7 +43,8 @@ public class ReflectionUtils {
         try {
             field.set(instance, value);
         } catch (IllegalAccessException e) {
-            throw new InjectorReflectionException("Could not set field '" + field.getName() + "' for " + instance, e);
+            throw new InjectorReflectionException(
+                "Could not set field '" + field.getName() + "' for " + instance, e, field);
         }
     }
 
@@ -60,8 +61,8 @@ public class ReflectionUtils {
         try {
             return method.invoke(instance, parameters);
         } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new InjectorReflectionException("Could not invoke method '" + method.getName()
-                    + "' for " + instance, e);
+            throw new InjectorReflectionException(
+                "Could not invoke method '" + method.getName() + "' for " + instance, e, method);
         }
     }
 }

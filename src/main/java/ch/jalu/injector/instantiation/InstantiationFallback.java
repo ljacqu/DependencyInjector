@@ -1,5 +1,8 @@
 package ch.jalu.injector.instantiation;
 
+import ch.jalu.injector.exceptions.InjectorReflectionException;
+import ch.jalu.injector.utils.InjectorUtils;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -31,13 +34,12 @@ public class InstantiationFallback<T> implements Instantiation<T> {
 
     @Override
     public T instantiateWith(Object... values) {
-        if (values == null || values.length > 0) {
-            throw new UnsupportedOperationException("Instantiation fallback cannot have parameters");
-        }
+        InjectorUtils.checkArgument(values == null || values.length == 0,
+                "Instantiation fallback cannot have parameters", constructor.getDeclaringClass());
         try {
             return constructor.newInstance();
         } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
-            throw new UnsupportedOperationException(e);
+            throw new InjectorReflectionException("Could not invoke constructor", e, constructor);
         }
     }
 
