@@ -29,16 +29,17 @@ import java.util.Set;
  */
 public class InjectorImpl implements Injector {
 
-    private final String[] ALLOWED_PACKAGES;
-    private final Map<Class<?>, Object> objects;
+    protected final Map<Class<?>, Object> objects;
+    protected String[] ALLOWED_PACKAGES;
 
     /**
      * Constructor.
      *
      * @param allowedPackages list of allowed packages. Only classes whose package
      *        starts with any of the given entries will be instantiated
+     * @see InjectorBuilder
      */
-    public InjectorImpl(String... allowedPackages) {
+    protected InjectorImpl(String... allowedPackages) {
         ALLOWED_PACKAGES = allowedPackages;
         objects = new HashMap<>();
         objects.put(Injector.class, this);
