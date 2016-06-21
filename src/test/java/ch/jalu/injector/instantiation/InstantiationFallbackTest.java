@@ -1,5 +1,6 @@
 package ch.jalu.injector.instantiation;
 
+import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.InstantiationFallbackClasses;
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class InstantiationFallbackTest {
         assertThat(result, not(nullValue()));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = InjectorException.class)
     public void shouldThrowIfArgumentsAreSupplied() {
         // given
         Instantiation<InstantiationFallbackClasses.FallbackClass> instantiation =

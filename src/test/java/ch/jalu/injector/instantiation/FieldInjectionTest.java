@@ -66,7 +66,7 @@ public class FieldInjectionTest {
         assertThat(injection, nullValue());
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = InjectorException.class)
     public void shouldForwardExceptionDuringInstantiation() {
         // given
         FieldInjection<ThrowingConstructor> injection = FieldInjection.provide(ThrowingConstructor.class).get();
@@ -75,7 +75,7 @@ public class FieldInjectionTest {
         injection.instantiateWith(new ProvidedClass(""));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void shouldThrowForInvalidFieldValue() {
         // given
         ProvidedClass providedClass = new ProvidedClass("");
@@ -100,7 +100,7 @@ public class FieldInjectionTest {
         injection.instantiateWith(providedClass, null, alphaService);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = InjectorException.class)
     public void shouldThrowForStaticFieldInjection() {
         // given / when / then
         FieldInjection.provide(InvalidStaticFieldInjection.class).get();

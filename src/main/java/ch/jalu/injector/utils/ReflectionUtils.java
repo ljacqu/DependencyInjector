@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 /**
  * Reflection methods.
  */
-public class ReflectionUtils {
+public final class ReflectionUtils {
 
     private ReflectionUtils() {
     }

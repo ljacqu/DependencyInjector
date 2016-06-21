@@ -63,7 +63,7 @@ public class ConstructorInjectionTest {
         injection.instantiateWith(-112, null, 12L);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = InjectorException.class)
     public void shouldThrowUponInstantiationError() {
         // given
         AlphaService alphaService = AlphaService.newInstance(new ProvidedClass(""));

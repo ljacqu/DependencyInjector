@@ -5,7 +5,7 @@ import ch.jalu.injector.exceptions.InjectorException;
 /**
  * Class with simple utility methods.
  */
-public class InjectorUtils {
+public final class InjectorUtils {
 
     private InjectorUtils() {
     }
