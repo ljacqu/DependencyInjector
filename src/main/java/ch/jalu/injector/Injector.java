@@ -65,6 +65,6 @@ public interface Injector {
      * @param <T> the class' type
      * @return list of singletons of the given type
      */
-    <T> Collection<T> getSingletonsOfType(Class<T> clazz);
+    <T> Collection<T> retrieveAll(Class<T> clazz);
 
 }

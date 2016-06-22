@@ -84,7 +84,7 @@ public class InjectorImpl implements Injector {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Collection<T> getSingletonsOfType(Class<T> clazz) {
+    public <T> Collection<T> retrieveAll(Class<T> clazz) {
         List<T> instances = new ArrayList<>();
         for (Object object : objects.values()) {
             if (clazz.isInstance(object)) {

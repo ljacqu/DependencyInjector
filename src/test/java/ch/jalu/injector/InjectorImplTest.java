@@ -328,9 +328,9 @@ public class InjectorImplTest {
         injector.getSingleton(GammaService.class);
 
         // when
-        Collection<Reloadable> children1 = injector.getSingletonsOfType(Reloadable.class);
-        Collection<CircularClasses> children2 = injector.getSingletonsOfType(CircularClasses.class);
-        Collection<Object> children3 = injector.getSingletonsOfType(Object.class);
+        Collection<Reloadable> children1 = injector.retrieveAll(Reloadable.class);
+        Collection<CircularClasses> children2 = injector.retrieveAll(CircularClasses.class);
+        Collection<Object> children3 = injector.retrieveAll(Object.class);
 
         // then
         assertThat(children1, hasSize(2));
