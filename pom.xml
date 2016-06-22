@@ -5,11 +5,16 @@
     <groupId>ch.jalu</groupId>
     <artifactId>injector</artifactId>
     <version>0.1-SNAPSHOT</version>
-    <name>dependency injector</name>
+    <name>Dependency injector</name>
     <description>Lightweight dependency injector (JSR-330 implementation)</description>
+    <issueManagement>
+        <url>https://github.com/ljacqu/DependencyInjector/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <testSourceDirectory>src/test/java</testSourceDirectory>
@@ -50,24 +55,20 @@
             </plugin>
         </plugins>
     </build>
+
     <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>test</scope>
-            <version>1.16.8</version>
-        </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
-            <version>1</version>
             <scope>compile</scope>
-            <optional>true</optional>
+            <version>1</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
+            <scope>compile</scope>
             <version>3.0.0</version>
+            <optional>true</optional>
         </dependency>
 
         <!-- Testing -->
@@ -76,6 +77,7 @@
             <artifactId>junit</artifactId>
             <scope>compile</scope>
             <version>4.12</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
@@ -88,6 +90,13 @@
             <artifactId>mockito-core</artifactId>
             <scope>compile</scope>
             <version>2.0.5-beta</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>test</scope>
+            <version>1.16.8</version>
         </dependency>
     </dependencies>
 </project>
