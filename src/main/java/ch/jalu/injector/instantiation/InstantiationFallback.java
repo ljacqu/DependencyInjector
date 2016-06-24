@@ -1,7 +1,7 @@
 package ch.jalu.injector.instantiation;
 
-import ch.jalu.injector.exceptions.InjectorReflectionException;
 import ch.jalu.injector.utils.InjectorUtils;
+import ch.jalu.injector.utils.ReflectionUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -9,7 +9,6 @@ import javax.inject.Provider;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Fallback instantiation method for classes with an accessible no-args constructor
@@ -37,11 +36,7 @@ public class InstantiationFallback<T> implements Instantiation<T> {
     public T instantiateWith(Object... values) {
         InjectorUtils.checkArgument(values == null || values.length == 0,
                 "Instantiation fallback cannot have parameters", constructor.getDeclaringClass());
-        try {
-            return constructor.newInstance();
-        } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
-            throw new InjectorReflectionException("Could not invoke constructor", e, constructor);
-        }
+        return ReflectionUtils.newInstance(constructor);
     }
 
     /**

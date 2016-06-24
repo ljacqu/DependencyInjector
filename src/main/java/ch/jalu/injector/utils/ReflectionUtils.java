@@ -2,9 +2,13 @@ package ch.jalu.injector.utils;
 
 import ch.jalu.injector.exceptions.InjectorReflectionException;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Reflection methods.
@@ -63,6 +67,40 @@ public final class ReflectionUtils {
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new InjectorReflectionException(
                 "Could not invoke method '" + method.getName() + "' for " + instance, e, method);
+        }
+    }
+
+    /**
+     * Returns all fields of the given class annotated with the given annotation. Does not consider parent classes.
+     *
+     * @param clazz the class to process
+     * @param annotation the annotation to search fields for
+     * @return fields in clazz having the given annotation
+     */
+    public static List<Field> getFieldsWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotation) {
+        List<Field> fields = new ArrayList<>();
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.isAnnotationPresent(annotation)) {
+                fields.add(field);
+            }
+        }
+        return fields;
+    }
+
+    /**
+     * Invokes the given constructor with the provided parameters.
+     *
+     * @param constructor the constructor
+     * @param parameters the parameters to invoke the constructor with
+     * @param <T> the type the constructor belongs to
+     * @return the instantiated object
+     */
+    public static <T> T newInstance(Constructor<T> constructor, Object... parameters) {
+        try {
+            return constructor.newInstance(parameters);
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            throw new InjectorReflectionException("Could not invoke constructor of class '"
+                    + constructor.getDeclaringClass() + "'", e, constructor);
         }
     }
 }

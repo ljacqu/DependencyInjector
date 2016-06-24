@@ -1,7 +1,6 @@
 package ch.jalu.injector.instantiation;
 
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.exceptions.InjectorReflectionException;
 import ch.jalu.injector.utils.InjectorUtils;
 import ch.jalu.injector.utils.ReflectionUtils;
 
@@ -10,7 +9,6 @@ import javax.inject.Provider;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,13 +50,7 @@ public class FieldInjection<T> implements Instantiation<T> {
         InjectorUtils.checkArgument(values.length == fields.length,
             "The number of values must be equal to the number of fields", defaultConstructor.getDeclaringClass());
 
-        T instance;
-        try {
-            instance = defaultConstructor.newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new InjectorReflectionException("Could not invoke constructor", e, defaultConstructor);
-        }
-
+        T instance = ReflectionUtils.newInstance(defaultConstructor);
         for (int i = 0; i < fields.length; ++i) {
             InjectorUtils.checkNotNull(values[i], defaultConstructor.getDeclaringClass());
             ReflectionUtils.setField(fields[i], instance, values[i]);
@@ -79,7 +71,7 @@ public class FieldInjection<T> implements Instantiation<T> {
         return new Provider<FieldInjection<T>>() {
             @Override
             public FieldInjection<T> get() {
-                Constructor<T> constructor = getDefaultConstructor(clazz);
+                Constructor<T> constructor = getNoArgsConstructor(clazz);
                 if (constructor == null) {
                     return null;
                 }
@@ -104,23 +96,14 @@ public class FieldInjection<T> implements Instantiation<T> {
         return fields;
     }
 
-    private static Class<?> getFirstNonInjectAnnotation(Field field) {
-        for (Annotation annotation : field.getAnnotations()) {
-            if (annotation.annotationType() != Inject.class) {
-                return annotation.annotationType();
-            }
-        }
-        return null;
-    }
-
     @SuppressWarnings("unchecked")
-    private static <T> Constructor<T> getDefaultConstructor(Class<T> clazz) {
+    private static <T> Constructor<T> getNoArgsConstructor(Class<T> clazz) {
         try {
-            Constructor<?> defaultConstructor = clazz.getDeclaredConstructor();
-            defaultConstructor.setAccessible(true);
-            return (Constructor<T>) defaultConstructor;
+            Constructor<?> noArgsConstructor = clazz.getDeclaredConstructor();
+            noArgsConstructor.setAccessible(true);
+            return (Constructor<T>) noArgsConstructor;
         } catch (NoSuchMethodException ignore) {
-            // no default constructor available
+            // no no-arg constructor available
         }
         return null;
     }

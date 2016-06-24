@@ -11,7 +11,13 @@ import javax.annotation.PostConstruct;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Dependency injector implementation: initializes and injects classes.
@@ -37,6 +43,7 @@ public class InjectorImpl implements Injector {
         this.config = config;
         objects = new HashMap<>();
         objects.put(Injector.class, this);
+        config.injectAnnotationHandlerFields(this);
     }
 
     @Override
@@ -137,7 +144,7 @@ public class InjectorImpl implements Injector {
         Annotation[][] annotations = instantiation.getDependencyAnnotations();
         Object[] values = new Object[dependencies.length];
         for (int i = 0; i < dependencies.length; ++i) {
-            Object object = resolveAnnotation(annotations[i]);
+            Object object = resolveAnnotation(dependencies[i], annotations[i]);
             if (object == null) {
                 values[i] = get(dependencies[i], traversedClasses);
             } else {
@@ -148,11 +155,19 @@ public class InjectorImpl implements Injector {
     }
 
     @Nullable
-    private Object resolveAnnotation(Annotation... annotations) {
+    private Object resolveAnnotation(Class<?> type, Annotation... annotations) {
         Object o;
         for (AnnotationHandler handler : config.getAnnotationHandlers()) {
-            if ((o = handler.resolveValue(annotations)) != null) {
-                return o;
+            try {
+                if ((o = handler.resolveValue(type, annotations)) != null) {
+                    return o;
+                }
+            } catch (Exception e) {
+                if (e instanceof InjectorException) {
+                    throw (InjectorException) e;
+                }
+                throw new InjectorException(
+                    "Error while processing '" + type + "' in '" + handler.getClass() + "'", e, handler.getClass());
             }
         }
         return null;

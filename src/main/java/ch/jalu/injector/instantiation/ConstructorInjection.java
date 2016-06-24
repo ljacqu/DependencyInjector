@@ -1,13 +1,12 @@
 package ch.jalu.injector.instantiation;
 
-import ch.jalu.injector.exceptions.InjectorReflectionException;
 import ch.jalu.injector.utils.InjectorUtils;
+import ch.jalu.injector.utils.ReflectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Functionality for constructor injection.
@@ -33,11 +32,7 @@ public class ConstructorInjection<T> implements Instantiation<T> {
     @Override
     public T instantiateWith(Object... values) {
         validateNoNullValues(values);
-        try {
-            return constructor.newInstance(values);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new InjectorReflectionException("Could not invoke constructor", e, constructor);
-        }
+        return ReflectionUtils.newInstance(constructor, values);
     }
 
     public static <T> Provider<ConstructorInjection<T>> provide(final Class<T> clazz) {
