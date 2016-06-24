@@ -30,7 +30,8 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
     public Object[] resolveValueSafely(AllInstances annotation) {
         // TODO: Implement detection of cyclic dependencies
         InjectorUtils.checkNotNull(annotation.value(), AllInstances.class);
-        Set<Class<?>> subTypes = (Set<Class<?>>) reflections.getSubTypesOf(annotation.value());
+        // Eclipse complains about Set<Class<? extends ?>>, so we need to cast it to Object first. Should be safe.
+        Set<Class<?>> subTypes = (Set<Class<?>>) (Object) reflections.getSubTypesOf(annotation.value());
 
         Object[] objects = new Object[subTypes.size()];
         int i = 0;

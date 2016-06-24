@@ -1,3 +1,13 @@
+sudo: false
+
 language: java
-after_success:
-- mvn clean test jacoco:report coveralls:report
+jdk: oraclejdk7
+
+# Scopes:
+#  - test
+#  - jacoco:report generate coverage report
+#  - coveralls:report send the coverage reports to the coveralls service
+# Switches:
+#  - B: batch mode (no UI)
+#  - U: force update, download everytime the dependencies
+script: mvn clean test jacoco:report coveralls:report -B -U
