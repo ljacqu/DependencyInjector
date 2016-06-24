@@ -1,13 +1,10 @@
 package ch.jalu.injector.samples;
 
-import lombok.Getter;
-
 import javax.inject.Inject;
 
 /**
  * Sample - field injection, including custom annotations.
  */
-@Getter
 public class FieldInjectionWithAnnotations {
 
     @Inject
@@ -22,5 +19,21 @@ public class FieldInjectionWithAnnotations {
     protected ClassWithAnnotations classWithAnnotations;
 
     FieldInjectionWithAnnotations() {
+    }
+
+    public BetaManager getBetaManager() {
+        return betaManager;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public ClassWithAnnotations getClassWithAnnotations() {
+        return classWithAnnotations;
     }
 }

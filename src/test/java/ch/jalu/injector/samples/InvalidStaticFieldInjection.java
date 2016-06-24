@@ -7,7 +7,6 @@ import javax.inject.Inject;
  */
 public class InvalidStaticFieldInjection {
 
-    @SuppressWarnings("unused")
     @Inject
     private ProvidedClass providedClass;
     @Inject
