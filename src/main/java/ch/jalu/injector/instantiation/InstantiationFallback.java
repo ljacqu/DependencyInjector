@@ -6,6 +6,7 @@ import ch.jalu.injector.utils.InjectorUtils;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -28,8 +29,8 @@ public class InstantiationFallback<T> implements Instantiation<T> {
     }
 
     @Override
-    public Class<?>[] getDependencyAnnotations() {
-        return new Class<?>[0];
+    public Annotation[][] getDependencyAnnotations() {
+        return new Annotation[0][];
     }
 
     @Override

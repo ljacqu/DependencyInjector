@@ -1,5 +1,7 @@
 package ch.jalu.injector.instantiation;
 
+import java.lang.annotation.Annotation;
+
 /**
  * Common interface for all instantiation methods.
  *
@@ -16,14 +18,13 @@ public interface Instantiation<T> {
     Class<?>[] getDependencies();
 
     /**
-     * Returns the annotation on each dependency if available. The indices of this
-     * array correspond to the ones of {@link #getDependencies()}. If no annotation
-     * is available, {@code null} is stored. If multiple annotations are present, only
-     * one is stored (no guarantee on which one).
+     * Returns the annotations on each dependency. The first dimension indices of this
+     * array correspond to the ones of {@link #getDependencies()}. Each subarray contains
+     * all annotations on the given dependency; empty array if no annotations are present.
      *
      * @return annotation for each dependency
      */
-    Class<?>[] getDependencyAnnotations();
+    Annotation[][] getDependencyAnnotations();
 
     /**
      * Creates a new instance with the given values as dependencies. The given values

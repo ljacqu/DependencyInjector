@@ -9,7 +9,7 @@ import javax.inject.Inject;
 public class PostConstructTestClass {
 
     @Inject
-    @Size
+    @Size("box")
     private int size;
     @Inject
     private BetaManager betaManager;

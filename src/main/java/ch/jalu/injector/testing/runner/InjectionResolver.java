@@ -45,7 +45,7 @@ class InjectionResolver {
      */
     private Object[] resolveDependencies(Instantiation<?> injection) {
         final Class<?>[] dependencies = injection.getDependencies();
-        final Class<?>[] annotations = injection.getDependencyAnnotations();
+        final Annotation[][] annotations = injection.getDependencyAnnotations();
         Object[] resolvedValues = new Object[dependencies.length];
         for (int i = 0; i < dependencies.length; ++i) {
             Object dependency = (annotations[i] == null)
@@ -66,8 +66,8 @@ class InjectionResolver {
     }
 
     @SuppressWarnings("unchecked")
-    private Object resolveAnnotation(Class<?> clazz) {
-        Class<? extends Annotation> annotation = (Class<? extends Annotation>) clazz;
+    private Object resolveAnnotation(Annotation... annotations) {
+        Class<? extends Annotation> annotation = annotations[0].getClass(); // FIXME
         List<FrameworkField> matches = testClass.getAnnotatedFields(annotation);
         if (matches.isEmpty()) {
             throw new IllegalStateException("No field found with @" + annotation.getSimpleName() + " in test class,"

@@ -95,6 +95,11 @@
             <version>3.0.0</version>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.10</version>
+        </dependency>
 
         <!-- Testing -->
         <dependency>

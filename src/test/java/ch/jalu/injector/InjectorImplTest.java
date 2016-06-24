@@ -1,5 +1,6 @@
 package ch.jalu.injector;
 
+import ch.jalu.injector.annotationhandlers.SavedAnnotationsHandler;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
@@ -27,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
@@ -44,6 +46,7 @@ public class InjectorImplTest {
 
     private final String ALLOWED_PACKAGE = getClass().getPackage().getName() + ".samples";
 
+    private SavedAnnotationsHandler savedAnnotationsHandler = new SavedAnnotationsHandler();
     private Injector injector;
 
     // As we test many cases that throw exceptions, we use JUnit's ExpectedException Rule
@@ -53,7 +56,10 @@ public class InjectorImplTest {
 
     @Before
     public void setInitializer() {
-        injector = new InjectorImpl(ALLOWED_PACKAGE);
+        InjectorConfig config = new InjectorConfig();
+        config.setRootPackage(ALLOWED_PACKAGE);
+        config.addAnnotationHandlers(Collections.singletonList(savedAnnotationsHandler));
+        injector = new InjectorImpl(config);
         injector.register(ProvidedClass.class, new ProvidedClass(""));
     }
 
@@ -88,8 +94,8 @@ public class InjectorImplTest {
         // given
         int size = 12;
         long duration = -15482L;
-        injector.provide(Size.class, size);
-        injector.provide(Duration.class, duration);
+        savedAnnotationsHandler.register(Size.class, size);
+        savedAnnotationsHandler.register(Duration.class, duration);
 
         // when
         ClassWithAnnotations object = injector.getSingleton(ClassWithAnnotations.class);
@@ -110,16 +116,6 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldThrowForUnregisteredAnnotation() {
-        // given
-        injector.provide(Size.class, 4523);
-
-        // when / then
-        expectInjectorException("must be registered beforehand", Duration.class);
-        injector.getSingleton(ClassWithAnnotations.class);
-    }
-
-    @Test
     public void shouldThrowForFieldInjectionWithoutNoArgsConstructor() {
         // given / when / then
         expectInjectorException("Did not find injection method", BadFieldInjection.class);
@@ -129,8 +125,8 @@ public class InjectorImplTest {
     @Test
     public void shouldInjectFieldsWithAnnotationsProperly() {
         // given
-        injector.provide(Size.class, 2809375);
-        injector.provide(Duration.class, 13095L);
+        savedAnnotationsHandler.register(Size.class, 2809375);
+        savedAnnotationsHandler.register(Duration.class, 13095L);
 
         // when
         FieldInjectionWithAnnotations result = injector.getSingleton(FieldInjectionWithAnnotations.class);
@@ -145,13 +141,6 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldThrowForAnnotationAsKey() {
-        // given / when / then
-        expectInjectorException("Cannot retrieve annotated elements in this way", Size.class);
-        injector.getSingleton(Size.class);
-    }
-
-    @Test
     public void shouldThrowForSecondRegistration() {
         // given / when / then
         expectInjectorException("There is already an object present", ProvidedClass.class);
@@ -161,18 +150,18 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForSecondAnnotationRegistration() {
         // given
-        injector.provide(Size.class, 12);
+        savedAnnotationsHandler.register(Size.class, 12);
 
         // when / then
         expectInjectorException("already registered", Size.class);
-        injector.provide(Size.class, -8);
+        savedAnnotationsHandler.register(Size.class, -8);
     }
 
     @Test
     public void shouldThrowForNullValueAssociatedToAnnotation() {
         // given / when / then
         expectInjectorException("may not be null", Duration.class);
-        injector.provide(Duration.class, null);
+        savedAnnotationsHandler.register(Duration.class, null);
     }
 
     @Test
@@ -185,7 +174,7 @@ public class InjectorImplTest {
     @Test
     public void shouldExecutePostConstructMethod() {
         // given
-        injector.provide(Size.class, 15123);
+        savedAnnotationsHandler.register(Size.class, 15123);
 
         // when
         PostConstructTestClass testClass = injector.getSingleton(PostConstructTestClass.class);
@@ -310,13 +299,6 @@ public class InjectorImplTest {
         assertThat(alphaService, not(nullValue()));
         // nothing caused this to be initialized
         assertThat(betaManager, nullValue());
-    }
-
-    @Test
-    public void shouldNotAllowRetrievalOfAnnotations() {
-        // given / when / then
-        expectInjectorException("Annotations may not be retrieved in this way", Size.class);
-        injector.getIfAvailable(Size.class);
     }
 
     @Test

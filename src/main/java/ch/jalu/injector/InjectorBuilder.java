@@ -1,13 +1,18 @@
 package ch.jalu.injector;
 
+import ch.jalu.injector.annotationhandlers.AnnotationHandler;
+
+import java.util.Arrays;
+
 /**
  * Configures and creates an {@link Injector}.
  */
 public class InjectorBuilder {
 
-    private String[] allowedPackages;
+    private InjectorConfig config;
 
     public InjectorBuilder() {
+        config = new InjectorConfig();
     }
 
     /**
@@ -18,11 +23,22 @@ public class InjectorBuilder {
      * <b>You must supply packages</b>, otherwise the injector will throw an exception for any class it is
      * requested to instantiate. To allow instantiation regardless of package, supply an empty string (not recommended).
      *
-     * @param packages the packages in which classes will be instantiated automatically
+     * @param rootPackage the root package of the application
      * @return the builder
      */
-    public InjectorBuilder setAllowedPackages(String... packages) {
-        allowedPackages = packages;
+    @Deprecated // Subject to change in future versions
+    public InjectorBuilder setAllowedPackages(String rootPackage) {
+        config.setRootPackage(rootPackage);
+        return this;
+    }
+
+    public InjectorBuilder addAnnotationHandlers(AnnotationHandler... annotationHandler) {
+        config.addAnnotationHandlers(Arrays.asList(annotationHandler));
+        return this;
+    }
+
+    public InjectorBuilder setAnnotationHandlers(AnnotationHandler... annotationHandlers) {
+        config.setAnnotationHandlers(Arrays.asList(annotationHandlers));
         return this;
     }
 
@@ -32,10 +48,7 @@ public class InjectorBuilder {
      * @return the injector
      */
     public Injector create() {
-        if (allowedPackages == null) {
-            allowedPackages = new String[0];
-        }
-        return new InjectorImpl(allowedPackages);
+        return new InjectorImpl(config);
     }
 
 }

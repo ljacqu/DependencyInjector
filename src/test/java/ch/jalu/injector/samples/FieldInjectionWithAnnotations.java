@@ -10,7 +10,7 @@ public class FieldInjectionWithAnnotations {
     @Inject
     private BetaManager betaManager;
     @Inject
-    @Size
+    @Size("chest")
     private int size;
     @Duration
     @Inject

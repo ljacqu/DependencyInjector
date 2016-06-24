@@ -14,6 +14,20 @@ public final class InjectorUtils {
         checkNotNull(o, "Object may not be null", clazz);
     }
 
+    public static void checkNotNull(Iterable<?> collection, Class<?> clazz) {
+        checkNotNull((Object) collection, clazz);
+        for (Object o : collection) {
+            checkNotNull(o, null);
+        }
+    }
+
+    public static <T> void checkNotNull(T[] arr, Class<?> clazz) {
+        checkNotNull((Object) arr, clazz);
+        for (Object o : arr) {
+            checkNotNull(o, clazz);
+        }
+    }
+
     public static void checkNotNull(Object o, String errorMessage, Class<?> clazz) {
         if (o == null) {
             throw new InjectorException(errorMessage, clazz);

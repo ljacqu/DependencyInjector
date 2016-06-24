@@ -39,10 +39,10 @@ public class FieldInjection<T> implements Instantiation<T> {
     }
 
     @Override
-    public Class<?>[] getDependencyAnnotations() {
-        Class<?>[] annotations = new Class<?>[fields.length];
+    public Annotation[][] getDependencyAnnotations() {
+        Annotation[][] annotations = new Annotation[fields.length][];
         for (int i = 0; i < fields.length; ++i) {
-            annotations[i] = getFirstNonInjectAnnotation(fields[i]);
+            annotations[i] = fields[i].getDeclaredAnnotations();
         }
         return annotations;
     }

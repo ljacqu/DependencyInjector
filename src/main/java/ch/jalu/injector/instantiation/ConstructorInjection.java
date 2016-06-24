@@ -26,15 +26,8 @@ public class ConstructorInjection<T> implements Instantiation<T> {
     }
 
     @Override
-    public Class<?>[] getDependencyAnnotations() {
-        Annotation[][] parameterAnnotations = constructor.getParameterAnnotations();
-        Class<?>[] annotations = new Class<?>[parameterAnnotations.length];
-        for (int i = 0; i < parameterAnnotations.length; ++i) {
-            annotations[i] = parameterAnnotations[i].length > 0
-                ? parameterAnnotations[i][0].annotationType()
-                : null;
-        }
-        return annotations;
+    public Annotation[][] getDependencyAnnotations() {
+        return constructor.getParameterAnnotations();
     }
 
     @Override

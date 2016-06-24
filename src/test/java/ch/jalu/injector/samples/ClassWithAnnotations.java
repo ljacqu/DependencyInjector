@@ -9,7 +9,7 @@ public class ClassWithAnnotations {
     private long duration;
 
     @Inject
-    ClassWithAnnotations(@Size int size, GammaService gammaService, @Duration long duration) {
+    ClassWithAnnotations(@Size("box") int size, GammaService gammaService, @Duration long duration) {
         this.size = size;
         this.gammaService = gammaService;
         this.duration = duration;

@@ -1,22 +1,17 @@
 package ch.jalu.injector;
 
-import ch.jalu.injector.exceptions.AnnotationNotAllowedException;
+import ch.jalu.injector.annotationhandlers.AnnotationHandler;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.instantiation.Instantiation;
 import ch.jalu.injector.utils.InjectorUtils;
 import ch.jalu.injector.utils.ReflectionUtils;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Dependency injector implementation: initializes and injects classes.
@@ -30,17 +25,16 @@ import java.util.Set;
 public class InjectorImpl implements Injector {
 
     protected final Map<Class<?>, Object> objects;
-    protected String[] ALLOWED_PACKAGES;
+    protected InjectorConfig config;
 
     /**
      * Constructor.
      *
-     * @param allowedPackages list of allowed packages. Only classes whose package
-     *        starts with any of the given entries will be instantiated
+     * @param config injector configuration
      * @see InjectorBuilder
      */
-    protected InjectorImpl(String... allowedPackages) {
-        ALLOWED_PACKAGES = allowedPackages;
+    protected InjectorImpl(InjectorConfig config) {
+        this.config = config;
         objects = new HashMap<>();
         objects.put(Injector.class, this);
     }
@@ -60,25 +54,12 @@ public class InjectorImpl implements Injector {
     }
 
     @Override
-    public void provide(Class<? extends Annotation> annotation, Object value) {
-        if (objects.containsKey(annotation)) {
-            throw new InjectorException("Annotation @" + annotation.getClass().getSimpleName()
-                + " already registered", annotation);
-        }
-        InjectorUtils.checkNotNull(value, annotation);
-        objects.put(annotation, value);
-    }
-
-    @Override
     public <T> T newInstance(Class<T> clazz) {
         return instantiate(clazz, new HashSet<Class<?>>());
     }
 
     @Override
     public <T> T getIfAvailable(Class<T> clazz) {
-        if (Annotation.class.isAssignableFrom(clazz)) {
-            throw new AnnotationNotAllowedException("Annotations may not be retrieved in this way!", clazz);
-        }
         return clazz.cast(objects.get(clazz));
     }
 
@@ -103,9 +84,7 @@ public class InjectorImpl implements Injector {
      * @return instance or associated value (for annotations)
      */
     private <T> T get(Class<T> clazz, Set<Class<?>> traversedClasses) {
-        if (Annotation.class.isAssignableFrom(clazz)) {
-            throw new AnnotationNotAllowedException("Cannot retrieve annotated elements in this way!", clazz);
-        } else if (objects.containsKey(clazz)) {
+        if (objects.containsKey(clazz)) {
             return clazz.cast(objects.get(clazz));
         }
 
@@ -155,21 +134,28 @@ public class InjectorImpl implements Injector {
      */
     private Object[] resolveDependencies(Instantiation<?> instantiation, Set<Class<?>> traversedClasses) {
         Class<?>[] dependencies = instantiation.getDependencies();
-        Class<?>[] annotations = instantiation.getDependencyAnnotations();
+        Annotation[][] annotations = instantiation.getDependencyAnnotations();
         Object[] values = new Object[dependencies.length];
         for (int i = 0; i < dependencies.length; ++i) {
-            if (annotations[i] == null) {
+            Object object = resolveAnnotation(annotations[i]);
+            if (object == null) {
                 values[i] = get(dependencies[i], traversedClasses);
             } else {
-                Object value = objects.get(annotations[i]);
-                if (value == null) {
-                    throw new InjectorException("Value for field with @" + annotations[i].getSimpleName()
-                        + " must be registered beforehand", annotations[i]);
-                }
-                values[i] = value;
+                values[i] = object;
             }
         }
         return values;
+    }
+
+    @Nullable
+    private Object resolveAnnotation(Annotation... annotations) {
+        Object o;
+        for (AnnotationHandler handler : config.getAnnotationHandlers()) {
+            if ((o = handler.resolveValue(annotations)) != null) {
+                return o;
+            }
+        }
+        return null;
     }
 
     /**
@@ -215,13 +201,11 @@ public class InjectorImpl implements Injector {
             throw new InjectorException("Primitive types must be provided explicitly (or use an annotation).", clazz);
         }
         String packageName = clazz.getPackage().getName();
-        for (String allowedPackage : ALLOWED_PACKAGES) {
-            if (packageName.startsWith(allowedPackage)) {
-                return;
-            }
+        if (!config.isAllowedPackage(packageName)) {
+            throw new InjectorException("Class " + clazz + " with package " + packageName + " is outside of the "
+                + "allowed packages. It must be provided explicitly or the package must be passed to the constructor.",
+                    clazz);
         }
-        throw new InjectorException("Class " + clazz + " with package " + packageName + " is outside of the allowed "
-            + "packages. It must be provided explicitly or the package must be passed to the constructor.", clazz);
     }
 
     /**

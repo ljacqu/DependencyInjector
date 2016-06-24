@@ -1,7 +1,6 @@
 package ch.jalu.injector;
 
 import javax.annotation.Nullable;
-import java.lang.annotation.Annotation;
 import java.util.Collection;
 
 /**
@@ -17,14 +16,6 @@ public interface Injector {
      * @param <T> the type to register the object for
      */
     <T> void register(Class<? super T> clazz, T object);
-
-    /**
-     * Register a value that is identified by an annotation.
-     *
-     * @param annotation the annotation
-     * @param value the value
-     */
-    void provide(Class<? extends Annotation> annotation, Object value);
 
     /**
      * Retrieves or instantiates an object of the given type (singleton scope).
