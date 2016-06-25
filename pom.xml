@@ -94,6 +94,20 @@
             <artifactId>reflections</artifactId>
             <version>0.9.10</version>
             <scope>compile</scope>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>guava</artifactId>
+            		<groupId>com.google.guava</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>javassist</artifactId>
+            		<groupId>org.javassist</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>annotations</artifactId>
+            		<groupId>com.google.code.findbugs</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <!-- Compiler-only dependencies -->
         <dependency>
@@ -107,15 +121,29 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
-            <scope>compile</scope>
-            <optional>true</optional>
+            <scope>provided</scope>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>hamcrest-core</artifactId>
+            		<groupId>org.hamcrest</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>2.0.5-beta</version>
-            <scope>compile</scope>
-            <optional>true</optional>
+            <scope>provided</scope>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>hamcrest-core</artifactId>
+            		<groupId>org.hamcrest</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>objenesis</artifactId>
+            		<groupId>org.objenesis</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <!-- Testing-only dependencies -->
         <dependency>
