@@ -1,4 +1,4 @@
-package ch.jalu.injector.handlers.annotations;
+package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.AllInstances;
 import ch.jalu.injector.Injector;

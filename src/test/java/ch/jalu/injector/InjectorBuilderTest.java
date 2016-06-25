@@ -2,7 +2,7 @@ package ch.jalu.injector;
 
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.annotations.SavedAnnotationsHandler;
+import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
 import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
@@ -98,7 +98,7 @@ public class InjectorBuilderTest {
         // Check presence of handlers and their order
         InjectorConfig config = getConfigFromInjector(injector);
         assertThat(config.getPreConstructHandlers(), contains(implementationClassHandler, packageValidator));
-        assertThat(config.getAnnotationHandlers(), contains(savedAnnotationsHandler, listeningAnnotationHandler));
+        assertThat(config.getDependencyHandlers(), contains(savedAnnotationsHandler, listeningAnnotationHandler));
         assertThat(config.getPostConstructHandlers(), contains(postConstructHandler, throwingPostConstructHandler));
 
         // Request Animal singleton -> mapped to Reptile -> Snake

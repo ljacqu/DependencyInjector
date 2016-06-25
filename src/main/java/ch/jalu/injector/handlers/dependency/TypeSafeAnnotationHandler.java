@@ -1,4 +1,4 @@
-package ch.jalu.injector.handlers.annotations;
+package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.instantiation.DependencyDescription;
@@ -10,7 +10,7 @@ import java.lang.annotation.Annotation;
  * Type safe annotation handler base, which will fire the resolve method only if
  * an annotation of the given type is present.
  */
-public abstract class TypeSafeAnnotationHandler<T extends Annotation> implements AnnotationHandler {
+public abstract class TypeSafeAnnotationHandler<T extends Annotation> implements DependencyHandler {
 
     @Override
     public final Object resolveValue(Injector injector, DependencyDescription dependencyDescription) throws Exception {

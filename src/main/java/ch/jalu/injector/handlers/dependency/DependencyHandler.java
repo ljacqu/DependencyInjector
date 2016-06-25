@@ -1,4 +1,4 @@
-package ch.jalu.injector.handlers.annotations;
+package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.handlers.Handler;
@@ -7,17 +7,12 @@ import ch.jalu.injector.instantiation.DependencyDescription;
 import javax.annotation.Nullable;
 
 /**
- * Allows providing a field with a value based on its annotations.
+ * Handler which can provide dependencies in a custom manner based on the dependency's description.
  * <p>
- * Annotation handlers may use fields marked with {@link javax.inject.Inject} to obtain certain objects:
- * <ul>
- *   <li>String field will be assigned the root package</li>
- *   <li>Injector field will be assigned the injector that uses the annotation handler</li>
- * </ul>
- * Annotation handler fields of any other type annotated with {@link javax.inject.Inject}
- * will cause an exception to be thrown.
+ * For an example implementation, see {@link SavedAnnotationsHandler} which allows classes to declare
+ * dependencies identified by custom annotations.
  */
-public interface AnnotationHandler extends Handler {
+public interface DependencyHandler extends Handler {
 
     /**
      * Resolves the value of a dependency based on the present annotations and the declared type.

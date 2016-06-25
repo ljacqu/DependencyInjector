@@ -1,4 +1,4 @@
-package ch.jalu.injector.handlers.annotations;
+package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.exceptions.InjectorException;
@@ -20,7 +20,7 @@ import java.util.Map;
  *
  * @see #register(Class, Object)
  */
-public class SavedAnnotationsHandler implements AnnotationHandler {
+public class SavedAnnotationsHandler implements DependencyHandler {
 
     private Map<Class<?>, Object> storedValues = new HashMap<>();
 

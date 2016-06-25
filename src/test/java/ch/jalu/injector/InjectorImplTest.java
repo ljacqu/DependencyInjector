@@ -1,7 +1,7 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
-import ch.jalu.injector.handlers.annotations.SavedAnnotationsHandler;
+import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
 import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;

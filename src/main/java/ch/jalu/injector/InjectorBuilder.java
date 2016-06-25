@@ -2,9 +2,9 @@ package ch.jalu.injector;
 
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.annotations.AllInstancesAnnotationHandler;
-import ch.jalu.injector.handlers.annotations.AllTypesAnnotationHandler;
-import ch.jalu.injector.handlers.annotations.AnnotationHandler;
+import ch.jalu.injector.handlers.dependency.AllInstancesAnnotationHandler;
+import ch.jalu.injector.handlers.dependency.AllTypesAnnotationHandler;
+import ch.jalu.injector.handlers.dependency.DependencyHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
@@ -48,7 +48,7 @@ public class InjectorBuilder {
 
     public InjectorBuilder addHandlers(Iterable<Handler> handlers) {
         List<PreConstructHandler> preConstructHandlers = new ArrayList<>();
-        List<AnnotationHandler> annotationHandlers = new ArrayList<>();
+        List<DependencyHandler> dependencyHandlers = new ArrayList<>();
         List<PostConstructHandler> postConstructHandlers = new ArrayList<>();
 
         for (Handler handler : handlers) {
@@ -57,9 +57,9 @@ public class InjectorBuilder {
                 hasKnownSubclass = true;
                 preConstructHandlers.add((PreConstructHandler) handler);
             }
-            if (handler instanceof AnnotationHandler) {
+            if (handler instanceof DependencyHandler) {
                 hasKnownSubclass = true;
-                annotationHandlers.add((AnnotationHandler) handler);
+                dependencyHandlers.add((DependencyHandler) handler);
             }
             if (handler instanceof PostConstructHandler) {
                 hasKnownSubclass = true;
@@ -73,7 +73,7 @@ public class InjectorBuilder {
         }
 
         config.addPreConstructHandlers(preConstructHandlers);
-        config.addAnnotationHandlers(annotationHandlers);
+        config.addAnnotationHandlers(dependencyHandlers);
         config.addPostConstructHandlers(postConstructHandlers);
         return this;
     }

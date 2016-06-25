@@ -1,7 +1,7 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.handlers.annotations.AnnotationHandler;
+import ch.jalu.injector.handlers.dependency.DependencyHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
 import ch.jalu.injector.instantiation.DependencyDescription;
@@ -173,7 +173,7 @@ public class InjectorImpl implements Injector {
     @Nullable
     private Object resolveByAnnotation(DependencyDescription dependencyDescription) {
         Object o;
-        for (AnnotationHandler handler : config.getAnnotationHandlers()) {
+        for (DependencyHandler handler : config.getDependencyHandlers()) {
             try {
                 if ((o = handler.resolveValue(this, dependencyDescription)) != null) {
                     return o;
