@@ -7,6 +7,9 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Functionality for constructor injection.
@@ -20,13 +23,16 @@ public class ConstructorInjection<T> implements Instantiation<T> {
     }
 
     @Override
-    public Class<?>[] getDependencies() {
-        return constructor.getParameterTypes();
-    }
+    public List<DependencyDescription> getDependencies() {
+        Class<?>[] parameters = constructor.getParameterTypes();
+        Type[] genericTypes = constructor.getGenericParameterTypes();
+        Annotation[][] annotations = constructor.getParameterAnnotations();
 
-    @Override
-    public Annotation[][] getDependencyAnnotations() {
-        return constructor.getParameterAnnotations();
+        List<DependencyDescription> dependencies = new ArrayList<>(parameters.length);
+        for (int i = 0; i < parameters.length; ++i) {
+            dependencies.add(new DependencyDescription(parameters[i], genericTypes[i], annotations[i]));
+        }
+        return dependencies;
     }
 
     @Override
@@ -44,7 +50,6 @@ public class ConstructorInjection<T> implements Instantiation<T> {
             }
         };
     }
-
 
     /**
      * Gets the first found constructor annotated with {@link Inject} of the given class

@@ -52,13 +52,21 @@ public class InjectorBuilder {
         List<PostConstructHandler> postConstructHandlers = new ArrayList<>();
 
         for (Handler handler : handlers) {
+            boolean hasKnownSubclass = false;
             if (handler instanceof PreConstructHandler) {
+                hasKnownSubclass = true;
                 preConstructHandlers.add((PreConstructHandler) handler);
-            } else if (handler instanceof AnnotationHandler) {
+            }
+            if (handler instanceof AnnotationHandler) {
+                hasKnownSubclass = true;
                 annotationHandlers.add((AnnotationHandler) handler);
-            } else if (handler instanceof PostConstructHandler) {
+            }
+            if (handler instanceof PostConstructHandler) {
+                hasKnownSubclass = true;
                 postConstructHandlers.add((PostConstructHandler) handler);
-            } else {
+            }
+
+            if (!hasKnownSubclass) {
                 throw new InjectorException(
                     "Unknown Handler type. Handlers must implement a provided subtype", handler.getClass());
             }

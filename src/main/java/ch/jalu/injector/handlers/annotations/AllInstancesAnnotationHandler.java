@@ -2,9 +2,13 @@ package ch.jalu.injector.handlers.annotations;
 
 import ch.jalu.injector.AllInstances;
 import ch.jalu.injector.Injector;
+import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.instantiation.DependencyDescription;
 import ch.jalu.injector.utils.InjectorUtils;
+import ch.jalu.injector.utils.ReflectionUtils;
 import org.reflections.Reflections;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -25,20 +29,30 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Object[] resolveValueSafely(Injector injector, Class<?> clazz, AllInstances annotation) {
-        // TODO: Implement detection of cyclic dependencies
-        InjectorUtils.checkNotNull(annotation.value(), AllInstances.class);
-        // Eclipse complains about Set<Class<? extends ?>>, so we need to cast it to Object first. Should be safe.
-        Set<Class<?>> subTypes = (Set<Class<?>>) (Object) reflections.getSubTypesOf(annotation.value());
+    public Object resolveValueSafely(Injector injector, AllInstances annotation,
+                                       DependencyDescription dependencyDescription) {
+        // The raw type, e.g. List or array
+        final Class<?> rawType = dependencyDescription.getType();
+        // The type of the collection, e.g. String for List<String> or String[]
+        final Class<?> genericType = ReflectionUtils.getGenericClass(rawType, dependencyDescription.getGenericType());
 
-        Object[] objects = new Object[subTypes.size()];
-        int i = 0;
-        for (Class<?> subType : subTypes) {
-            ++i;
-            objects[i] = injector.getSingleton(subType);
+        if (genericType == null) {
+            throw new InjectorException("Unsupported dependency of type '" + rawType
+                + "' annotated with @AllInstances. (Or did you forget the generic type?)", rawType);
         }
-        return objects;
+
+        // TODO: Implement detection of cyclic dependencies
+        // Eclipse complains about Set<Class<? extends ?>>, so we need to cast it to Object first. Should be safe.
+        @SuppressWarnings("unchecked")
+        Set<Class<?>> subTypes = (Set<Class<?>>) (Object) reflections.getSubTypesOf(genericType);
+        Set<Object> instances = new HashSet<>(subTypes.size());
+
+        for (Class<?> type : subTypes) {
+            if (InjectorUtils.canInstantiate(type)) {
+                instances.add(injector.getSingleton(type));
+            }
+        }
+        return ReflectionUtils.toSuitableCollectionType(rawType, instances);
     }
 
 }

@@ -6,9 +6,10 @@ import ch.jalu.injector.utils.ReflectionUtils;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Fallback instantiation method for classes with an accessible no-args constructor
@@ -23,13 +24,8 @@ public class InstantiationFallback<T> implements Instantiation<T> {
     }
 
     @Override
-    public Class<?>[] getDependencies() {
-        return new Class<?>[0];
-    }
-
-    @Override
-    public Annotation[][] getDependencyAnnotations() {
-        return new Annotation[0][];
+    public List<DependencyDescription> getDependencies() {
+        return new ArrayList<>();
     }
 
     @Override

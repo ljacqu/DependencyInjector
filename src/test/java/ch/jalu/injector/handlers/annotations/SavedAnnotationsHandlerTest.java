@@ -1,6 +1,7 @@
 package ch.jalu.injector.handlers.annotations;
 
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.instantiation.DependencyDescription;
 import ch.jalu.injector.samples.Duration;
 import ch.jalu.injector.samples.Size;
 import org.junit.Test;
@@ -26,10 +27,11 @@ public class SavedAnnotationsHandlerTest {
         Annotation[] annotations = {
                 newSizeAnnotation("value"), newDurationAnnotation()
         };
+        DependencyDescription dependencyDescription = new DependencyDescription(null, null, annotations);
 
         // when
-        // Injector & Class<?> param not needed -> null
-        Object result = savedAnnotationsHandler.resolveValue(null, null, annotations);
+        // Injector param not needed -> null
+        Object result = savedAnnotationsHandler.resolveValue(null, dependencyDescription);
 
         // then
         assertThat(result, equalTo(object));
@@ -41,11 +43,12 @@ public class SavedAnnotationsHandlerTest {
         Annotation[] annotations = {
             newSizeAnnotation("value"), newDurationAnnotation()
         };
+        DependencyDescription dependencyDescription = new DependencyDescription(null, null, annotations);
         // register some object under another annotation for the heck of it
         savedAnnotationsHandler.register(Test.class, new Object());
 
         // when
-        Object result = savedAnnotationsHandler.resolveValue(null, null, annotations);
+        Object result = savedAnnotationsHandler.resolveValue(null, dependencyDescription);
 
         // then
         assertThat(result, nullValue());

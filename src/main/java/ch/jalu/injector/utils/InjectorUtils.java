@@ -3,6 +3,7 @@ package ch.jalu.injector.utils;
 import ch.jalu.injector.exceptions.InjectorException;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Modifier;
 
 /**
  * Class with simple utility methods.
@@ -57,5 +58,9 @@ public final class InjectorUtils {
             }
         }
         return null;
+    }
+
+    public static boolean canInstantiate(Class<?> clazz) {
+        return !clazz.isEnum() && !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers());
     }
 }

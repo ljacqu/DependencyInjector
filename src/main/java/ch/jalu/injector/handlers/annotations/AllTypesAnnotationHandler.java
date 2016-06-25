@@ -2,7 +2,12 @@ package ch.jalu.injector.handlers.annotations;
 
 import ch.jalu.injector.AllTypes;
 import ch.jalu.injector.Injector;
+import ch.jalu.injector.instantiation.DependencyDescription;
+import ch.jalu.injector.utils.InjectorUtils;
+import ch.jalu.injector.utils.ReflectionUtils;
 import org.reflections.Reflections;
+
+import java.util.Set;
 
 /**
  * Annotation handler for {@link AllTypes}. Dependencies with this annotation will be
@@ -22,7 +27,12 @@ public class AllTypesAnnotationHandler extends TypeSafeAnnotationHandler<AllType
     }
 
     @Override
-    public Object[] resolveValueSafely(Injector injector, Class<?> type, AllTypes annotation) {
-        return reflections.getSubTypesOf(annotation.value()).toArray();
+    public Object resolveValueSafely(Injector injector, AllTypes annotation,
+                                     DependencyDescription dependencyDescription) {
+        InjectorUtils.checkNotNull(annotation.value(), "Annotation value may not be null", AllTypes.class);
+        Set<?> subTypes = reflections.getSubTypesOf(annotation.value());
+
+        Class<?> rawType = dependencyDescription.getType();
+        return ReflectionUtils.toSuitableCollectionType(rawType, subTypes);
     }
 }

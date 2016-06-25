@@ -5,9 +5,9 @@ import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.InstantiationFallbackClasses;
 import org.junit.Test;
 
-import java.lang.annotation.Annotation;
+import java.util.List;
 
-import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -37,12 +37,10 @@ public class InstantiationFallbackTest {
             InstantiationFallback.provide(InstantiationFallbackClasses.FallbackClass.class).get();
 
         // when
-        Class<?>[] dependencies = instantiation.getDependencies();
-        Annotation[][] annotations = instantiation.getDependencyAnnotations();
+        List<DependencyDescription> dependencies = instantiation.getDependencies();
 
         // then
-        assertThat(dependencies, emptyArray());
-        assertThat(annotations, emptyArray());
+        assertThat(dependencies, empty());
     }
 
     @Test(expected = InjectorException.class)

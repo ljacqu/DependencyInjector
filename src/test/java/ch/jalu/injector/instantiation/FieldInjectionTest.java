@@ -11,15 +11,18 @@ import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.InvalidStaticFieldInjection;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Size;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
+import java.util.List;
 
 import static ch.jalu.injector.TestUtils.annotationOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -30,25 +33,22 @@ import static org.junit.Assert.assertThat;
 public class FieldInjectionTest {
 
     @Test
-    @SuppressWarnings("unchecked")
     public void shouldReturnDependencies() {
         // given
         FieldInjection<FieldInjectionWithAnnotations> injection =
             FieldInjection.provide(FieldInjectionWithAnnotations.class).get();
 
         // when
-        Class<?>[] dependencies = injection.getDependencies();
-        Annotation[][] annotations = injection.getDependencyAnnotations();
+        List<DependencyDescription> dependencies = injection.getDependencies();
 
         // then
-        assertThat(dependencies, arrayContaining(BetaManager.class, int.class, long.class, ClassWithAnnotations.class));
+        assertThat(dependencies, hasSize(4));
+        assertDependencyEqualTo(dependencies.get(0), BetaManager.class, Inject.class);
+        assertDependencyEqualTo(dependencies.get(1), int.class, Inject.class, Size.class);
+        assertDependencyEqualTo(dependencies.get(2), long.class, Duration.class, Inject.class);
+        assertDependencyEqualTo(dependencies.get(3), ClassWithAnnotations.class, Inject.class);
 
-        assertThat(annotations, arrayWithSize(4));
-        assertThat(annotations[0], arrayContaining(annotationOf(Inject.class)));
-        assertThat(annotations[1], arrayContaining(annotationOf(Inject.class), annotationOf(Size.class)));
-        assertThat(((Size) annotations[1][1]).value(), equalTo("chest"));
-        assertThat(annotations[2], arrayContaining(annotationOf(Duration.class), annotationOf(Inject.class)));
-        assertThat(annotations[3], arrayContaining(annotationOf(Inject.class)));
+        assertThat(((Size) dependencies.get(1).getAnnotations()[1]).value(), equalTo("chest"));
     }
 
     @Test
@@ -123,6 +123,17 @@ public class FieldInjectionTest {
 
         // then
         assertThat(injection, nullValue());
+    }
+
+    @SafeVarargs
+    private static void assertDependencyEqualTo(DependencyDescription dependency, Class<?> type,
+                                                Class<? extends Annotation>... annotations) {
+        assertThat(dependency.getType(), Matchers.<Class<?>>equalTo(type));
+        assertThat(dependency.getAnnotations(), arrayWithSize(annotations.length));
+
+        for (int i = 0; i < annotations.length; ++i) {
+            assertThat(dependency.getAnnotations()[i], annotationOf(annotations[i]));
+        }
     }
 
 

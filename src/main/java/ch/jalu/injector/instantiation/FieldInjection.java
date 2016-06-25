@@ -6,7 +6,6 @@ import ch.jalu.injector.utils.ReflectionUtils;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -28,21 +27,13 @@ public class FieldInjection<T> implements Instantiation<T> {
     }
 
     @Override
-    public Class<?>[] getDependencies() {
-        Class<?>[] types = new Class<?>[fields.length];
-        for (int i = 0; i < fields.length; ++i) {
-            types[i] = fields[i].getType();
+    public List<DependencyDescription> getDependencies() {
+        List<DependencyDescription> dependencies = new ArrayList<>(fields.length);
+        for (Field field : fields) {
+            dependencies.add(new DependencyDescription(
+                field.getType(), field.getGenericType(), field.getAnnotations()));
         }
-        return types;
-    }
-
-    @Override
-    public Annotation[][] getDependencyAnnotations() {
-        Annotation[][] annotations = new Annotation[fields.length][];
-        for (int i = 0; i < fields.length; ++i) {
-            annotations[i] = fields[i].getDeclaredAnnotations();
-        }
-        return annotations;
+        return dependencies;
     }
 
     @Override

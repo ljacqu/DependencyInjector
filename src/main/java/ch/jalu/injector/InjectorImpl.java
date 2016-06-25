@@ -4,13 +4,12 @@ import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.annotations.AnnotationHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
+import ch.jalu.injector.instantiation.DependencyDescription;
 import ch.jalu.injector.instantiation.Instantiation;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -106,7 +105,9 @@ public class InjectorImpl implements Injector {
             }
         }
 
-        validateInstantiable(mappedClass);
+        if (!InjectorUtils.canInstantiate(mappedClass)) {
+            throw new InjectorException("Class " + clazz.getSimpleName() + " cannot be instantiated", clazz);
+        }
 
         // Add the clazz to the list of traversed classes in a new Set, so each path we take has its own Set.
         traversedClasses = new HashSet<>(traversedClasses);
@@ -156,26 +157,25 @@ public class InjectorImpl implements Injector {
      * @return array with the parameters to use in the constructor
      */
     private Object[] resolveDependencies(Instantiation<?> instantiation, Set<Class<?>> traversedClasses) {
-        Class<?>[] dependencies = instantiation.getDependencies();
-        Annotation[][] annotations = instantiation.getDependencyAnnotations();
-        Object[] values = new Object[dependencies.length];
-        for (int i = 0; i < dependencies.length; ++i) {
-            Object object = resolveAnnotation(dependencies[i], annotations[i]);
-            if (object == null) {
-                values[i] = get(dependencies[i], traversedClasses);
-            } else {
-                values[i] = object;
-            }
+        List<DependencyDescription> dependencies = instantiation.getDependencies();
+        Object[] values = new Object[dependencies.size()];
+        for (int i = 0; i < dependencies.size(); ++i) {
+            DependencyDescription dependency = dependencies.get(i);
+            Object object = resolveByAnnotation(dependency);
+
+            values[i] = (object == null)
+                ? get(dependency.getType(), traversedClasses)
+                : object;
         }
         return values;
     }
 
     @Nullable
-    private Object resolveAnnotation(Class<?> type, Annotation... annotations) {
+    private Object resolveByAnnotation(DependencyDescription dependencyDescription) {
         Object o;
         for (AnnotationHandler handler : config.getAnnotationHandlers()) {
             try {
-                if ((o = handler.resolveValue(this, type, annotations)) != null) {
+                if ((o = handler.resolveValue(this, dependencyDescription)) != null) {
                     return o;
                 }
             } catch (Exception e) {
@@ -206,19 +206,14 @@ public class InjectorImpl implements Injector {
      * @param dependencies the dependencies of the class
      * @param traversedClasses the collection of traversed classes
      */
-    private static void validateInjectionHasNoCircularDependencies(Class<?>[] dependencies,
+    private static void validateInjectionHasNoCircularDependencies(List<DependencyDescription> dependencies,
                                                                    Set<Class<?>> traversedClasses) {
-        for (Class<?> clazz : dependencies) {
+        for (DependencyDescription dependency : dependencies) {
+            Class<?> clazz = dependency.getType();
             if (traversedClasses.contains(clazz)) {
                 throw new InjectorException("Found cyclic dependency - already traversed '" + clazz
                     + "' (full traversal list: " + traversedClasses + ")", clazz);
             }
-        }
-    }
-
-    private static void validateInstantiable(Class<?> clazz) {
-        if (clazz.isEnum() || clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
-            throw new InjectorException("Class " + clazz.getSimpleName() + " cannot be instantiated", clazz);
         }
     }
 

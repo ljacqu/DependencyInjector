@@ -2,9 +2,9 @@ package ch.jalu.injector.handlers.annotations;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.handlers.Handler;
+import ch.jalu.injector.instantiation.DependencyDescription;
 
 import javax.annotation.Nullable;
-import java.lang.annotation.Annotation;
 
 /**
  * Allows providing a field with a value based on its annotations.
@@ -28,12 +28,11 @@ public interface AnnotationHandler extends Handler {
      * dependency {@code type}, unless you want to show a specific error message.
      *
      * @param injector the injector
-     * @param type the dependency's type
-     * @param annotations the annotations of the dependency
+     * @param dependencyDescription description of the dependency
      * @return the resolved value, or null if not applicable
      * @throws Exception for invalid usage of annotation
      */
     @Nullable
-    Object resolveValue(Injector injector, Class<?> type, Annotation... annotations) throws Exception;
+    Object resolveValue(Injector injector, DependencyDescription dependencyDescription) throws Exception;
 
 }

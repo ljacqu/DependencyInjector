@@ -9,15 +9,15 @@ import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.InvalidClass;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Size;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import java.lang.annotation.Annotation;
+import java.util.List;
 
 import static ch.jalu.injector.TestUtils.annotationOf;
 import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -28,23 +28,19 @@ import static org.junit.Assert.assertThat;
 public class ConstructorInjectionTest {
 
     @Test
-    @SuppressWarnings("unchecked")
     public void shouldReturnDependencies() {
         // given
         Instantiation<ClassWithAnnotations> injection = ConstructorInjection.provide(ClassWithAnnotations.class).get();
 
         // when
-        Class<?>[] dependencies = injection.getDependencies();
-        Annotation[][] annotations = injection.getDependencyAnnotations();
+        List<DependencyDescription> dependencies = injection.getDependencies();
 
         // then
-        assertThat(dependencies, arrayContaining(int.class, GammaService.class, long.class));
-
-        assertThat(annotations, arrayWithSize(3));
-        assertThat(annotations[0], arrayContaining(annotationOf(Size.class)));
-        assertThat(((Size) annotations[0][0]).value(), equalTo("box"));
-        assertThat(annotations[1], emptyArray());
-        assertThat(annotations[2], arrayContaining(annotationOf(Duration.class)));
+        assertThat(dependencies, hasSize(3));
+        assertDependencyEqualTo(dependencies.get(0), int.class, Size.class);
+        assertDependencyEqualTo(dependencies.get(1), GammaService.class, null);
+        assertDependencyEqualTo(dependencies.get(2), long.class, Duration.class);
+        assertThat(((Size) dependencies.get(0).getAnnotations()[0]).value(), equalTo("box"));
     }
 
     @Test
@@ -90,5 +86,14 @@ public class ConstructorInjectionTest {
 
         // then
         assertThat(injection, nullValue());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void assertDependencyEqualTo(DependencyDescription dependency,
+                                                Class<?> type, Class<?> annotationType) {
+        assertThat(dependency.getType(), Matchers.<Class<?>>equalTo(type));
+        if (annotationType != null) {
+            assertThat(dependency.getAnnotations(), arrayContaining(annotationOf(annotationType)));
+        }
     }
 }

@@ -56,28 +56,13 @@ public class InjectorConfig {
         this.preConstructHandlers.addAll(preConstructHandlers);
     }
 
-    public void setPreConstructHandlers(List<? extends PreConstructHandler> preConstructHandlers) {
-        InjectorUtils.checkNotNull(preConstructHandlers, null);
-        this.preConstructHandlers = new ArrayList<>(preConstructHandlers);
-    }
-
     public void addAnnotationHandlers(List<? extends AnnotationHandler> annotationHandlers) {
         InjectorUtils.checkNotNull(annotationHandlers, null);
         this.annotationHandlers.addAll(annotationHandlers);
     }
 
-    public void setAnnotationHandlers(List<? extends AnnotationHandler> annotationHandlers) {
-        InjectorUtils.checkNotNull(annotationHandlers, null);
-        this.annotationHandlers = new ArrayList<>(annotationHandlers);
-    }
-
     public void addPostConstructHandlers(List<? extends PostConstructHandler> postConstructHandlers) {
         InjectorUtils.checkNotNull(postConstructHandlers, null);
         this.postConstructHandlers.addAll(postConstructHandlers);
-    }
-
-    public void setPostConstructHandlers(List<? extends PostConstructHandler> postConstructHandlers) {
-        InjectorUtils.checkNotNull(postConstructHandlers, null);
-        this.postConstructHandlers = new ArrayList<>(postConstructHandlers);
     }
 }

@@ -1,6 +1,7 @@
 package ch.jalu.injector.testing.runner;
 
 import ch.jalu.injector.InjectionHelper;
+import ch.jalu.injector.instantiation.DependencyDescription;
 import ch.jalu.injector.instantiation.Instantiation;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.junit.runners.model.FrameworkField;
@@ -44,12 +45,12 @@ class InjectionResolver {
      * @return the resolved dependencies
      */
     private Object[] resolveDependencies(Instantiation<?> injection) {
-        final Class<?>[] dependencies = injection.getDependencies();
-        final Annotation[][] annotations = injection.getDependencyAnnotations();
-        Object[] resolvedValues = new Object[dependencies.length];
-        for (int i = 0; i < dependencies.length; ++i) {
-            Object dependency = (annotations[i] == null)
-                ? resolveDependency(dependencies[i])
+        final List<DependencyDescription> dependencies = injection.getDependencies();
+        Object[] resolvedValues = new Object[dependencies.size()];
+        for (int i = 0; i < dependencies.size(); ++i) {
+            Annotation[] annotations = dependencies.get(i).getAnnotations();
+            Object dependency = (annotations.length > 0)
+                ? resolveDependency(dependencies.get(i).getType())
                 : resolveAnnotation(annotations[i]);
             resolvedValues[i] = dependency;
         }
