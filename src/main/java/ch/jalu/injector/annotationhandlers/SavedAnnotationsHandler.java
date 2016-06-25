@@ -34,7 +34,7 @@ public class SavedAnnotationsHandler implements AnnotationHandler {
     }
 
     /**
-     * Register a value for the given annotation.
+     * Registers a value for the given annotation.
      *
      * @param annotation the annotation to identify the value by
      * @param object the value to register

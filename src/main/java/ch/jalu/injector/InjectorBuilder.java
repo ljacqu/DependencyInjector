@@ -16,12 +16,11 @@ public class InjectorBuilder {
     }
 
     /**
-     * Sets the packages in which classes may be instantiated. Supply your project's package(s) so in case
+     * Sets the package under which classes may be instantiated. Supply your project's package so in case
      * the injector stumbles upon a class with external dependencies, it will throw an exception instead of
      * trying to instantiate external classes (typically not desired).
      * <p>
-     * <b>You must supply packages</b>, otherwise the injector will throw an exception for any class it is
-     * requested to instantiate. To allow instantiation regardless of package, supply an empty string (not recommended).
+     * To allow instantiation regardless of package, pass an empty string (not recommended).
      *
      * @param rootPackage the root package of the application
      * @return the builder

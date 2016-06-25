@@ -31,7 +31,7 @@ public class ConstructorInjection<T> implements Instantiation<T> {
 
     @Override
     public T instantiateWith(Object... values) {
-        validateNoNullValues(values);
+        InjectorUtils.checkNotNull(values, constructor.getDeclaringClass());
         return ReflectionUtils.newInstance(constructor, values);
     }
 
@@ -64,12 +64,6 @@ public class ConstructorInjection<T> implements Instantiation<T> {
             }
         }
         return null;
-    }
-
-    private void validateNoNullValues(Object[] array) {
-        for (Object entry : array) {
-            InjectorUtils.checkNotNull(entry, constructor.getDeclaringClass());
-        }
     }
 
 }

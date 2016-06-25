@@ -148,23 +148,6 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldThrowForSecondAnnotationRegistration() {
-        // given
-        savedAnnotationsHandler.register(Size.class, 12);
-
-        // when / then
-        expectInjectorException("already registered", Size.class);
-        savedAnnotationsHandler.register(Size.class, -8);
-    }
-
-    @Test
-    public void shouldThrowForNullValueAssociatedToAnnotation() {
-        // given / when / then
-        expectInjectorException("may not be null", Duration.class);
-        savedAnnotationsHandler.register(Duration.class, null);
-    }
-
-    @Test
     public void shouldThrowForRegisterWithNull() {
         // given / when / then
         expectInjectorException("may not be null", String.class);
