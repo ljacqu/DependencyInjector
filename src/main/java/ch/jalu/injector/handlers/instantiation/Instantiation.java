@@ -1,4 +1,4 @@
-package ch.jalu.injector.instantiation;
+package ch.jalu.injector.handlers.instantiation;
 
 import java.util.List;
 

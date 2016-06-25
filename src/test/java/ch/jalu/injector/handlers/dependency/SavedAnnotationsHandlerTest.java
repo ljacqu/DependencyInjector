@@ -1,7 +1,7 @@
 package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.samples.Duration;
 import ch.jalu.injector.samples.Size;
 import org.junit.Test;

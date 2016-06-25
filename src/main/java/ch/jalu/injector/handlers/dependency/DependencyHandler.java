@@ -2,7 +2,7 @@ package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 
 import javax.annotation.Nullable;
 

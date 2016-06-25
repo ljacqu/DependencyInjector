@@ -2,7 +2,6 @@ package ch.jalu.injector;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
-import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
 import ch.jalu.injector.samples.BetaManager;
@@ -17,15 +16,17 @@ import ch.jalu.injector.samples.InvalidClass;
 import ch.jalu.injector.samples.InvalidStaticFieldInjection;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Reloadable;
+import ch.jalu.injector.samples.SampleInstantiationImpl;
 import ch.jalu.injector.samples.Size;
+import ch.jalu.injector.utils.ReflectionUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
+import java.util.Collections;
 
-import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -41,8 +42,10 @@ public class InjectorImplTest {
 
     private final String ALLOWED_PACKAGE = getClass().getPackage().getName() + ".samples";
 
-    private SavedAnnotationsHandler savedAnnotationsHandler = new SavedAnnotationsHandler();
+
     private Injector injector;
+    private InjectorConfig config;
+    private SavedAnnotationsHandler savedAnnotationsHandler = new SavedAnnotationsHandler();
 
     // As we test many cases that throw exceptions, we use JUnit's ExpectedException Rule
     // to make sure that we receive the exception we expect
@@ -51,11 +54,20 @@ public class InjectorImplTest {
     private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
 
     @Before
-    public void setInitializer() {
-        InjectorConfig config = new InjectorConfig();
-        config.addPreConstructHandlers(singletonList(new PreConstructPackageValidator(ALLOWED_PACKAGE)));
-        config.addAnnotationHandlers(singletonList(savedAnnotationsHandler));
-        injector = new InjectorImpl(config);
+    public void initialize() throws NoSuchFieldException {
+        injector = new InjectorBuilder()
+            .addHandlers(savedAnnotationsHandler)
+            .addDefaultHandlers(ALLOWED_PACKAGE)
+            .create();
+
+        // Since this is a test for the concrete implementation, a quick check to make sure we get the class we expect
+        // Should the implementation ever change in the future, we'll be alerted that this test needs updating
+        if (!(injector instanceof InjectorImpl)) {
+            throw new IllegalStateException("Injector from builder is not of type InjectorImpl");
+        }
+
+        config = (InjectorConfig) ReflectionUtils
+            .getFieldValue(injector.getClass().getDeclaredField("config"), injector);
         injector.register(ProvidedClass.class, new ProvidedClass(""));
     }
 
@@ -114,7 +126,7 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForFieldInjectionWithoutNoArgsConstructor() {
         // given / when / then
-        exceptionCatcher.expect("Did not find injection method", BadFieldInjection.class);
+        exceptionCatcher.expect("Did not find instantiation method", BadFieldInjection.class);
         injector.getSingleton(BadFieldInjection.class);
     }
 
@@ -247,4 +259,30 @@ public class InjectorImplTest {
         assertThat(children3, hasSize(5)); // Alpha, Beta, Gamma + ProvidedClass + Injector
     }
 
+    @Test
+    public void shouldUseCustomInstantiation() {
+        // given
+        // hack: the inline class is not within the allowed packages, so clear the package validator for this test
+        config.getPreConstructHandlers().clear();
+        config.addInstantiationProviders(Collections.singletonList(new SampleInstantiationImpl()));
+
+        // when
+        CustomInstantiationExample example = injector.getSingleton(CustomInstantiationExample.class);
+
+        // then
+        assertThat(example, not(nullValue()));
+    }
+
+    /**
+     * Matches {@link SampleInstantiationImpl}.
+     */
+    private static final class CustomInstantiationExample {
+        private CustomInstantiationExample() {
+            // private constructor = not eligible for instantiation fallback
+        }
+
+        public static CustomInstantiationExample create() {
+            return new CustomInstantiationExample();
+        }
+    }
 }

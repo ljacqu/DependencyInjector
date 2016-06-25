@@ -1,6 +1,10 @@
 package ch.jalu.injector.instantiation;
 
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.InstantiationFallback;
+import ch.jalu.injector.handlers.instantiation.InstantiationFallbackProvider;
 import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.InstantiationFallbackClasses;
 import org.junit.Test;
@@ -17,11 +21,13 @@ import static org.junit.Assert.assertThat;
  */
 public class InstantiationFallbackTest {
 
+    private InstantiationFallbackProvider provider = new InstantiationFallbackProvider();
+
     @Test
     public void shouldInstantiateClass() {
         // given
         Instantiation<InstantiationFallbackClasses.FallbackClass> instantiation =
-            InstantiationFallback.provide(InstantiationFallbackClasses.FallbackClass.class).get();
+            provider.get(InstantiationFallbackClasses.FallbackClass.class);
 
         // when
         InstantiationFallbackClasses.FallbackClass result = instantiation.instantiateWith();
@@ -34,7 +40,7 @@ public class InstantiationFallbackTest {
     public void shouldHaveEmptyDependenciesAndAnnotations() {
         // given
         Instantiation<InstantiationFallbackClasses.FallbackClass> instantiation =
-            InstantiationFallback.provide(InstantiationFallbackClasses.FallbackClass.class).get();
+            provider.get(InstantiationFallbackClasses.FallbackClass.class);
 
         // when
         List<DependencyDescription> dependencies = instantiation.getDependencies();
@@ -47,7 +53,7 @@ public class InstantiationFallbackTest {
     public void shouldThrowIfArgumentsAreSupplied() {
         // given
         Instantiation<InstantiationFallbackClasses.FallbackClass> instantiation =
-            InstantiationFallback.provide(InstantiationFallbackClasses.FallbackClass.class).get();
+            provider.get(InstantiationFallbackClasses.FallbackClass.class);
 
         // when / then
         instantiation.instantiateWith("some argument");
@@ -57,7 +63,7 @@ public class InstantiationFallbackTest {
     public void shouldReturnNullForClassWithInjectMethod() {
         // given / when
         Instantiation<InstantiationFallbackClasses.InvalidInjectOnMethodClass> instantiation =
-            InstantiationFallback.provide(InstantiationFallbackClasses.InvalidInjectOnMethodClass.class).get();
+            provider.get(InstantiationFallbackClasses.InvalidInjectOnMethodClass.class);
 
         // then
         assertThat(instantiation, nullValue());
@@ -67,7 +73,7 @@ public class InstantiationFallbackTest {
     public void shouldReturnNullForMissingNoArgsConstructor() {
         // given / when
         Instantiation<InstantiationFallbackClasses.InvalidFallbackClass> instantiation =
-            InstantiationFallback.provide(InstantiationFallbackClasses.InvalidFallbackClass.class).get();
+            provider.get(InstantiationFallbackClasses.InvalidFallbackClass.class);
 
         // then
         assertThat(instantiation, nullValue());
@@ -76,7 +82,7 @@ public class InstantiationFallbackTest {
     @Test
     public void shouldReturnNullForDifferentInjectionType() {
         // given / when
-        Instantiation<GammaService> instantiation = InstantiationFallback.provide(GammaService.class).get();
+        Instantiation<GammaService> instantiation = provider.get(GammaService.class);
 
         // then
         assertThat(instantiation, nullValue());
@@ -86,7 +92,7 @@ public class InstantiationFallbackTest {
     public void shouldReturnNullForClassWithPostConstruct() {
         // given / when
         Instantiation<InstantiationFallbackClasses.ClassWithPostConstruct> instantiation =
-            InstantiationFallback.provide(InstantiationFallbackClasses.ClassWithPostConstruct.class).get();
+            provider.get(InstantiationFallbackClasses.ClassWithPostConstruct.class);
 
         // then
         assertThat(instantiation, nullValue());

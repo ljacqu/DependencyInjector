@@ -1,14 +1,9 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.instantiation.ConstructorInjection;
-import ch.jalu.injector.instantiation.FieldInjection;
-import ch.jalu.injector.instantiation.Instantiation;
-import ch.jalu.injector.instantiation.InstantiationFallback;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
-import javax.inject.Provider;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
@@ -18,21 +13,6 @@ import java.lang.reflect.Modifier;
 public class InjectionHelper {
 
     private InjectionHelper() {
-    }
-
-    /**
-     * Returns the {@link Instantiation} for the given class, or null if none applicable.
-     *
-     * @param clazz the class to process
-     * @param <T> the class' type
-     * @return injection of the class or null if none detected
-     */
-    @Nullable
-    public static <T> Instantiation<T> getInjection(Class<T> clazz) {
-        return firstNotNull(
-            ConstructorInjection.provide(clazz),
-            FieldInjection.provide(clazz),
-            InstantiationFallback.provide(clazz));
     }
 
     /**
@@ -61,16 +41,5 @@ public class InjectionHelper {
             }
         }
         return postConstructMethod;
-    }
-
-    @SafeVarargs
-    private static <T> Instantiation<T> firstNotNull(Provider<? extends Instantiation<T>>... providers) {
-        for (Provider<? extends Instantiation<T>> provider : providers) {
-            Instantiation<T> object = provider.get();
-            if (object != null) {
-                return object;
-            }
-        }
-        return null;
     }
 }

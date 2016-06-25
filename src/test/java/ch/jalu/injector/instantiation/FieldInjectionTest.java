@@ -1,6 +1,10 @@
 package ch.jalu.injector.instantiation;
 
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.FieldInjection;
+import ch.jalu.injector.handlers.instantiation.FieldInjectionProvider;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
 import ch.jalu.injector.samples.BetaManager;
@@ -28,15 +32,17 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 /**
- * Test for {@link FieldInjection}.
+ * Test for {@link FieldInjection} and {@link FieldInjectionProvider}.
  */
 public class FieldInjectionTest {
+    
+    private FieldInjectionProvider provider = new FieldInjectionProvider();
 
     @Test
     public void shouldReturnDependencies() {
         // given
         FieldInjection<FieldInjectionWithAnnotations> injection =
-            FieldInjection.provide(FieldInjectionWithAnnotations.class).get();
+            provider.get(FieldInjectionWithAnnotations.class);
 
         // when
         List<DependencyDescription> dependencies = injection.getDependencies();
@@ -54,7 +60,7 @@ public class FieldInjectionTest {
     @Test
     public void shouldInstantiateClass() {
         // given
-        FieldInjection<BetaManager> injection = FieldInjection.provide(BetaManager.class).get();
+        FieldInjection<BetaManager> injection = provider.get(BetaManager.class);
         ProvidedClass providedClass = new ProvidedClass("");
         AlphaService alphaService = AlphaService.newInstance(providedClass);
         GammaService gammaService = new GammaService(alphaService);
@@ -70,7 +76,7 @@ public class FieldInjectionTest {
     @Test
     public void shouldProvideNullForImpossibleFieldInjection() {
         // given / when
-        FieldInjection<BadFieldInjection> injection = FieldInjection.provide(BadFieldInjection.class).get();
+        FieldInjection<BadFieldInjection> injection = provider.get(BadFieldInjection.class);
 
         // then
         assertThat(injection, nullValue());
@@ -79,7 +85,7 @@ public class FieldInjectionTest {
     @Test(expected = InjectorException.class)
     public void shouldForwardExceptionDuringInstantiation() {
         // given
-        FieldInjection<ThrowingConstructor> injection = FieldInjection.provide(ThrowingConstructor.class).get();
+        FieldInjection<ThrowingConstructor> injection = provider.get(ThrowingConstructor.class);
 
         // when / when
         injection.instantiateWith(new ProvidedClass(""));
@@ -91,7 +97,7 @@ public class FieldInjectionTest {
         ProvidedClass providedClass = new ProvidedClass("");
         AlphaService alphaService = AlphaService.newInstance(providedClass);
         GammaService gammaService = new GammaService(alphaService);
-        FieldInjection<BetaManager> injection = FieldInjection.provide(BetaManager.class).get();
+        FieldInjection<BetaManager> injection = provider.get(BetaManager.class);
 
         // when / then
         // Correct order is provided, gamma, alpha
@@ -103,7 +109,7 @@ public class FieldInjectionTest {
         // given
         ProvidedClass providedClass = new ProvidedClass("");
         AlphaService alphaService = AlphaService.newInstance(providedClass);
-        FieldInjection<BetaManager> injection = FieldInjection.provide(BetaManager.class).get();
+        FieldInjection<BetaManager> injection = provider.get(BetaManager.class);
 
         // when / then
         // Correct order is provided, gamma, alpha
@@ -113,13 +119,13 @@ public class FieldInjectionTest {
     @Test(expected = InjectorException.class)
     public void shouldThrowForStaticFieldInjection() {
         // given / when / then
-        FieldInjection.provide(InvalidStaticFieldInjection.class).get();
+        provider.get(InvalidStaticFieldInjection.class);
     }
 
     @Test
     public void shouldNotReturnFieldInjectionForZeroInjectFields() {
         // given / when
-        Instantiation<NoInjectionClass> injection = FieldInjection.provide(NoInjectionClass.class).get();
+        Instantiation<NoInjectionClass> injection = provider.get(NoInjectionClass.class);
 
         // then
         assertThat(injection, nullValue());

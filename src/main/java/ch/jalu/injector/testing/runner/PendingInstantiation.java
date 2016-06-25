@@ -1,6 +1,6 @@
 package ch.jalu.injector.testing.runner;
 
-import ch.jalu.injector.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 
 import java.lang.reflect.Field;
 

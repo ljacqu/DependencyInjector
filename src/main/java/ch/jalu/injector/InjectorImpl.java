@@ -2,10 +2,11 @@ package ch.jalu.injector;
 
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
+import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
-import ch.jalu.injector.instantiation.DependencyDescription;
-import ch.jalu.injector.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import javax.annotation.Nullable;
@@ -127,14 +128,9 @@ public class InjectorImpl implements Injector {
      * @return the instantiated object
      */
     private <T> T instantiate(Class<T> clazz, Set<Class<?>> traversedClasses) {
-        Instantiation<T> instantiation = InjectionHelper.getInjection(clazz);
-        if (instantiation == null) {
-            throw new InjectorException("Did not find injection method for " + clazz + ". Make sure you have "
-                + "a constructor with @Inject or fields with @Inject. Fields with @Inject require "
-                + "the default constructor", clazz);
-        }
-
+        Instantiation<T> instantiation = getInstantiation(clazz);
         validateInjectionHasNoCircularDependencies(instantiation.getDependencies(), traversedClasses);
+
         Object[] dependencies = resolveDependencies(instantiation, traversedClasses);
         T object = instantiation.instantiateWith(dependencies);
         for (PostConstructHandler postConstructHandler : config.getPostConstructHandlers()) {
@@ -146,6 +142,24 @@ public class InjectorImpl implements Injector {
         }
 
         return object;
+    }
+
+    private <T> Instantiation<T> getInstantiation(Class<T> clazz) {
+        for (InstantiationProvider provider : config.getInstantiationProviders()) {
+            Instantiation<T> instantiation = provider.get(clazz);
+            if (instantiation != null) {
+                return instantiation;
+            }
+        }
+
+        if (config.getInstantiationProviders().size() == 0) {
+            throw new InjectorException("You did not register any instantiation methods!",
+                InstantiationProvider.class);
+        }
+        throw new InjectorException("Did not find instantiation method for '" + clazz + "'. Make sure your class "
+            + "conforms to one of the registered instantiations. If default: make sure you have "
+            + "a constructor with @Inject or fields with @Inject. Fields with @Inject require "
+            + "the default constructor", clazz);
     }
 
     /**

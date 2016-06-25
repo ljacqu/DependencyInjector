@@ -3,7 +3,7 @@ package ch.jalu.injector.handlers.dependency;
 import ch.jalu.injector.AllInstances;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.utils.InjectorUtils;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.reflections.Reflections;

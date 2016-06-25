@@ -1,6 +1,7 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
+import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
 import ch.jalu.injector.utils.InjectorUtils;
@@ -15,6 +16,7 @@ public class InjectorConfig {
 
     // Handlers
     private List<PreConstructHandler> preConstructHandlers = new ArrayList<>();
+    private List<InstantiationProvider> instantiationProviders = new ArrayList<>();
     private List<DependencyHandler> dependencyHandlers = new ArrayList<>();
     private List<PostConstructHandler> postConstructHandlers = new ArrayList<>();
 
@@ -34,9 +36,18 @@ public class InjectorConfig {
     }
 
     /**
+     * Returns all registered {@link InstantiationProvider} instances.
+     *
+     * @return instantiation providers
+     */
+    public List<InstantiationProvider> getInstantiationProviders() {
+        return instantiationProviders;
+    }
+
+    /**
      * Returns all registered {@link DependencyHandler} instances.
      *
-     * @return annotation handlers
+     * @return dependency handlers
      */
     public List<DependencyHandler> getDependencyHandlers() {
         return dependencyHandlers;
@@ -56,7 +67,12 @@ public class InjectorConfig {
         this.preConstructHandlers.addAll(preConstructHandlers);
     }
 
-    public void addAnnotationHandlers(List<? extends DependencyHandler> annotationHandlers) {
+    public void addInstantiationProviders(List<? extends InstantiationProvider> instantiationProviders) {
+        InjectorUtils.checkNotNull(instantiationProviders, null);
+        this.instantiationProviders.addAll(instantiationProviders);
+    }
+
+    public void addDependencyHandlers(List<? extends DependencyHandler> annotationHandlers) {
         InjectorUtils.checkNotNull(annotationHandlers, null);
         this.dependencyHandlers.addAll(annotationHandlers);
     }

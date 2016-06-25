@@ -6,6 +6,7 @@ package ch.jalu.injector.handlers;
  * See the implementing interfaces for more information.
  *
  * @see ch.jalu.injector.handlers.preconstruct.PreConstructHandler
+ * @see ch.jalu.injector.handlers.instantiation.InstantiationProvider
  * @see ch.jalu.injector.handlers.dependency.DependencyHandler
  * @see ch.jalu.injector.handlers.postconstruct.PostConstructHandler
  */

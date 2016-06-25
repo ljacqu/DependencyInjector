@@ -1,7 +1,10 @@
 package ch.jalu.injector.testing.runner;
 
-import ch.jalu.injector.InjectionHelper;
-import ch.jalu.injector.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.ConstructorInjectionProvider;
+import ch.jalu.injector.handlers.instantiation.FieldInjectionProvider;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.InstantiationFallbackProvider;
+import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.testing.BeforeInjecting;
 import ch.jalu.injector.testing.InjectDelayed;
 import org.junit.runner.notification.RunNotifier;
@@ -97,10 +100,24 @@ public class DelayedInjectionRunner extends BlockJUnit4ClassRunner {
      * @return the injection
      */
     private static PendingInstantiation getInjection(FrameworkField field) {
-        final Instantiation<?> injection = InjectionHelper.getInjection(field.getType());
+        // TODO #6: needs to be coupled somehow with the injector; for now we do the same logic in here again
+        final Instantiation<?> injection = getInstantiation(field.getType());
         if (injection == null) {
             throw new IllegalStateException("No injection method available for field '" + field.getName() + "'");
         }
         return new PendingInstantiation(field.getField(), injection);
+    }
+
+    private static <T> Instantiation<T> getInstantiation(Class<T> clazz) {
+        InstantiationProvider[] providers = {
+            new ConstructorInjectionProvider(), new FieldInjectionProvider(), new InstantiationFallbackProvider()
+        };
+        for (InstantiationProvider provider : providers) {
+            Instantiation<T> instantation = provider.get(clazz);
+            if (instantation != null) {
+                return instantation;
+            }
+        }
+        return null;
     }
 }

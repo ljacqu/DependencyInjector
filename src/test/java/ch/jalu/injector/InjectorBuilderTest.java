@@ -90,9 +90,11 @@ public class InjectorBuilderTest {
         ThrowingPostConstructHandler throwingPostConstructHandler = new ThrowingPostConstructHandler(Chicken.class);
 
         // Create Injector with all handlers
-        Injector injector = new InjectorBuilder()
+        InjectorBuilder builder = new InjectorBuilder();
+        Injector injector = builder
             .addHandlers(implementationClassHandler, packageValidator, savedAnnotationsHandler,
                          listeningAnnotationHandler, postConstructHandler, throwingPostConstructHandler)
+            .addHandlers(builder.createInstantiationProviders())
             .create();
 
         // Check presence of handlers and their order
@@ -119,6 +121,17 @@ public class InjectorBuilderTest {
         } catch (InjectorException e) {
             // noop
         }
+    }
+
+    @Test(expected = InjectorException.class)
+    public void shouldThrowExceptionForUnknownHandlerType() {
+        // given
+        Handler handler = new UnknownHandler();
+
+        // when
+        new InjectorBuilder().addHandlers(handler);
+
+        // then - expect exception
     }
 
     private static InjectorConfig getConfigFromInjector(Injector injector) throws NoSuchFieldException {

@@ -1,6 +1,10 @@
 package ch.jalu.injector.instantiation;
 
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.handlers.instantiation.ConstructorInjection;
+import ch.jalu.injector.handlers.instantiation.ConstructorInjectionProvider;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.ClassWithAnnotations;
@@ -23,14 +27,16 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 /**
- * Test for {@link ConstructorInjection}.
+ * Test for {@link ConstructorInjection} and {@link ConstructorInjectionProvider}.
  */
 public class ConstructorInjectionTest {
+    
+    private ConstructorInjectionProvider provider = new ConstructorInjectionProvider();
 
     @Test
     public void shouldReturnDependencies() {
         // given
-        Instantiation<ClassWithAnnotations> injection = ConstructorInjection.provide(ClassWithAnnotations.class).get();
+        Instantiation<ClassWithAnnotations> injection = provider.get(ClassWithAnnotations.class);
 
         // when
         List<DependencyDescription> dependencies = injection.getDependencies();
@@ -48,7 +54,7 @@ public class ConstructorInjectionTest {
         // given
         GammaService gammaService = new GammaService(
             AlphaService.newInstance(new ProvidedClass("")));
-        Instantiation<ClassWithAnnotations> injection = ConstructorInjection.provide(ClassWithAnnotations.class).get();
+        Instantiation<ClassWithAnnotations> injection = provider.get(ClassWithAnnotations.class);
 
         // when
         ClassWithAnnotations instance = injection.instantiateWith(-112, gammaService, 19L);
@@ -63,7 +69,7 @@ public class ConstructorInjectionTest {
     @Test(expected = InjectorException.class)
     public void shouldThrowForNullValue() {
         // given
-        Instantiation<ClassWithAnnotations> injection = ConstructorInjection.provide(ClassWithAnnotations.class).get();
+        Instantiation<ClassWithAnnotations> injection = provider.get(ClassWithAnnotations.class);
 
         // when / then
         injection.instantiateWith(-112, null, 12L);
@@ -73,7 +79,7 @@ public class ConstructorInjectionTest {
     public void shouldThrowUponInstantiationError() {
         // given
         AlphaService alphaService = AlphaService.newInstance(new ProvidedClass(""));
-        Instantiation<InvalidClass> injection = ConstructorInjection.provide(InvalidClass.class).get();
+        Instantiation<InvalidClass> injection = provider.get(InvalidClass.class);
 
         // when
         injection.instantiateWith(alphaService, 5);
@@ -82,7 +88,7 @@ public class ConstructorInjectionTest {
     @Test
     public void shouldReturnNullForNoConstructorInjection() {
         // given / when
-        Instantiation<BetaManager> injection = ConstructorInjection.provide(BetaManager.class).get();
+        Instantiation<BetaManager> injection = provider.get(BetaManager.class);
 
         // then
         assertThat(injection, nullValue());

@@ -1,8 +1,8 @@
 package ch.jalu.injector.testing.runner;
 
 import ch.jalu.injector.InjectionHelper;
-import ch.jalu.injector.instantiation.DependencyDescription;
-import ch.jalu.injector.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.TestClass;
