@@ -1,5 +1,6 @@
 package ch.jalu.injector.handlers.annotations;
 
+import ch.jalu.injector.Injector;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.utils.InjectorUtils;
 
@@ -23,7 +24,7 @@ public class SavedAnnotationsHandler implements AnnotationHandler {
     private Map<Class<?>, Object> storedValues = new HashMap<>();
 
     @Override
-    public Object resolveValue(Class<?> type, Annotation... annotations) {
+    public Object resolveValue(Injector injector, Class<?> type, Annotation... annotations) {
         Object o;
         for (Annotation annotation : annotations) {
             if ((o = storedValues.get(annotation.annotationType())) != null) {

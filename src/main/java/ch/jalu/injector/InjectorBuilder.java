@@ -1,8 +1,19 @@
 package ch.jalu.injector;
 
+import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.handlers.Handler;
+import ch.jalu.injector.handlers.annotations.AllInstancesAnnotationHandler;
+import ch.jalu.injector.handlers.annotations.AllTypesAnnotationHandler;
 import ch.jalu.injector.handlers.annotations.AnnotationHandler;
+import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
+import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
+import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
+import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
+import ch.jalu.injector.utils.InjectorUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Configures and creates an {@link Injector}.
@@ -15,29 +26,47 @@ public class InjectorBuilder {
         config = new InjectorConfig();
     }
 
-    /**
-     * Sets the package under which classes may be instantiated. Supply your project's package so in case
-     * the injector stumbles upon a class with external dependencies, it will throw an exception instead of
-     * trying to instantiate external classes (typically not desired).
-     * <p>
-     * To allow instantiation regardless of package, pass an empty string (not recommended).
-     *
-     * @param rootPackage the root package of the application
-     * @return the builder
-     */
-    @Deprecated // Subject to change in future versions
-    public InjectorBuilder setAllowedPackages(String rootPackage) {
-        config.setRootPackage(rootPackage);
-        return this;
+    public List<Handler> createDefaultHandlers(String rootPackage) {
+        InjectorUtils.checkNotNull(rootPackage, "root package may not be null", String.class);
+        return new ArrayList<>(Arrays.asList(
+            // PreConstruct
+            new PreConstructPackageValidator(rootPackage),
+            // Annotations: @AllTypes and @AllInstances
+            new AllTypesAnnotationHandler(rootPackage),
+            new AllInstancesAnnotationHandler(rootPackage),
+            // PostConstruct
+            new PostConstructMethodInvoker()));
     }
 
-    public InjectorBuilder addAnnotationHandlers(AnnotationHandler... annotationHandler) {
-        config.addAnnotationHandlers(Arrays.asList(annotationHandler));
-        return this;
+    public InjectorBuilder addDefaultHandlers(String rootPackage) {
+        return addHandlers(createDefaultHandlers(rootPackage));
     }
 
-    public InjectorBuilder setAnnotationHandlers(AnnotationHandler... annotationHandlers) {
-        config.setAnnotationHandlers(Arrays.asList(annotationHandlers));
+    public InjectorBuilder addHandlers(Handler... handlers) {
+        return addHandlers(Arrays.asList(handlers));
+    }
+
+    public InjectorBuilder addHandlers(Iterable<Handler> handlers) {
+        List<PreConstructHandler> preConstructHandlers = new ArrayList<>();
+        List<AnnotationHandler> annotationHandlers = new ArrayList<>();
+        List<PostConstructHandler> postConstructHandlers = new ArrayList<>();
+
+        for (Handler handler : handlers) {
+            if (handler instanceof PreConstructHandler) {
+                preConstructHandlers.add((PreConstructHandler) handler);
+            } else if (handler instanceof AnnotationHandler) {
+                annotationHandlers.add((AnnotationHandler) handler);
+            } else if (handler instanceof PostConstructHandler) {
+                postConstructHandlers.add((PostConstructHandler) handler);
+            } else {
+                throw new InjectorException(
+                    "Unknown Handler type. Handlers must implement a provided subtype", handler.getClass());
+            }
+        }
+
+        config.addPreConstructHandlers(preConstructHandlers);
+        config.addAnnotationHandlers(annotationHandlers);
+        config.addPostConstructHandlers(postConstructHandlers);
         return this;
     }
 

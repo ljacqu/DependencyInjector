@@ -2,6 +2,8 @@ package ch.jalu.injector.utils;
 
 import ch.jalu.injector.exceptions.InjectorException;
 
+import javax.annotation.Nullable;
+
 /**
  * Class with simple utility methods.
  */
@@ -44,5 +46,16 @@ public final class InjectorUtils {
         throw (e instanceof InjectorException)
                 ? (InjectorException) e
                 : new InjectorException("An error occurred (see cause)", e, null);
+    }
+
+    @Nullable
+    @SafeVarargs
+    public static <T> T firstNotNull(T... objects) {
+        for (T o : objects) {
+            if (o != null) {
+                return o;
+            }
+        }
+        return null;
     }
 }

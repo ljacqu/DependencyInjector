@@ -1,5 +1,6 @@
 package ch.jalu.injector.handlers.annotations;
 
+import ch.jalu.injector.Injector;
 import ch.jalu.injector.handlers.Handler;
 
 import javax.annotation.Nullable;
@@ -26,11 +27,13 @@ public interface AnnotationHandler extends Handler {
      * Note that you are you not forced to check if the returned Object is valid for the given
      * dependency {@code type}, unless you want to show a specific error message.
      *
+     * @param injector the injector
+     * @param type the dependency's type
      * @param annotations the annotations of the dependency
      * @return the resolved value, or null if not applicable
      * @throws Exception for invalid usage of annotation
      */
     @Nullable
-    Object resolveValue(Class<?> type, Annotation... annotations) throws Exception;
+    Object resolveValue(Injector injector, Class<?> type, Annotation... annotations) throws Exception;
 
 }

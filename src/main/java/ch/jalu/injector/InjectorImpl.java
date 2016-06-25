@@ -1,15 +1,15 @@
 package ch.jalu.injector;
 
-import ch.jalu.injector.handlers.annotations.AnnotationHandler;
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.handlers.annotations.AnnotationHandler;
+import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
+import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
 import ch.jalu.injector.instantiation.Instantiation;
 import ch.jalu.injector.utils.InjectorUtils;
-import ch.jalu.injector.utils.ReflectionUtils;
 
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +18,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static ch.jalu.injector.utils.InjectorUtils.firstNotNull;
 
 /**
  * Dependency injector implementation: initializes and injects classes.
@@ -43,7 +45,6 @@ public class InjectorImpl implements Injector {
         this.config = config;
         objects = new HashMap<>();
         objects.put(Injector.class, this);
-        config.injectAnnotationHandlerFields(this);
     }
 
     @Override
@@ -96,13 +97,21 @@ public class InjectorImpl implements Injector {
         }
 
         // First time we come across clazz, need to instantiate it. Validate that we can do so
-        validatePackage(clazz);
-        validateInstantiable(clazz);
+        Class<? extends T> mappedClass = clazz;
+        for (PreConstructHandler preConstructHandler : config.getPreConstructHandlers()) {
+            try {
+                mappedClass = firstNotNull(preConstructHandler.accept(mappedClass), mappedClass);
+            } catch (Exception e) {
+                InjectorUtils.rethrowException(e);
+            }
+        }
+
+        validateInstantiable(mappedClass);
 
         // Add the clazz to the list of traversed classes in a new Set, so each path we take has its own Set.
         traversedClasses = new HashSet<>(traversedClasses);
-        traversedClasses.add(clazz);
-        T object = instantiate(clazz, traversedClasses);
+        traversedClasses.add(mappedClass);
+        T object = instantiate(mappedClass, traversedClasses);
         storeObject(object);
         return object;
     }
@@ -127,7 +136,14 @@ public class InjectorImpl implements Injector {
         validateInjectionHasNoCircularDependencies(instantiation.getDependencies(), traversedClasses);
         Object[] dependencies = resolveDependencies(instantiation, traversedClasses);
         T object = instantiation.instantiateWith(dependencies);
-        executePostConstructMethod(object);
+        for (PostConstructHandler postConstructHandler : config.getPostConstructHandlers()) {
+            try {
+                postConstructHandler.process(object);
+            } catch (Exception e) {
+                InjectorUtils.rethrowException(e);
+            }
+        }
+
         return object;
     }
 
@@ -159,15 +175,11 @@ public class InjectorImpl implements Injector {
         Object o;
         for (AnnotationHandler handler : config.getAnnotationHandlers()) {
             try {
-                if ((o = handler.resolveValue(type, annotations)) != null) {
+                if ((o = handler.resolveValue(this, type, annotations)) != null) {
                     return o;
                 }
             } catch (Exception e) {
-                if (e instanceof InjectorException) {
-                    throw (InjectorException) e;
-                }
-                throw new InjectorException(
-                    "Error while processing '" + type + "' in '" + handler.getClass() + "'", e, handler.getClass());
+                InjectorUtils.rethrowException(e);
             }
         }
         return null;
@@ -201,38 +213,6 @@ public class InjectorImpl implements Injector {
                 throw new InjectorException("Found cyclic dependency - already traversed '" + clazz
                     + "' (full traversal list: " + traversedClasses + ")", clazz);
             }
-        }
-    }
-
-    /**
-     * Validates the package of a parameter type to ensure that it is part of the allowed packages.
-     * This ensures that we don't try to instantiate things that are beyond our reach in case some
-     * external parameter type has not been registered.
-     *
-     * @param clazz the class to validate
-     */
-    private void validatePackage(Class<?> clazz) {
-        if (clazz.getPackage() == null) {
-            throw new InjectorException("Primitive types must be provided explicitly (or use an annotation).", clazz);
-        }
-        String packageName = clazz.getPackage().getName();
-        if (!config.isAllowedPackage(packageName)) {
-            throw new InjectorException("Class " + clazz + " with package " + packageName + " is outside of the "
-                + "allowed packages. It must be provided explicitly or the package must be passed to the constructor.",
-                    clazz);
-        }
-    }
-
-    /**
-     * Executes an object's method annotated with {@link PostConstruct} if present.
-     * Throws an exception if there are multiple such methods, or if the method is static.
-     *
-     * @param object the object to execute the post construct method for
-     */
-    private static void executePostConstructMethod(Object object) {
-        Method postConstructMethod = InjectionHelper.getAndValidatePostConstructMethod(object.getClass());
-        if (postConstructMethod != null) {
-            ReflectionUtils.invokeMethod(postConstructMethod, object);
         }
     }
 

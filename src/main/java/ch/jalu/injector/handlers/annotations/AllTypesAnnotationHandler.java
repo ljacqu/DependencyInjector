@@ -1,9 +1,8 @@
 package ch.jalu.injector.handlers.annotations;
 
 import ch.jalu.injector.AllTypes;
+import ch.jalu.injector.Injector;
 import org.reflections.Reflections;
-
-import javax.inject.Inject;
 
 /**
  * Annotation handler for {@link AllTypes}. Dependencies with this annotation will be
@@ -11,9 +10,11 @@ import javax.inject.Inject;
  */
 public class AllTypesAnnotationHandler extends TypeSafeAnnotationHandler<AllTypes> {
 
-    @Inject
-    private String rootPackage;
     private Reflections reflections;
+
+    public AllTypesAnnotationHandler(String rootPackage) {
+        reflections = new Reflections(rootPackage);
+    }
 
     @Override
     public Class<AllTypes> getAnnotationType() {
@@ -21,14 +22,7 @@ public class AllTypesAnnotationHandler extends TypeSafeAnnotationHandler<AllType
     }
 
     @Override
-    public Object[] resolveValueSafely(Class<?> type, AllTypes annotation) {
-        return getReflections().getSubTypesOf(annotation.value()).toArray();
-    }
-
-    private Reflections getReflections() {
-        if (reflections == null) {
-            reflections = new Reflections(rootPackage);
-        }
-        return reflections;
+    public Object[] resolveValueSafely(Injector injector, Class<?> type, AllTypes annotation) {
+        return reflections.getSubTypesOf(annotation.value()).toArray();
     }
 }

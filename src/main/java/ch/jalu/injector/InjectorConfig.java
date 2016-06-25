@@ -1,9 +1,8 @@
 package ch.jalu.injector;
 
-import ch.jalu.injector.handlers.annotations.AllInstancesAnnotationHandler;
-import ch.jalu.injector.handlers.annotations.AllTypesAnnotationHandler;
 import ch.jalu.injector.handlers.annotations.AnnotationHandler;
-import ch.jalu.injector.handlers.annotations.AnnotationHandlerInjector;
+import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
+import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import java.util.ArrayList;
@@ -14,59 +13,71 @@ import java.util.List;
  */
 public class InjectorConfig {
 
-    private String rootPackage = "";
-    private List<AnnotationHandler> annotationHandlers;
-    private AnnotationHandlerInjector annotationHandlerInjector;
+    // Handlers
+    private List<PreConstructHandler> preConstructHandlers = new ArrayList<>();
+    private List<AnnotationHandler> annotationHandlers = new ArrayList<>();
+    private List<PostConstructHandler> postConstructHandlers = new ArrayList<>();
 
     /**
      * Use the {@link InjectorBuilder} instead of instantiating this.
      */
-    InjectorConfig() {
+    protected InjectorConfig() {
     }
 
+    /**
+     * Returns all registered {@link PreConstructHandler} instances.
+     *
+     * @return pre construct handlers
+     */
+    public List<PreConstructHandler> getPreConstructHandlers() {
+        return preConstructHandlers;
+    }
+
+    /**
+     * Returns all registered {@link AnnotationHandler} instances.
+     *
+     * @return annotation handlers
+     */
     public List<AnnotationHandler> getAnnotationHandlers() {
-        if (annotationHandlers == null) {
-            // No annotation handlers yet set, so initialize the default
-            annotationHandlers = new ArrayList<>();
-            annotationHandlers.add(new AllTypesAnnotationHandler());
-            annotationHandlers.add(new AllInstancesAnnotationHandler());
-        }
         return annotationHandlers;
     }
 
-    @Deprecated // Subject to change in future versions
-    public String getRootPackage() {
-        return rootPackage;
+    /**
+     * Returns all registered {@link PostConstructHandler} instances.
+     *
+     * @return post construct handlers
+     */
+    public List<PostConstructHandler> getPostConstructHandlers() {
+        return postConstructHandlers;
     }
 
-    @Deprecated // Subject to change in future versions
-    public void setRootPackage(String rootPackage) {
-        InjectorUtils.checkNotNull(rootPackage, null);
-        this.rootPackage = rootPackage;
+    public void addPreConstructHandlers(List<? extends PreConstructHandler> preConstructHandlers) {
+        InjectorUtils.checkNotNull(preConstructHandlers, null);
+        this.preConstructHandlers.addAll(preConstructHandlers);
     }
 
-    public void injectAnnotationHandlerFields(Injector injector) {
-        annotationHandlerInjector = new AnnotationHandlerInjector(rootPackage, injector);
-        injectAnnotationHandlerFields(getAnnotationHandlers());
+    public void setPreConstructHandlers(List<? extends PreConstructHandler> preConstructHandlers) {
+        InjectorUtils.checkNotNull(preConstructHandlers, null);
+        this.preConstructHandlers = new ArrayList<>(preConstructHandlers);
     }
 
     public void addAnnotationHandlers(List<? extends AnnotationHandler> annotationHandlers) {
         InjectorUtils.checkNotNull(annotationHandlers, null);
-        injectAnnotationHandlerFields(annotationHandlers);
-        getAnnotationHandlers().addAll(annotationHandlers);
+        this.annotationHandlers.addAll(annotationHandlers);
     }
 
     public void setAnnotationHandlers(List<? extends AnnotationHandler> annotationHandlers) {
+        InjectorUtils.checkNotNull(annotationHandlers, null);
         this.annotationHandlers = new ArrayList<>(annotationHandlers);
     }
 
-    private void injectAnnotationHandlerFields(List<? extends AnnotationHandler> handlers) {
-        if (annotationHandlerInjector != null) {
-            annotationHandlerInjector.inject(handlers);
-        }
+    public void addPostConstructHandlers(List<? extends PostConstructHandler> postConstructHandlers) {
+        InjectorUtils.checkNotNull(postConstructHandlers, null);
+        this.postConstructHandlers.addAll(postConstructHandlers);
     }
 
-    public boolean isAllowedPackage(String pkg) {
-        return rootPackage == null || pkg.startsWith(rootPackage);
+    public void setPostConstructHandlers(List<? extends PostConstructHandler> postConstructHandlers) {
+        InjectorUtils.checkNotNull(postConstructHandlers, null);
+        this.postConstructHandlers = new ArrayList<>(postConstructHandlers);
     }
 }

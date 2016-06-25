@@ -8,12 +8,15 @@ import javax.inject.Inject;
  */
 public class PostConstructTestClass {
 
-    @Inject
-    @Size("box")
     private int size;
-    @Inject
-    private BetaManager betaManager;
+    private ProvidedClass providedClass;
     private boolean wasPostConstructCalled = false;
+
+    @Inject
+    public PostConstructTestClass(@Size("box") int size, ProvidedClass providedClass) {
+        this.providedClass = providedClass;
+        this.size = size;
+    }
 
     @PostConstruct
     public void postConstructMethod() {
@@ -24,8 +27,8 @@ public class PostConstructTestClass {
         return wasPostConstructCalled;
     }
 
-    public BetaManager getBetaManager() {
-        return betaManager;
+    public ProvidedClass getProvidedClass() {
+        return providedClass;
     }
 
 }

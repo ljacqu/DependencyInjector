@@ -28,8 +28,8 @@ public class SavedAnnotationsHandlerTest {
         };
 
         // when
-        // Class<?> param not needed -> null
-        Object result = savedAnnotationsHandler.resolveValue(null, annotations);
+        // Injector & Class<?> param not needed -> null
+        Object result = savedAnnotationsHandler.resolveValue(null, null, annotations);
 
         // then
         assertThat(result, equalTo(object));
@@ -45,7 +45,7 @@ public class SavedAnnotationsHandlerTest {
         savedAnnotationsHandler.register(Test.class, new Object());
 
         // when
-        Object result = savedAnnotationsHandler.resolveValue(null, annotations);
+        Object result = savedAnnotationsHandler.resolveValue(null, null, annotations);
 
         // then
         assertThat(result, nullValue());

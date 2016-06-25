@@ -1,7 +1,8 @@
 package ch.jalu.injector;
 
+import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.handlers.annotations.SavedAnnotationsHandler;
-import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
 import ch.jalu.injector.samples.BetaManager;
@@ -13,24 +14,18 @@ import ch.jalu.injector.samples.FieldInjectionWithAnnotations;
 import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.InstantiationFallbackClasses;
 import ch.jalu.injector.samples.InvalidClass;
-import ch.jalu.injector.samples.InvalidPostConstruct;
 import ch.jalu.injector.samples.InvalidStaticFieldInjection;
-import ch.jalu.injector.samples.PostConstructTestClass;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Reloadable;
 import ch.jalu.injector.samples.Size;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
-import java.util.Collections;
 
-import static org.hamcrest.Matchers.containsString;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -53,12 +48,13 @@ public class InjectorImplTest {
     // to make sure that we receive the exception we expect
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
 
     @Before
     public void setInitializer() {
         InjectorConfig config = new InjectorConfig();
-        config.setRootPackage(ALLOWED_PACKAGE);
-        config.addAnnotationHandlers(Collections.singletonList(savedAnnotationsHandler));
+        config.addPreConstructHandlers(singletonList(new PreConstructPackageValidator(ALLOWED_PACKAGE)));
+        config.addAnnotationHandlers(singletonList(savedAnnotationsHandler));
         injector = new InjectorImpl(config);
         injector.register(ProvidedClass.class, new ProvidedClass(""));
     }
@@ -78,14 +74,14 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForInvalidPackage() {
         // given / when / then
-        expectInjectorException("outside of the allowed packages", Integer.class);
+        exceptionCatcher.expect("outside of the allowed packages", Integer.class);
         injector.getSingleton(InvalidClass.class);
     }
 
     @Test
     public void shouldThrowForUnregisteredPrimitiveType() {
         // given / when / then
-        expectInjectorException("Primitive types must be provided", int.class);
+        exceptionCatcher.expect("Primitive types must be provided", int.class);
         injector.getSingleton(int.class);
     }
 
@@ -111,14 +107,14 @@ public class InjectorImplTest {
     @Test
     public void shouldRecognizeCircularReferences() {
         // given / when / then
-        expectInjectorException("Found cyclic dependency", CircularClasses.Circular3.class);
+        exceptionCatcher.expect("Found cyclic dependency", CircularClasses.Circular3.class);
         injector.getSingleton(CircularClasses.Circular3.class);
     }
 
     @Test
     public void shouldThrowForFieldInjectionWithoutNoArgsConstructor() {
         // given / when / then
-        expectInjectorException("Did not find injection method", BadFieldInjection.class);
+        exceptionCatcher.expect("Did not find injection method", BadFieldInjection.class);
         injector.getSingleton(BadFieldInjection.class);
     }
 
@@ -143,73 +139,21 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForSecondRegistration() {
         // given / when / then
-        expectInjectorException("There is already an object present", ProvidedClass.class);
+        exceptionCatcher.expect("There is already an object present", ProvidedClass.class);
         injector.register(ProvidedClass.class, new ProvidedClass(""));
     }
 
     @Test
     public void shouldThrowForRegisterWithNull() {
         // given / when / then
-        expectInjectorException("may not be null", String.class);
+        exceptionCatcher.expect("may not be null", String.class);
         injector.register(String.class, null);
-    }
-
-    @Test
-    public void shouldExecutePostConstructMethod() {
-        // given
-        savedAnnotationsHandler.register(Size.class, 15123);
-
-        // when
-        PostConstructTestClass testClass = injector.getSingleton(PostConstructTestClass.class);
-
-        // then
-        assertThat(testClass.wasPostConstructCalled(), equalTo(true));
-        assertThat(testClass.getBetaManager(), not(nullValue()));
-    }
-
-    @Test
-    public void shouldThrowForInvalidPostConstructMethod() {
-        // given / when / then
-        expectInjectorException("@PostConstruct method may not be static or have any parameters",
-            InvalidPostConstruct.WithParams.class);
-        injector.getSingleton(InvalidPostConstruct.WithParams.class);
-    }
-
-    @Test
-    public void shouldThrowForStaticPostConstructMethod() {
-        // given / when / then
-        expectInjectorException("@PostConstruct method may not be static or have any parameters",
-            InvalidPostConstruct.Static.class);
-        injector.getSingleton(InvalidPostConstruct.Static.class);
-    }
-
-    @Test
-    public void shouldForwardExceptionFromPostConstruct() {
-        // given / when / then
-        expectInjectorException("Could not invoke method", InvalidPostConstruct.ThrowsException.class);
-        injector.getSingleton(InvalidPostConstruct.ThrowsException.class);
-    }
-
-    @Test
-    public void shouldThrowForMultiplePostConstructMethods() {
-        // given / when / then
-        expectInjectorException("Multiple methods with @PostConstruct",
-            InvalidPostConstruct.MultiplePostConstructs.class);
-        injector.getSingleton(InvalidPostConstruct.MultiplePostConstructs.class);
-    }
-
-    @Test
-    public void shouldThrowForPostConstructNotReturningVoid() {
-        // given / when / then
-        expectInjectorException("@PostConstruct method must have return type void",
-            InvalidPostConstruct.NotVoidReturnType.class);
-        injector.getSingleton(InvalidPostConstruct.NotVoidReturnType.class);
     }
 
     @Test
     public void shouldThrowForAbstractNonRegisteredDependency() {
         // given / when / then
-        expectInjectorException("cannot be instantiated", ClassWithAbstractDependency.AbstractDependency.class);
+        exceptionCatcher.expect("cannot be instantiated", ClassWithAbstractDependency.AbstractDependency.class);
         injector.getSingleton(ClassWithAbstractDependency.class);
     }
 
@@ -233,7 +177,7 @@ public class InjectorImplTest {
         injector.register(BetaManager.class, new BetaManager());
 
         // when / then
-        expectInjectorException("There is already an object present", BetaManager.class);
+        exceptionCatcher.expect("There is already an object present", BetaManager.class);
         injector.register(BetaManager.class, new BetaManager());
     }
 
@@ -252,7 +196,7 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForStaticFieldInjection() {
         // given / when / then
-        expectInjectorException("is static but annotated with @Inject", InvalidStaticFieldInjection.class);
+        exceptionCatcher.expect("is static but annotated with @Inject", InvalidStaticFieldInjection.class);
         injector.newInstance(InvalidStaticFieldInjection.class);
     }
 
@@ -301,33 +245,6 @@ public class InjectorImplTest {
         assertThat(children1, hasSize(2));
         assertThat(children2, empty());
         assertThat(children3, hasSize(5)); // Alpha, Beta, Gamma + ProvidedClass + Injector
-    }
-
-    private void expectInjectorException(String message, Class<?> concernedClass) {
-        expectedException.expect(InjectorException.class);
-        expectedException.expectMessage(containsString(message));
-        expectedException.expect(hasClass(concernedClass));
-    }
-
-    private static <T extends InjectorException> Matcher<T> hasClass(final Class<?> clazz) {
-        return new TypeSafeMatcher<T>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Expected exception with class '" + clazz.getSimpleName() + "'");
-            }
-
-            @Override
-            public void describeMismatchSafely(T item, Description mismatchDescription) {
-                String className = item.getClazz() == null ? "null" : item.getClazz().getSimpleName();
-                mismatchDescription.appendText("had class '" + className + "'");
-            }
-
-            @Override
-            protected boolean matchesSafely(T item) {
-                // No need to make this null safe, the clazz should ALWAYS be set
-                return clazz == item.getClazz();
-            }
-        };
     }
 
 }

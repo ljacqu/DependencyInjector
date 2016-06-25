@@ -42,6 +42,7 @@ public class InjectionHelper {
      * @return post construct method, or null
      */
     @Nullable
+    @Deprecated
     public static Method getAndValidatePostConstructMethod(Class<?> clazz) {
         Method postConstructMethod = null;
         for (Method method : clazz.getDeclaredMethods()) {

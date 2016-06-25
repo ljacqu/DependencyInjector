@@ -27,8 +27,8 @@ public class InjectorBuilderTest {
     public void shouldSupplyInjectorWithPackageSetting() {
         // create injector via builder
         Injector injector = new InjectorBuilder()
-                .setAllowedPackages(getClass().getPackage().getName() + ".samples.subpackage")
-                .create();
+            .addDefaultHandlers(getClass().getPackage().getName() + ".samples.subpackage")
+            .create();
 
         // register AlphaService and GammaService
         AlphaService alphaService = AlphaService.newInstance(new ProvidedClass(""));
