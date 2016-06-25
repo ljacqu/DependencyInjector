@@ -1,4 +1,6 @@
-package ch.jalu.injector.annotationhandlers;
+package ch.jalu.injector.handlers.annotations;
+
+import ch.jalu.injector.handlers.Handler;
 
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
@@ -14,7 +16,7 @@ import java.lang.annotation.Annotation;
  * Annotation handler fields of any other type annotated with {@link javax.inject.Inject}
  * will cause an exception to be thrown.
  */
-public interface AnnotationHandler {
+public interface AnnotationHandler extends Handler {
 
     /**
      * Resolves the value of a dependency based on the present annotations and the declared type.

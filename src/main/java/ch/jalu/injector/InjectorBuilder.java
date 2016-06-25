@@ -1,6 +1,6 @@
 package ch.jalu.injector;
 
-import ch.jalu.injector.annotationhandlers.AnnotationHandler;
+import ch.jalu.injector.handlers.annotations.AnnotationHandler;
 
 import java.util.Arrays;
 

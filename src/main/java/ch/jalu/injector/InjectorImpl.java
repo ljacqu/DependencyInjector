@@ -1,6 +1,6 @@
 package ch.jalu.injector;
 
-import ch.jalu.injector.annotationhandlers.AnnotationHandler;
+import ch.jalu.injector.handlers.annotations.AnnotationHandler;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.instantiation.Instantiation;
 import ch.jalu.injector.utils.InjectorUtils;

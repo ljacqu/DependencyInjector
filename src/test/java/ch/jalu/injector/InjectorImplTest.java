@@ -1,6 +1,6 @@
 package ch.jalu.injector;
 
-import ch.jalu.injector.annotationhandlers.SavedAnnotationsHandler;
+import ch.jalu.injector.handlers.annotations.SavedAnnotationsHandler;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;

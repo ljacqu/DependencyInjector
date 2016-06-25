@@ -1,4 +1,4 @@
-package ch.jalu.injector.annotationhandlers;
+package ch.jalu.injector.handlers.annotations;
 
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;

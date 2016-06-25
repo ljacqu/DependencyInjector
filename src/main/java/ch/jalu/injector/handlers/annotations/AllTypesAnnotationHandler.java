@@ -1,4 +1,4 @@
-package ch.jalu.injector.annotationhandlers;
+package ch.jalu.injector.handlers.annotations;
 
 import ch.jalu.injector.AllTypes;
 import org.reflections.Reflections;

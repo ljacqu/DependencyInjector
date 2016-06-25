@@ -1,9 +1,9 @@
 package ch.jalu.injector;
 
-import ch.jalu.injector.annotationhandlers.AllInstancesAnnotationHandler;
-import ch.jalu.injector.annotationhandlers.AllTypesAnnotationHandler;
-import ch.jalu.injector.annotationhandlers.AnnotationHandler;
-import ch.jalu.injector.annotationhandlers.AnnotationHandlerInjector;
+import ch.jalu.injector.handlers.annotations.AllInstancesAnnotationHandler;
+import ch.jalu.injector.handlers.annotations.AllTypesAnnotationHandler;
+import ch.jalu.injector.handlers.annotations.AnnotationHandler;
+import ch.jalu.injector.handlers.annotations.AnnotationHandlerInjector;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import java.util.ArrayList;

@@ -39,4 +39,10 @@ public final class InjectorUtils {
             throw new InjectorException(errorMessage, clazz);
         }
     }
+
+    public static void rethrowException(Exception e) throws InjectorException {
+        throw (e instanceof InjectorException)
+                ? (InjectorException) e
+                : new InjectorException("An error occurred (see cause)", e, null);
+    }
 }

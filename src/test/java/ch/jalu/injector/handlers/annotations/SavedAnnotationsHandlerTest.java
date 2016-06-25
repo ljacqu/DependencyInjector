@@ -1,4 +1,4 @@
-package ch.jalu.injector.annotationhandlers;
+package ch.jalu.injector.handlers.annotations;
 
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.samples.Duration;
