@@ -1,7 +1,5 @@
 package ch.jalu.injector.testing;
 
-import ch.jalu.injector.testing.runner.DelayedInjectionRunner;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

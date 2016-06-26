@@ -1,5 +1,6 @@
 package ch.jalu.injector.testing.runner;
 
+import ch.jalu.injector.testing.DelayedInjectionRunner;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
@@ -11,7 +12,7 @@ import org.mockito.Mockito;
 /**
  * Validates that {@link DelayedInjectionRunner} is used as intended.
  */
-class DelayedInjectionRunnerValidator extends RunListener {
+public class DelayedInjectionRunnerValidator extends RunListener {
 
     private final RunNotifier notifier;
     private final TestClass testClass;

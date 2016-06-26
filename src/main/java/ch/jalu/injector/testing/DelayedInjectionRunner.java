@@ -1,12 +1,8 @@
-package ch.jalu.injector.testing.runner;
+package ch.jalu.injector.testing;
 
-import ch.jalu.injector.handlers.instantiation.ConstructorInjectionProvider;
-import ch.jalu.injector.handlers.instantiation.FieldInjectionProvider;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
-import ch.jalu.injector.handlers.instantiation.InstantiationFallbackProvider;
-import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
-import ch.jalu.injector.testing.BeforeInjecting;
-import ch.jalu.injector.testing.InjectDelayed;
+import ch.jalu.injector.testing.runner.DelayedInjectionRunnerValidator;
+import ch.jalu.injector.testing.runner.RunBeforeInjectings;
+import ch.jalu.injector.testing.runner.RunDelayedInjects;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkField;
@@ -16,7 +12,6 @@ import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -81,43 +76,23 @@ public class DelayedInjectionRunner extends BlockJUnit4ClassRunner {
      */
     private Statement withDelayedInjects(Object target, Statement statement) {
         List<FrameworkField> delayedFields = getTestClass().getAnnotatedFields(InjectDelayed.class);
-        if (delayedFields.isEmpty()) {
-            return statement;
-        }
-
-        List<PendingInstantiation> pendingInstantiations = new ArrayList<>(delayedFields.size());
-        for (FrameworkField field : delayedFields) {
-            pendingInstantiations.add(getInjection(field));
-        }
-        InjectionResolver injectionResolver = new InjectionResolver(getTestClass(), target);
-        return new RunDelayedInjects(statement, pendingInstantiations, target, injectionResolver);
+        return delayedFields.isEmpty()
+            ? statement
+            : createDelayedInjectsStatement(target, statement, delayedFields);
     }
 
     /**
-     * Gets the injection method for the given field's type and ensures an injection method has been found.
+     * Creates a statement that will instantiate the fields annotated with {@link InjectDelayed}.
+     * Override this method to provide another statement. For example, you can override
+     * {@link RunDelayedInjects#getInjector()} to use a differently configured injector.
      *
-     * @param field the field to get the injection for
-     * @return the injection
+     * @param target the object the test will be run on
+     * @param statement the next statement
+     * @param delayedFields fields annotated with {@link InjectDelayed}
+     * @return the generated statement
      */
-    private static PendingInstantiation getInjection(FrameworkField field) {
-        // TODO #6: needs to be coupled somehow with the injector; for now we do the same logic in here again
-        final Instantiation<?> injection = getInstantiation(field.getType());
-        if (injection == null) {
-            throw new IllegalStateException("No injection method available for field '" + field.getName() + "'");
-        }
-        return new PendingInstantiation(field.getField(), injection);
-    }
-
-    private static <T> Instantiation<T> getInstantiation(Class<T> clazz) {
-        InstantiationProvider[] providers = {
-            new ConstructorInjectionProvider(), new FieldInjectionProvider(), new InstantiationFallbackProvider()
-        };
-        for (InstantiationProvider provider : providers) {
-            Instantiation<T> instantation = provider.get(clazz);
-            if (instantation != null) {
-                return instantation;
-            }
-        }
-        return null;
+    protected Statement createDelayedInjectsStatement(Object target, Statement statement,
+                                                      List<FrameworkField> delayedFields) {
+        return new RunDelayedInjects(statement, getTestClass(), target, delayedFields);
     }
 }
