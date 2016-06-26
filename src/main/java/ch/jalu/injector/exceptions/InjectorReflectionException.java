@@ -7,10 +7,6 @@ import java.lang.reflect.Member;
  */
 public class InjectorReflectionException extends InjectorException {
 
-    public InjectorReflectionException(String message, ReflectiveOperationException cause, Class<?> clazz) {
-        super(message, cause, clazz);
-    }
-
     public InjectorReflectionException(String message, ReflectiveOperationException cause, Member member) {
         super(message, cause, member.getDeclaringClass());
     }

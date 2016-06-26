@@ -20,7 +20,7 @@ public final class InjectorUtils {
     public static void checkNotNull(Iterable<?> collection, Class<?> clazz) {
         checkNotNull((Object) collection, clazz);
         for (Object o : collection) {
-            checkNotNull(o, null);
+            checkNotNull(o, clazz);
         }
     }
 

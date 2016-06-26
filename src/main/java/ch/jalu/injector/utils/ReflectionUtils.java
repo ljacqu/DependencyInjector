@@ -4,7 +4,6 @@ import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.exceptions.InjectorReflectionException;
 
 import javax.annotation.Nullable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -74,23 +73,6 @@ public final class ReflectionUtils {
             throw new InjectorReflectionException(
                 "Could not invoke method '" + method.getName() + "' for " + instance, e, method);
         }
-    }
-
-    /**
-     * Returns all fields of the given class annotated with the given annotation. Does not consider parent classes.
-     *
-     * @param clazz the class to process
-     * @param annotation the annotation to search fields for
-     * @return fields in clazz having the given annotation
-     */
-    public static List<Field> getFieldsWithAnnotation(Class<?> clazz, Class<? extends Annotation> annotation) {
-        List<Field> fields = new ArrayList<>();
-        for (Field field : clazz.getDeclaredFields()) {
-            if (field.isAnnotationPresent(annotation)) {
-                fields.add(field);
-            }
-        }
-        return fields;
     }
 
     /**

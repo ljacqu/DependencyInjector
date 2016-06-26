@@ -27,11 +27,11 @@ public class DelayedInjectionRunnerValidator extends RunListener {
         try {
             Mockito.validateMockitoUsage();
             if (!testClass.getAnnotatedFields(InjectMocks.class).isEmpty()) {
-                throw new IllegalStateException("Do not use @InjectMocks with the DelayedInjectionRunner:" +
-                    " use @InjectDelayed or change runner");
+                throw new IllegalStateException("Do not use @InjectMocks with the DelayedInjectionRunner:"
+                    + " use @InjectDelayed or change runner");
             }
-        } catch (Throwable t) {
-            notifier.fireTestFailure(new Failure(description, t));
+        } catch (Exception e) {
+            notifier.fireTestFailure(new Failure(description, e));
         }
     }
 }
