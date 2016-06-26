@@ -28,10 +28,20 @@ public class InjectorBuilder {
 
     private InjectorConfig config;
 
+    /**
+     * Creates a new builder.
+     */
     public InjectorBuilder() {
         config = new InjectorConfig();
     }
 
+    /**
+     * Returns all handlers that are added to the injector by default.
+     *
+     * @param rootPackage the root package of the project (to limit injection and scanning to)
+     * @return all default handlers
+     * @see #addDefaultHandlers(String)
+     */
     public List<Handler> createDefaultHandlers(String rootPackage) {
         InjectorUtils.checkNotNull(rootPackage, "root package may not be null", String.class);
         return new ArrayList<>(Arrays.asList(
@@ -48,21 +58,53 @@ public class InjectorBuilder {
             new PostConstructMethodInvoker()));
     }
 
-    public List<InstantiationProvider> createInstantiationProviders() {
-        return new ArrayList<>(Arrays.asList(
-            new ConstructorInjectionProvider(),
-            new FieldInjectionProvider(),
-            new InstantiationFallbackProvider()));
-    }
-
+    /**
+     * Convenience method for adding all default handlers to the injector configuration.
+     * To obtain an injector with all defaults, you can simply do:
+     * <code>
+     *   Injector injector = new InjectorBuilder().addDefaultHandlers("your.package.here").create();
+     * </code>
+     *
+     * @param rootPackage the root package of the project
+     * @return the builder
+     */
     public InjectorBuilder addDefaultHandlers(String rootPackage) {
         return addHandlers(createDefaultHandlers(rootPackage));
     }
 
+    /**
+     * Creates all handlers of type {@link InstantiationProvider}. Useful if you want to create your own
+     * preconstruct (etc.) handlers but want to use the default instantiation providers.
+     * <p>
+     * Use {@link #createDefaultHandlers(String)} or {@link #addDefaultHandlers(String)} otherwise.
+     *
+     * @return default instantiation providers
+     */
+    public List<InstantiationProvider> createInstantiationProviders() {
+        return new ArrayList<>(Arrays.asList(
+                new ConstructorInjectionProvider(),
+                new FieldInjectionProvider(),
+                new InstantiationFallbackProvider()));
+    }
+
+    /**
+     * Add handlers to the config. Note that <b>the order of the handlers matters.</b> Handlers are
+     * separated by their subtype and then executed in the order as provided.
+     *
+     * @param handlers the handlers to add to the injector
+     * @return the builder
+     */
     public InjectorBuilder addHandlers(Handler... handlers) {
         return addHandlers(Arrays.asList(handlers));
     }
 
+    /**
+     * Add handlers to the config. Note that <b>the order of the handlers matters.</b> Handlers are
+     * separated by their subtype and then executed in the order as provided.
+     *
+     * @param handlers the handlers to add to the injector
+     * @return the builder
+     */
     public InjectorBuilder addHandlers(Iterable<? extends Handler> handlers) {
         HandlerCollector collector = new HandlerCollector(
             PreConstructHandler.class, InstantiationProvider.class,

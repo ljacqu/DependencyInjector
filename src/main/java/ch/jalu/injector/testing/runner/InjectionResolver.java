@@ -45,7 +45,7 @@ class InjectionResolver {
      * @return the resolved dependencies
      */
     private Object[] resolveDependencies(Instantiation<?> injection) {
-        final List<DependencyDescription> dependencies = injection.getDependencies();
+        final List<? extends DependencyDescription> dependencies = injection.getDependencies();
         Object[] resolvedValues = new Object[dependencies.size()];
         for (int i = 0; i < dependencies.size(); ++i) {
             Annotation[] annotations = dependencies.get(i).getAnnotations();

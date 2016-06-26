@@ -13,7 +13,7 @@ import java.util.Set;
 
 /**
  * Handler for {@link AllInstances}. Finds all subtypes of the given dependency,
- * instantiates them and assigns the collection to the given depenency.
+ * instantiates them and assigns the collection to the given dependency.
  */
 public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<AllInstances> {
 

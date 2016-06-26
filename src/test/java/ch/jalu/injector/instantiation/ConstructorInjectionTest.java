@@ -36,7 +36,7 @@ public class ConstructorInjectionTest {
     @Test
     public void shouldReturnDependencies() {
         // given
-        Instantiation<ClassWithAnnotations> injection = provider.get(ClassWithAnnotations.class);
+        ConstructorInjection<ClassWithAnnotations> injection = provider.get(ClassWithAnnotations.class);
 
         // when
         List<DependencyDescription> dependencies = injection.getDependencies();

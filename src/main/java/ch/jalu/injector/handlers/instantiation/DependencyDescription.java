@@ -13,7 +13,7 @@ public class DependencyDescription {
     private final Type genericType;
     private final Annotation[] annotations;
 
-    public DependencyDescription(Class<?> type, Type genericType, Annotation... annotations) {
+    public DependencyDescription(Class<?> type, @Nullable Type genericType, Annotation... annotations) {
         this.type = type;
         this.genericType = genericType;
         this.annotations = annotations;

@@ -1,6 +1,5 @@
 package ch.jalu.injector.handlers.testimplementations;
 
-import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 
 /**

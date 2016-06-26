@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Injector configurations.
+ * Injector configuration.
  */
 public class InjectorConfig {
 

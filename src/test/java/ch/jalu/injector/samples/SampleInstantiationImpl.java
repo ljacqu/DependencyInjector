@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * An example for custom implementation of {@link InstantiationProvider} and {@link Instantiation}.
- * Allows to instantiate methods that have a static {@code create()} method.
+ * Allows to instantiate classes that have a static {@code create()} method.
  */
 public class SampleInstantiationImpl implements InstantiationProvider {
 
@@ -20,7 +20,7 @@ public class SampleInstantiationImpl implements InstantiationProvider {
     public <T> CustomInstantiation<T> get(Class<T> clazz) {
         try {
             Method method = clazz.getDeclaredMethod("create");
-            if (Modifier.isStatic(method.getModifiers()) && method.getReturnType() == clazz) {
+            if (Modifier.isStatic(method.getModifiers()) && clazz.isAssignableFrom(method.getReturnType())) {
                 method.setAccessible(true);
                 return new CustomInstantiation<>(method);
             }

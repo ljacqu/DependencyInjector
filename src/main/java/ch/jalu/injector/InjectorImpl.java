@@ -152,7 +152,7 @@ public class InjectorImpl implements Injector {
             }
         }
 
-        if (config.getInstantiationProviders().size() == 0) {
+        if (config.getInstantiationProviders().isEmpty()) {
             throw new InjectorException("You did not register any instantiation methods!",
                 InstantiationProvider.class);
         }
@@ -171,7 +171,7 @@ public class InjectorImpl implements Injector {
      * @return array with the parameters to use in the constructor
      */
     private Object[] resolveDependencies(Instantiation<?> instantiation, Set<Class<?>> traversedClasses) {
-        List<DependencyDescription> dependencies = instantiation.getDependencies();
+        List<? extends DependencyDescription> dependencies = instantiation.getDependencies();
         Object[] values = new Object[dependencies.size()];
         for (int i = 0; i < dependencies.size(); ++i) {
             DependencyDescription dependency = dependencies.get(i);
@@ -220,7 +220,7 @@ public class InjectorImpl implements Injector {
      * @param dependencies the dependencies of the class
      * @param traversedClasses the collection of traversed classes
      */
-    private static void validateInjectionHasNoCircularDependencies(List<DependencyDescription> dependencies,
+    private static void validateInjectionHasNoCircularDependencies(List<? extends DependencyDescription> dependencies,
                                                                    Set<Class<?>> traversedClasses) {
         for (DependencyDescription dependency : dependencies) {
             Class<?> clazz = dependency.getType();
