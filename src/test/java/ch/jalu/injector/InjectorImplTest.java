@@ -1,7 +1,9 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
+import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
 import ch.jalu.injector.samples.BetaManager;
@@ -26,6 +28,8 @@ import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -41,7 +45,6 @@ import static org.junit.Assert.assertThat;
 public class InjectorImplTest {
 
     private final String ALLOWED_PACKAGE = getClass().getPackage().getName() + ".samples";
-
 
     private Injector injector;
     private InjectorConfig config;
@@ -249,9 +252,9 @@ public class InjectorImplTest {
         injector.getSingleton(GammaService.class);
 
         // when
-        Collection<Reloadable> children1 = injector.retrieveAll(Reloadable.class);
-        Collection<CircularClasses> children2 = injector.retrieveAll(CircularClasses.class);
-        Collection<Object> children3 = injector.retrieveAll(Object.class);
+        Collection<Reloadable> children1 = injector.retrieveAllOfType(Reloadable.class);
+        Collection<CircularClasses> children2 = injector.retrieveAllOfType(CircularClasses.class);
+        Collection<Object> children3 = injector.retrieveAllOfType(Object.class);
 
         // then
         assertThat(children1, hasSize(2));
@@ -271,6 +274,31 @@ public class InjectorImplTest {
 
         // then
         assertThat(example, not(nullValue()));
+    }
+
+    @Test
+    public void shouldThrowIfNoInstantiationMethodsAreAvailable() {
+        // given
+        List<Handler> handlers = getAllHandlersExceptInstantiationProviders();
+        Injector injector = new InjectorBuilder().addHandlers(handlers).create();
+
+        // expect
+        exceptionCatcher.expect("You did not register any instantiation methods", InstantiationProvider.class);
+
+        // when
+        injector.getSingleton(CustomInstantiationExample.class);
+    }
+
+    private static List<Handler> getAllHandlersExceptInstantiationProviders() {
+        List<Handler> handlers = InjectorBuilder.createDefaultHandlers("");
+        Iterator<Handler> iterator = handlers.iterator();
+        while (iterator.hasNext()) {
+            Handler next = iterator.next();
+            if (next instanceof InstantiationProvider) {
+                iterator.remove();
+            }
+        }
+        return handlers;
     }
 
     /**

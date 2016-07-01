@@ -64,7 +64,4 @@ public class AnnotationResolver implements DependencyHandler {
         }
         return null;
     }
-
-
-
 }

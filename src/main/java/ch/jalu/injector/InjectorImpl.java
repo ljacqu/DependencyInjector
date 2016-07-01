@@ -2,15 +2,14 @@ package ch.jalu.injector;
 
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import javax.annotation.Nullable;
-import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,13 +21,7 @@ import java.util.Set;
 import static ch.jalu.injector.utils.InjectorUtils.firstNotNull;
 
 /**
- * Dependency injector implementation: initializes and injects classes.
- * <p>
- * Only constructor and field injection are supported, indicated with the JSR330
- * {@link javax.inject.Inject @Inject} annotation.
- * <p>
- * {@link PostConstruct @PostConstruct} methods are recognized and invoked upon
- * instantiation. Note that the parent classes are <i>not</i> scanned for such methods.
+ * Implementation of {@link Injector}.
  */
 public class InjectorImpl implements Injector {
 
@@ -73,7 +66,7 @@ public class InjectorImpl implements Injector {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Collection<T> retrieveAll(Class<T> clazz) {
+    public <T> Collection<T> retrieveAllOfType(Class<T> clazz) {
         List<T> instances = new ArrayList<>();
         for (Object object : objects.values()) {
             if (clazz.isInstance(object)) {

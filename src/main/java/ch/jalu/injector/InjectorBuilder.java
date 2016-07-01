@@ -30,6 +30,8 @@ public class InjectorBuilder {
 
     /**
      * Creates a new builder.
+     *
+     * @since 0.1
      */
     public InjectorBuilder() {
         config = new InjectorConfig();
@@ -41,6 +43,7 @@ public class InjectorBuilder {
      * @param rootPackage the root package of the project (to limit injection and scanning to)
      * @return all default handlers
      * @see #addDefaultHandlers(String)
+     * @since 0.1
      */
     public static List<Handler> createDefaultHandlers(String rootPackage) {
         InjectorUtils.checkNotNull(rootPackage, "root package may not be null", String.class);
@@ -65,6 +68,7 @@ public class InjectorBuilder {
      * Use {@link #createDefaultHandlers(String)} or {@link #addDefaultHandlers(String)} otherwise.
      *
      * @return default instantiation providers
+     * @since 0.1
      */
     public static List<InstantiationProvider> createInstantiationProviders() {
         return new ArrayList<>(Arrays.asList(
@@ -82,6 +86,7 @@ public class InjectorBuilder {
      *
      * @param rootPackage the root package of the project
      * @return the builder
+     * @since 0.1
      */
     public InjectorBuilder addDefaultHandlers(String rootPackage) {
         return addHandlers(createDefaultHandlers(rootPackage));
@@ -93,6 +98,7 @@ public class InjectorBuilder {
      *
      * @param handlers the handlers to add to the injector
      * @return the builder
+     * @since 0.1
      */
     public InjectorBuilder addHandlers(Handler... handlers) {
         return addHandlers(Arrays.asList(handlers));
@@ -104,6 +110,7 @@ public class InjectorBuilder {
      *
      * @param handlers the handlers to add to the injector
      * @return the builder
+     * @since 0.1
      */
     public InjectorBuilder addHandlers(Iterable<? extends Handler> handlers) {
         HandlerCollector collector = new HandlerCollector(
@@ -125,6 +132,7 @@ public class InjectorBuilder {
      * Creates an injector with the configurations set to the builder.
      *
      * @return the injector
+     * @since 0.1
      */
     public Injector create() {
         return new InjectorImpl(config);
