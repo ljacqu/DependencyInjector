@@ -94,7 +94,7 @@ public class InjectorBuilderTest {
         Injector injector = builder
             .addHandlers(implementationClassHandler, packageValidator, savedAnnotationsHandler,
                          listeningAnnotationHandler, postConstructHandler, throwingPostConstructHandler)
-            .addHandlers(builder.createInstantiationProviders())
+            .addHandlers(InjectorBuilder.createInstantiationProviders())
             .create();
 
         // Check presence of handlers and their order

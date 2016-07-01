@@ -70,7 +70,7 @@ public class MockDependencyHandlerTest {
             fail("Expected exception to be thrown");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("dependencies of @InjectDelayed must be provided as @Mock"));
-            verify(injector, times(2)).register(any(Class.class), any(Object.class));
+            verify(injector, times(3)).register(any(Class.class), any(Object.class));
             verify(injector).getIfAvailable(AlphaService.class);
         }
     }

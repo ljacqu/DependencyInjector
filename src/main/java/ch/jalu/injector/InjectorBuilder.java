@@ -42,7 +42,7 @@ public class InjectorBuilder {
      * @return all default handlers
      * @see #addDefaultHandlers(String)
      */
-    public List<Handler> createDefaultHandlers(String rootPackage) {
+    public static List<Handler> createDefaultHandlers(String rootPackage) {
         InjectorUtils.checkNotNull(rootPackage, "root package may not be null", String.class);
         return new ArrayList<>(Arrays.asList(
             // PreConstruct
@@ -59,6 +59,21 @@ public class InjectorBuilder {
     }
 
     /**
+     * Creates all default handlers of type {@link InstantiationProvider}. Useful if you want to create your own
+     * preconstruct (etc.) handlers but want to use the default instantiation providers.
+     * <p>
+     * Use {@link #createDefaultHandlers(String)} or {@link #addDefaultHandlers(String)} otherwise.
+     *
+     * @return default instantiation providers
+     */
+    public static List<InstantiationProvider> createInstantiationProviders() {
+        return new ArrayList<>(Arrays.asList(
+                new ConstructorInjectionProvider(),
+                new FieldInjectionProvider(),
+                new InstantiationFallbackProvider()));
+    }
+
+    /**
      * Convenience method for adding all default handlers to the injector configuration.
      * To obtain an injector with all defaults, you can simply do:
      * <code>
@@ -70,21 +85,6 @@ public class InjectorBuilder {
      */
     public InjectorBuilder addDefaultHandlers(String rootPackage) {
         return addHandlers(createDefaultHandlers(rootPackage));
-    }
-
-    /**
-     * Creates all handlers of type {@link InstantiationProvider}. Useful if you want to create your own
-     * preconstruct (etc.) handlers but want to use the default instantiation providers.
-     * <p>
-     * Use {@link #createDefaultHandlers(String)} or {@link #addDefaultHandlers(String)} otherwise.
-     *
-     * @return default instantiation providers
-     */
-    public List<InstantiationProvider> createInstantiationProviders() {
-        return new ArrayList<>(Arrays.asList(
-                new ConstructorInjectionProvider(),
-                new FieldInjectionProvider(),
-                new InstantiationFallbackProvider()));
     }
 
     /**

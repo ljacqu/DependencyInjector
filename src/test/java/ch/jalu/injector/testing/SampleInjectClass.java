@@ -18,6 +18,10 @@ public class SampleInjectClass {
     @Inject
     private ClassWithAbstractDependency.AbstractDependency abstractDependency;
 
+    @Inject
+    @CustomAnnotation
+    private String stringField;
+
     private ProvidedClass providedClass;
 
 
@@ -39,6 +43,10 @@ public class SampleInjectClass {
 
     public ProvidedClass getProvidedClass() {
         return providedClass;
+    }
+
+    public String getStringField() {
+        return stringField;
     }
 
 }

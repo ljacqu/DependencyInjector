@@ -29,10 +29,6 @@ public class ReflectionsTestClass {
         integer = arg;
     }
 
-    private Integer getIntegerDouble() {
-        return integer == null ? null : integer * 2;
-    }
-
     public static Object changeStaticObject(Object o) {
         Object old = staticObject;
         staticObject = o;

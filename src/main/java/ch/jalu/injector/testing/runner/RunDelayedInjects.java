@@ -52,11 +52,13 @@ public class RunDelayedInjects extends Statement {
     }
 
     protected Injector getInjector() {
-        InjectorBuilder injectorBuilder = new InjectorBuilder();
-        List<InstantiationProvider> instantiationProviders = injectorBuilder.createInstantiationProviders();
-        return injectorBuilder.addHandlers(instantiationProviders)
-            .addHandlers(new MockDependencyHandler(testClass, target))
-            .addHandlers(new PostConstructMethodInvoker())
+        List<InstantiationProvider> instantiationProviders = InjectorBuilder.createInstantiationProviders();
+        return new InjectorBuilder()
+            .addHandlers(instantiationProviders)
+            .addHandlers(
+                new AnnotationResolver(testClass, target),
+                new MockDependencyHandler(testClass, target),
+                new PostConstructMethodInvoker())
             .create();
     }
 }

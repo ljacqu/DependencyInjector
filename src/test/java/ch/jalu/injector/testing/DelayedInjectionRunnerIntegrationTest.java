@@ -2,12 +2,14 @@ package ch.jalu.injector.testing;
 
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.ClassWithAbstractDependency;
+import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.ProvidedClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -28,6 +30,13 @@ public class DelayedInjectionRunnerIntegrationTest {
 
     @Mock
     private ClassWithAbstractDependency.AbstractDependency abstractDependency;
+
+    @CustomAnnotation
+    @Mock
+    private GammaService gammaService;
+
+    @CustomAnnotation
+    private String stringFieldSample = "Test value";
 
     @BeforeInjecting
     public void initBeforeInject() {
@@ -53,6 +62,9 @@ public class DelayedInjectionRunnerIntegrationTest {
         // The providedClass is set in a @PostConstruct method, so check that this worked
         ProvidedClass providedClass = sampleInjectClass.getProvidedClass();
         assertThat(providedClass, not(nullValue()));
+
+        // Check that the string field is set
+        assertThat(sampleInjectClass.getStringField(), equalTo(stringFieldSample));
 
         // Otherwise not much to check, having landed here means the test was run successfully.
         // @BeforeInjecting and @Before methods check that they were run under the expected conditions.
