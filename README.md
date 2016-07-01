@@ -37,13 +37,6 @@ public class CalculationService {
   
   @Inject
   private RoundingService roundingService;
-  
-  private long PI;
-  
-  @PostConstruct
-  private void afterCreation() {
-    PI = roundingService.round(3.141592653);
-  }
 }
 
 public class RoundingService {
@@ -73,6 +66,8 @@ public class MyApp {
 
 ... That's all! No need to deal with creating any other classes, but you still have a setup that allows you to easily
 unit test or switch a component.
+
+--> Full, runnable example can be found [here](https://github.com/ljacqu/DependencyInjector/tree/master/src/test/java/ch/jalu/injector/demo).
 
 ### Handlers
 You may implement your own logic to instantiate a class and to resolve dependencies. This allows you for example to 
