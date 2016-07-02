@@ -2,6 +2,7 @@ package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.utils.InjectorUtils;
 
@@ -17,10 +18,8 @@ import java.util.Map;
  * <p>
  * Don't forget that annotations need to have their {@link java.lang.annotation.Retention retention}
  * set to runtime in order to be visible.
- *
- * @see #register(Class, Object)
  */
-public class SavedAnnotationsHandler implements DependencyHandler {
+public class SavedAnnotationsHandler implements DependencyHandler, AnnotationValueHandler {
 
     private Map<Class<?>, Object> storedValues = new HashMap<>();
 
@@ -35,13 +34,8 @@ public class SavedAnnotationsHandler implements DependencyHandler {
         return null;
     }
 
-    /**
-     * Registers a value for the given annotation.
-     *
-     * @param annotation the annotation to identify the value by
-     * @param object the value to register
-     */
-    public void register(Class<? extends Annotation> annotation, Object object) {
+    @Override
+    public void processProvided(Class<? extends Annotation> annotation, Object object) {
         InjectorUtils.checkNotNull(annotation, "Annotation may not be null", null);
         InjectorUtils.checkNotNull(object, "Object may not be null", annotation);
         if (storedValues.containsKey(annotation)) {

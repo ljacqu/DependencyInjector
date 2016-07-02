@@ -1,6 +1,7 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
@@ -10,6 +11,7 @@ import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import javax.annotation.Nullable;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -18,7 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static ch.jalu.injector.utils.InjectorUtils.checkNotNull;
 import static ch.jalu.injector.utils.InjectorUtils.firstNotNull;
+import static ch.jalu.injector.utils.InjectorUtils.rethrowException;
 
 /**
  * Implementation of {@link Injector}.
@@ -52,6 +56,18 @@ public class InjectorImpl implements Injector {
         }
         InjectorUtils.checkNotNull(object, clazz);
         objects.put(clazz, object);
+    }
+
+    @Override
+    public void provide(Class<? extends Annotation> clazz, Object object) {
+        checkNotNull(clazz, "Provided annotation may not be null", Annotation.class);
+        for (AnnotationValueHandler annotationValueHandler : config.getAnnotationValueHandlers()) {
+            try {
+                annotationValueHandler.processProvided(clazz, object);
+            } catch (Exception e) {
+                rethrowException(e);
+            }
+        }
     }
 
     @Override

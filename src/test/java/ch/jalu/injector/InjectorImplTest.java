@@ -2,7 +2,7 @@ package ch.jalu.injector;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
+import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
 import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
@@ -26,6 +26,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -38,6 +40,9 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Test for {@link InjectorImpl}.
@@ -48,7 +53,6 @@ public class InjectorImplTest {
 
     private Injector injector;
     private InjectorConfig config;
-    private SavedAnnotationsHandler savedAnnotationsHandler = new SavedAnnotationsHandler();
 
     // As we test many cases that throw exceptions, we use JUnit's ExpectedException Rule
     // to make sure that we receive the exception we expect
@@ -59,7 +63,6 @@ public class InjectorImplTest {
     @Before
     public void initialize() throws NoSuchFieldException {
         injector = new InjectorBuilder()
-            .addHandlers(savedAnnotationsHandler)
             .addDefaultHandlers(ALLOWED_PACKAGE)
             .create();
 
@@ -105,8 +108,8 @@ public class InjectorImplTest {
         // given
         int size = 12;
         long duration = -15482L;
-        savedAnnotationsHandler.register(Size.class, size);
-        savedAnnotationsHandler.register(Duration.class, duration);
+        injector.provide(Size.class, size);
+        injector.provide(Duration.class, duration);
 
         // when
         ClassWithAnnotations object = injector.getSingleton(ClassWithAnnotations.class);
@@ -136,8 +139,8 @@ public class InjectorImplTest {
     @Test
     public void shouldInjectFieldsWithAnnotationsProperly() {
         // given
-        savedAnnotationsHandler.register(Size.class, 2809375);
-        savedAnnotationsHandler.register(Duration.class, 13095L);
+        injector.provide(Size.class, 2809375);
+        injector.provide(Duration.class, 13095L);
 
         // when
         FieldInjectionWithAnnotations result = injector.getSingleton(FieldInjectionWithAnnotations.class);
@@ -287,6 +290,49 @@ public class InjectorImplTest {
 
         // when
         injector.getSingleton(CustomInstantiationExample.class);
+    }
+
+    @Test
+    public void shouldForwardToAnnotationValueHandlers() throws Exception {
+        // given
+        AnnotationValueHandler annoValHandler1 = mock(AnnotationValueHandler.class);
+        AnnotationValueHandler annoValHandler2 = mock(AnnotationValueHandler.class);
+        config.addAnnotationValueHandlers(Arrays.asList(annoValHandler1, annoValHandler2));
+        Object object = new Object();
+
+        // when
+        injector.provide(Duration.class, object);
+
+        // then
+        verify(annoValHandler1).processProvided(Duration.class, object);
+        verify(annoValHandler2).processProvided(Duration.class, object);
+    }
+
+    @Test
+    public void shouldThrowForNullAsAnnotation() {
+        // given
+
+        // expect
+        exceptionCatcher.expect("annotation may not be null", Annotation.class);
+
+        // when
+        injector.provide(null, new Object());
+    }
+
+    @Test
+    public void shouldForwardException() throws Exception {
+        // given
+        Class<? extends Annotation> annotation = Size.class;
+        Object object = 123;
+        AnnotationValueHandler annoValHandler = mock(AnnotationValueHandler.class);
+        doThrow(Exception.class).when(annoValHandler).processProvided(annotation, object);
+        config.addAnnotationValueHandlers(Collections.singletonList(annoValHandler));
+
+        // expect
+        exceptionCatcher.expect("An error occurred", null);
+
+        // when
+        injector.provide(annotation, object);
     }
 
     private static List<Handler> getAllHandlersExceptInstantiationProviders() {

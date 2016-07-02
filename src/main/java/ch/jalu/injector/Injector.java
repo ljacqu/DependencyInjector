@@ -1,6 +1,7 @@
 package ch.jalu.injector;
 
 import javax.annotation.Nullable;
+import java.lang.annotation.Annotation;
 import java.util.Collection;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Collection;
 public interface Injector {
 
     /**
-     * Register an object as instance of the given class.
+     * Registers an object as instance of the given class.
      *
      * @param clazz the class to register the object for
      * @param object the object
@@ -21,6 +22,15 @@ public interface Injector {
      * @since 0.1
      */
     <T> void register(Class<? super T> clazz, T object);
+
+    /**
+     * Processes an annotation with an associated object. The actual behavior of this method depends on the
+     * configured annotation handlers which are added to the injector.
+     *
+     * @param annotation the annotation
+     * @param object the object
+     */
+    void provide(Class<? extends Annotation> annotation, @Nullable Object object);
 
     /**
      * Retrieves or instantiates an object of the given type (singleton scope).

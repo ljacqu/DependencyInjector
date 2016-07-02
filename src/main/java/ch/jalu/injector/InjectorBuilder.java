@@ -2,9 +2,11 @@ package ch.jalu.injector;
 
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
+import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
 import ch.jalu.injector.handlers.dependency.AllInstancesAnnotationHandler;
 import ch.jalu.injector.handlers.dependency.AllTypesAnnotationHandler;
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
+import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
 import ch.jalu.injector.handlers.instantiation.ConstructorInjectionProvider;
 import ch.jalu.injector.handlers.instantiation.FieldInjectionProvider;
 import ch.jalu.injector.handlers.instantiation.InstantiationFallbackProvider;
@@ -50,6 +52,8 @@ public class InjectorBuilder {
         return new ArrayList<>(Arrays.asList(
             // PreConstruct
             new PreConstructPackageValidator(rootPackage),
+            // (Annotation, Object) handler
+            new SavedAnnotationsHandler(),
             // Instantiation providers
             new ConstructorInjectionProvider(),
             new FieldInjectionProvider(),
@@ -114,13 +118,14 @@ public class InjectorBuilder {
      */
     public InjectorBuilder addHandlers(Iterable<? extends Handler> handlers) {
         HandlerCollector collector = new HandlerCollector(
-            PreConstructHandler.class, InstantiationProvider.class,
+            AnnotationValueHandler.class, PreConstructHandler.class, InstantiationProvider.class,
             DependencyHandler.class, PostConstructHandler.class);
 
         for (Handler handler : handlers) {
             collector.process(handler);
         }
 
+        config.addAnnotationValueHandlers(collector.getList(AnnotationValueHandler.class));
         config.addPreConstructHandlers(collector.getList(PreConstructHandler.class));
         config.addInstantiationProviders(collector.getList(InstantiationProvider.class));
         config.addDependencyHandlers(collector.getList(DependencyHandler.class));

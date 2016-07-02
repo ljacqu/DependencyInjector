@@ -94,7 +94,8 @@ public final class TestUtils {
             return new TypeSafeMatcher<T>() {
                 @Override
                 public void describeTo(Description description) {
-                    description.appendText("Expected exception with class '" + clazz.getSimpleName() + "'");
+                    String className = clazz == null ? "null" : clazz.getSimpleName();
+                    description.appendText("Expected exception with class '" + className + "'");
                 }
 
                 @Override
