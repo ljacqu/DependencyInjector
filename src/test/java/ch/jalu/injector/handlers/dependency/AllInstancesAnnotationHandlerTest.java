@@ -1,8 +1,9 @@
 package ch.jalu.injector.handlers.dependency;
 
-import ch.jalu.injector.AllInstances;
+import ch.jalu.injector.annotations.AllInstances;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
+import ch.jalu.injector.annotations.AllTypes;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.ProvidedClass;
@@ -16,6 +17,7 @@ import ch.jalu.injector.samples.animals.services.HissService;
 import ch.jalu.injector.samples.animals.services.RoarService;
 import ch.jalu.injector.samples.animals.services.SoundServiceSupervisor;
 import ch.jalu.injector.samples.animals.services.SqueakService;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -41,7 +43,19 @@ import static org.junit.Assert.assertThat;
  */
 public class AllInstancesAnnotationHandlerTest {
 
-    private Injector injector = new InjectorBuilder().addDefaultHandlers("ch.jalu.injector").create();
+    private static final String ROOT_PACKAGE = "ch.jalu.injector";
+
+    private Injector injector;
+
+    @Before
+    public void initializeInjector() {
+        AllInstancesAnnotationHandler allInstancesHandler = new AllInstancesAnnotationHandler(ROOT_PACKAGE);
+        AllTypesAnnotationHandler allTypesHandler = new AllTypesAnnotationHandler(ROOT_PACKAGE);
+        injector = new InjectorBuilder()
+                .addHandlers(allInstancesHandler, allTypesHandler)
+                .addDefaultHandlers(ROOT_PACKAGE)
+                .create();
+    }
 
     @Test
     @SuppressWarnings("unchecked")
@@ -84,7 +98,7 @@ public class AllInstancesAnnotationHandlerTest {
     }
 
     /**
-     * Full integration test with focus on {@link ch.jalu.injector.AllInstances} and {@link ch.jalu.injector.AllTypes}.
+     * Full integration test with focus on {@link AllInstances} and {@link AllTypes}.
      *
      * @see ch.jalu.injector.samples.animals.AnimalHandler
      */

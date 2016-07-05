@@ -3,8 +3,6 @@ package ch.jalu.injector;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
-import ch.jalu.injector.handlers.dependency.AllInstancesAnnotationHandler;
-import ch.jalu.injector.handlers.dependency.AllTypesAnnotationHandler;
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
 import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
 import ch.jalu.injector.handlers.instantiation.ConstructorInjectionProvider;
@@ -58,9 +56,6 @@ public class InjectorBuilder {
             new ConstructorInjectionProvider(),
             new FieldInjectionProvider(),
             new InstantiationFallbackProvider(),
-            // Dependencies: @AllTypes and @AllInstances
-            new AllTypesAnnotationHandler(rootPackage),
-            new AllInstancesAnnotationHandler(rootPackage),
             // PostConstruct
             new PostConstructMethodInvoker()));
     }

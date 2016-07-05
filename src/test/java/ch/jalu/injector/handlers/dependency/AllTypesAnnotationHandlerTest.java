@@ -13,6 +13,7 @@ import ch.jalu.injector.samples.animals.Reptile;
 import ch.jalu.injector.samples.animals.Snake;
 import ch.jalu.injector.samples.animals.Sparrow;
 import ch.jalu.injector.samples.animals.Turtle;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Set;
@@ -25,7 +26,16 @@ import static org.junit.Assert.assertThat;
  */
 public class AllTypesAnnotationHandlerTest {
 
-    private Injector injector = new InjectorBuilder().addDefaultHandlers("ch.jalu.injector.samples.animals").create();
+    private Injector injector;
+
+    @Before
+    public void initializeInjector() {
+        String rootPackage = "ch.jalu.injector.samples.animals";
+        injector = new InjectorBuilder()
+            .addHandlers(new AllTypesAnnotationHandler(rootPackage))
+            .addDefaultHandlers(rootPackage)
+            .create();
+    }
 
     @Test
     @SuppressWarnings("unchecked")

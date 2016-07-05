@@ -1,6 +1,6 @@
 package ch.jalu.injector.handlers.dependency;
 
-import ch.jalu.injector.AllTypes;
+import ch.jalu.injector.annotations.AllTypes;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.utils.InjectorUtils;
@@ -12,6 +12,9 @@ import java.util.Set;
 /**
  * Annotation handler for {@link AllTypes}. Dependencies with this annotation will be
  * assigned a collection of all known subtypes in the project's package.
+ * <p>
+ * Requires that you add the <a href="https://github.com/ronmamo/reflections">reflections project</a>
+ * as dependency to be able to use this.
  */
 public class AllTypesAnnotationHandler extends TypeSafeAnnotationHandler<AllTypes> {
 

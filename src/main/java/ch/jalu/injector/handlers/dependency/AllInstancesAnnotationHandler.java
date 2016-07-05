@@ -1,6 +1,6 @@
 package ch.jalu.injector.handlers.dependency;
 
-import ch.jalu.injector.AllInstances;
+import ch.jalu.injector.annotations.AllInstances;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
@@ -14,6 +14,9 @@ import java.util.Set;
 /**
  * Handler for {@link AllInstances}. Finds all subtypes of the given dependency,
  * instantiates them and assigns the collection to the given dependency.
+ * <p>
+ * Requires that you add the <a href="https://github.com/ronmamo/reflections">reflections project</a>
+ * as dependency to be able to use this.
  */
 public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<AllInstances> {
 

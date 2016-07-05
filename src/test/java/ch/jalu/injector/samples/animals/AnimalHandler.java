@@ -1,7 +1,7 @@
 package ch.jalu.injector.samples.animals;
 
-import ch.jalu.injector.AllInstances;
-import ch.jalu.injector.AllTypes;
+import ch.jalu.injector.annotations.AllInstances;
+import ch.jalu.injector.annotations.AllTypes;
 import ch.jalu.injector.samples.animals.services.SoundService;
 
 import javax.inject.Inject;

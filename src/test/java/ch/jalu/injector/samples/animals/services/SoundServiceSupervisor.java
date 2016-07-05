@@ -1,6 +1,6 @@
 package ch.jalu.injector.samples.animals.services;
 
-import ch.jalu.injector.AllInstances;
+import ch.jalu.injector.annotations.AllInstances;
 
 import javax.inject.Inject;
 
