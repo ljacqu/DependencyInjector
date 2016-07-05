@@ -8,11 +8,11 @@ import java.lang.annotation.Target;
 /**
  * Annotation that will be initialized to all found subtypes of the field's type. Must be a collection or
  * an array. For example:
- * <pre>{@code
- * @Inject
- * @AlInstances
- * private Set<Command> commands;
- * }</pre>
+ * <pre>
+ * {@code @Inject}
+ * {@code @AlInstances}
+ * {@code private Set<Command> commands;}
+ * </pre>
  *
  * This will initialize the field with all known subtypes of {@code Command} in the project. The handler
  * for this annotation must be provided explicitly; it is not part of the

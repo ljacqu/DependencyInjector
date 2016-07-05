@@ -37,6 +37,7 @@ public abstract class TypeSafeAnnotationHandler<T extends Annotation> implements
      * @param annotation the matched annotation
      * @param dependencyDescription the entire dependency description
      * @return the resolved value, or null if none applicable
+     * @throws Exception for invalid usage of annotation
      */
     @Nullable
     protected abstract Object resolveValueSafely(Injector injector, T annotation,

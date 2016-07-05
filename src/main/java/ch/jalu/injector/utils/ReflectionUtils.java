@@ -109,6 +109,7 @@ public final class ReflectionUtils {
      *
      * @param rawType the collection type to match
      * @param result the result Set to potentially convert
+     * @param <T> the set's type
      * @return result set as suitable collection type
      */
     public static <T> Object toSuitableCollectionType(Class<?> rawType, Set<T> result) {
