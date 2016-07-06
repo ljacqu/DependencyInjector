@@ -13,6 +13,17 @@ Simple but customizable dependency injector for Java 1.7 or above.
 - Allows gradual transition to injection for existing projects
 - You can implement your own injection methods
 
+### Integrating it
+Using Maven, you can get the injector by adding this to your pom.xml:
+
+```xml
+<dependency>
+    <groupId>ch.jalu</groupId>
+    <artifactId>injector</artifactId>
+    <version>0.1</version>
+</dependency>
+```
+
 ### Simple example
 By default, the injector supports **constructor injection** and **field injection**.
 Consider the following class skeletons:
