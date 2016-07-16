@@ -12,6 +12,7 @@ Simple but customizable dependency injector for Java 1.7 or above.
 - Very lightweight (only requires `javax.inject` dependency)
 - Allows gradual transition to injection for existing projects
 - You can implement your own injection methods
+- Support for projects with optional dependencies
 
 ### Integrating it
 Using Maven, you can get the injector by adding this to your pom.xml:
