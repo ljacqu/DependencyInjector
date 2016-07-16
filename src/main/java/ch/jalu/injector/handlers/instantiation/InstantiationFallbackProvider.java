@@ -1,5 +1,7 @@
 package ch.jalu.injector.handlers.instantiation;
 
+import ch.jalu.injector.utils.ReflectionUtils;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.lang.reflect.AccessibleObject;
@@ -16,8 +18,8 @@ public class InstantiationFallbackProvider implements InstantiationProvider {
         // Return fallback only if we have no args constructor and no @Inject annotation anywhere
         if (noArgsConstructor != null
                 && !isInjectionAnnotationPresent(clazz.getDeclaredConstructors())
-                && !isInjectionAnnotationPresent(clazz.getDeclaredFields())
-                && !isInjectionAnnotationPresent(clazz.getDeclaredMethods())) {
+                && !isInjectionAnnotationPresent(ReflectionUtils.safeGetDeclaredFields(clazz))
+                && !isInjectionAnnotationPresent(ReflectionUtils.safeGetDeclaredMethods(clazz))) {
             return new InstantiationFallback<>(noArgsConstructor);
         }
         return null;

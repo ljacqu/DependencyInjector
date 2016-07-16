@@ -1,5 +1,7 @@
 package ch.jalu.injector.utils;
 
+import ch.jalu.injector.annotations.NoFieldScan;
+import ch.jalu.injector.annotations.NoMethodScan;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.exceptions.InjectorReflectionException;
 
@@ -124,5 +126,29 @@ public final class ReflectionUtils {
         }
         throw new InjectorException("Cannot convert @AllTypes result to '" + rawType + "'. "
             + "Supported: Set, List, or any subtype thereof, and array", rawType);
+    }
+
+    /**
+     * Returns all methods of a class if not annotated with {@link NoMethodScan}. Otherwise returns an empty array.
+     *
+     * @param clazz the class to process
+     * @return the class' methods or empty array if methods should not be scanned
+     */
+    public static Method[] safeGetDeclaredMethods(Class<?> clazz) {
+        return clazz.isAnnotationPresent(NoMethodScan.class)
+            ? new Method[0]
+            : clazz.getDeclaredMethods();
+    }
+
+    /**
+     * Returns all fields of a class if not annotated with {@link NoFieldScan}. Otherwise returns an empty array.
+     *
+     * @param clazz the class to process
+     * @return the class' fields or empty array if fields should not be scanned
+     */
+    public static Field[] safeGetDeclaredFields(Class<?> clazz) {
+        return clazz.isAnnotationPresent(NoFieldScan.class)
+            ? new Field[0]
+            : clazz.getDeclaredFields();
     }
 }

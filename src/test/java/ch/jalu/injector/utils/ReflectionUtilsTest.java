@@ -1,8 +1,11 @@
 package ch.jalu.injector.utils;
 
 import ch.jalu.injector.TestUtils;
+import ch.jalu.injector.annotations.NoFieldScan;
+import ch.jalu.injector.annotations.NoMethodScan;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.exceptions.InjectorReflectionException;
+import ch.jalu.injector.samples.PostConstructTestClass;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
@@ -19,7 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.nullValue;
@@ -285,6 +290,18 @@ public class ReflectionUtilsTest {
         TestUtils.assertIsProperUtilsClass(ReflectionUtils.class);
     }
 
+    @Test
+    public void shouldReturnEmptyMethodListForNoMethodScanClass() {
+        assertThat(ReflectionUtils.safeGetDeclaredMethods(NoMethodScanClass.class), emptyArray());
+        assertThat(ReflectionUtils.safeGetDeclaredMethods(PostConstructTestClass.class), arrayWithSize(3));
+    }
+
+    @Test
+    public void shouldReturnEmptyFieldListForNoFieldScanClass() {
+        assertThat(ReflectionUtils.safeGetDeclaredFields(NoFieldScanClass.class), emptyArray());
+        assertThat(ReflectionUtils.safeGetDeclaredFields(PostConstructTestClass.class), arrayWithSize(3));
+    }
+
     private static Field getField(String name) {
         try {
             return ReflectionsTestClass.class.getDeclaredField(name);
@@ -303,5 +320,25 @@ public class ReflectionUtilsTest {
 
     private static Matcher<? super Class<?>> isClass(Class clazz) {
         return equalTo(clazz);
+    }
+
+    // -------
+    // Sample classes
+    // -------
+    @NoMethodScan
+    private static final class NoMethodScanClass {
+        private void someMethod() {
+        }
+
+        private boolean otherMethod() {
+            return false;
+        }
+    }
+
+    @NoFieldScan
+    private static final class NoFieldScanClass {
+        private byte oneField;
+        private boolean twoField;
+        private char threeField;
     }
 }

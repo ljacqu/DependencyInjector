@@ -1,6 +1,5 @@
 package ch.jalu.injector.handlers.postconstruct;
 
-import ch.jalu.injector.annotations.NoMethodScan;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.utils.ReflectionUtils;
 
@@ -18,11 +17,9 @@ public class PostConstructMethodInvoker implements PostConstructHandler {
     public void process(Object object) {
         Class<?> clazz = object.getClass();
         while (clazz != null) {
-            if (!clazz.isAnnotationPresent(NoMethodScan.class)) {
-                Method postConstructMethod = getAndValidatePostConstructMethod(clazz);
-                if (postConstructMethod != null) {
-                    ReflectionUtils.invokeMethod(postConstructMethod, object);
-                }
+            Method postConstructMethod = getAndValidatePostConstructMethod(clazz);
+            if (postConstructMethod != null) {
+                ReflectionUtils.invokeMethod(postConstructMethod, object);
             }
             clazz = clazz.getSuperclass();
         }
@@ -30,7 +27,7 @@ public class PostConstructMethodInvoker implements PostConstructHandler {
 
     private static Method getAndValidatePostConstructMethod(Class<?> clazz) {
         Method postConstructMethod = null;
-        for (Method method : clazz.getDeclaredMethods()) {
+        for (Method method : ReflectionUtils.safeGetDeclaredMethods(clazz)) {
             if (method.isAnnotationPresent(PostConstruct.class)) {
                 if (postConstructMethod != null) {
                     throw new InjectorException("Multiple methods with @PostConstruct on " + clazz, clazz);

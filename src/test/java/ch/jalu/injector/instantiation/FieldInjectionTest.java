@@ -1,5 +1,6 @@
 package ch.jalu.injector.instantiation;
 
+import ch.jalu.injector.annotations.NoFieldScan;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.FieldInjection;
@@ -131,6 +132,15 @@ public class FieldInjectionTest {
         assertThat(injection, nullValue());
     }
 
+    @Test
+    public void shouldNotScanClassWithNoFieldScan() {
+        // given / when
+        FieldInjection<NoFieldScanClass> injection = provider.get(NoFieldScanClass.class);
+
+        // then
+        assertThat(injection, nullValue());
+    }
+
     @SafeVarargs
     private static void assertDependencyEqualTo(DependencyDescription dependency, Class<?> type,
                                                 Class<? extends Annotation>... annotations) {
@@ -154,5 +164,11 @@ public class FieldInjectionTest {
 
     private static final class NoInjectionClass {
 
+    }
+
+    @NoFieldScan
+    private static final class NoFieldScanClass {
+        @Inject
+        private ProvidedClass providedClass;
     }
 }

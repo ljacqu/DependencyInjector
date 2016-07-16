@@ -1,6 +1,7 @@
 package ch.jalu.injector.handlers.instantiation;
 
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.utils.ReflectionUtils;
 
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
@@ -26,7 +27,7 @@ public class FieldInjectionProvider implements InstantiationProvider {
 
     private static List<Field> getInjectionFields(Class<?> clazz) {
         List<Field> fields = new ArrayList<>();
-        for (Field field : clazz.getDeclaredFields()) {
+        for (Field field : ReflectionUtils.safeGetDeclaredFields(clazz)) {
             if (field.isAnnotationPresent(Inject.class)) {
                 if (Modifier.isStatic(field.getModifiers())) {
                     throw new InjectorException(String.format("Field '%s' in class '%s' is static but "
@@ -46,7 +47,7 @@ public class FieldInjectionProvider implements InstantiationProvider {
             noArgsConstructor.setAccessible(true);
             return (Constructor<T>) noArgsConstructor;
         } catch (NoSuchMethodException ignore) {
-            // no no-arg constructor available
+            // no-arg constructor not available
         }
         return null;
     }
