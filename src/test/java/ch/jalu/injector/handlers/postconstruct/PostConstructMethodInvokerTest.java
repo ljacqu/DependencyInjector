@@ -1,6 +1,7 @@
 package ch.jalu.injector.handlers.postconstruct;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
+import ch.jalu.injector.annotations.NoMethodScan;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.PostConstructTestClass;
 import ch.jalu.injector.samples.ProvidedClass;
@@ -100,39 +101,52 @@ public class PostConstructMethodInvokerTest {
         // when
         postConstructInvoker.process(notVoidReturnType);
     }
+
+    @Test
+    public void shouldCallPostConstructOnParentsButNotOnNoMethodScanClasses() {
+        // given
+        ChildClass childClass = new ChildClass();
+
+        // when
+        postConstructInvoker.process(childClass);
+
+        // then
+        assertThat(childClass.wasChildPostConstCalled, equalTo(true));
+        assertThat(childClass.wasParentPostConstCalled, equalTo(true));
+    }
     
     
     // ---------------
     // Test classes
     // ---------------
-    public static final class WithParams {
+    private static final class WithParams {
         @PostConstruct
         public void invalidPostConstr(BetaManager betaManager) {
         }
     }
 
-    public static final class Static {
+    private static final class Static {
         @PostConstruct
         public static void invalidMethod() {
             // --
         }
     }
 
-    public static final class ThrowsException {
+    private static final class ThrowsException {
         @PostConstruct
         public void throwingPostConstruct() {
             throw new IllegalStateException("Exception in post construct");
         }
     }
 
-    public static final class NotVoidReturnType {
+    private static final class NotVoidReturnType {
         @PostConstruct
         public int returnsInt() {
             return 42;
         }
     }
 
-    public static final class MultiplePostConstructs {
+    private static final class MultiplePostConstructs {
         @PostConstruct
         public void postConstruct1() {
             // --
@@ -140,6 +154,35 @@ public class PostConstructMethodInvokerTest {
         @PostConstruct
         public void postConstruct2() {
             // --
+        }
+    }
+
+    // ---------
+    // Inheritance test classes
+    // ---------
+    private static class ParentClass {
+        boolean wasParentPostConstCalled = false;
+
+        @PostConstruct
+        private void postConstruct() {
+            wasParentPostConstCalled = true;
+        }
+    }
+
+    @NoMethodScan
+    private static class MiddleClass extends ParentClass {
+        @PostConstruct
+        private void postConstruct() {
+            throw new IllegalStateException("Should not be called");
+        }
+    }
+
+    private static final class ChildClass extends MiddleClass {
+        boolean wasChildPostConstCalled = false;
+
+        @PostConstruct
+        private void postConstruct() {
+            wasChildPostConstCalled = true;
         }
     }
 }

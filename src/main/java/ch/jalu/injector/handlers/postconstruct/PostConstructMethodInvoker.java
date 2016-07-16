@@ -1,5 +1,6 @@
 package ch.jalu.injector.handlers.postconstruct;
 
+import ch.jalu.injector.annotations.NoMethodScan;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.utils.ReflectionUtils;
 
@@ -17,9 +18,11 @@ public class PostConstructMethodInvoker implements PostConstructHandler {
     public void process(Object object) {
         Class<?> clazz = object.getClass();
         while (clazz != null) {
-            Method postConstructMethod = getAndValidatePostConstructMethod(clazz);
-            if (postConstructMethod != null) {
-                ReflectionUtils.invokeMethod(postConstructMethod, object);
+            if (!clazz.isAnnotationPresent(NoMethodScan.class)) {
+                Method postConstructMethod = getAndValidatePostConstructMethod(clazz);
+                if (postConstructMethod != null) {
+                    ReflectionUtils.invokeMethod(postConstructMethod, object);
+                }
             }
             clazz = clazz.getSuperclass();
         }
