@@ -31,7 +31,7 @@ public class FieldInjectionProvider implements InstantiationProvider {
             if (field.isAnnotationPresent(Inject.class)) {
                 if (Modifier.isStatic(field.getModifiers())) {
                     throw new InjectorException(String.format("Field '%s' in class '%s' is static but "
-                            + "annotated with @Inject", field.getName(), clazz.getSimpleName()), clazz);
+                        + "annotated with @Inject", field.getName(), clazz.getSimpleName()));
                 }
                 field.setAccessible(true);
                 fields.add(field);

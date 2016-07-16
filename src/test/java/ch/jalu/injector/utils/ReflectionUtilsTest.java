@@ -148,10 +148,10 @@ public class ReflectionUtilsTest {
     public void shouldCreateNewInstance() throws NoSuchMethodException {
         // given
         Constructor<ReflectionsTestClass> constr = ReflectionsTestClass.class
-            .getDeclaredConstructor(String.class, int.class);
+            .getDeclaredConstructor(int.class);
 
         // when
-        ReflectionsTestClass testClass = ReflectionUtils.newInstance(constr, "Test", 543);
+        ReflectionsTestClass testClass = ReflectionUtils.newInstance(constr, 543);
 
         // then
         assertThat(testClass.getInteger(), equalTo(543));

@@ -36,10 +36,9 @@ public class SavedAnnotationsHandler implements DependencyHandler, AnnotationVal
 
     @Override
     public void processProvided(Class<? extends Annotation> annotation, Object object) {
-        InjectorUtils.checkNotNull(annotation, "Annotation may not be null", null);
-        InjectorUtils.checkNotNull(object, "Object may not be null", annotation);
+        InjectorUtils.checkNotNull(object, "Object may not be null");
         if (storedValues.containsKey(annotation)) {
-            throw new InjectorException("Value already registered for @" + annotation.getSimpleName(), annotation);
+            throw new InjectorException("Value already registered for @" + annotation.getSimpleName());
         }
         storedValues.put(annotation, object);
     }

@@ -10,7 +10,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.Objects;
 
 import static org.hamcrest.Matchers.containsString;
 
@@ -84,31 +83,9 @@ public final class TestUtils {
             this.expectedException = expectedException;
         }
 
-        public void expect(String message, Class<?> contextClass) {
+        public void expect(String message) {
             expectedException.expect(InjectorException.class);
             expectedException.expectMessage(containsString(message));
-            expectedException.expect(hasClass(contextClass));
-        }
-
-        private static <T extends InjectorException> Matcher<T> hasClass(final Class<?> clazz) {
-            return new TypeSafeMatcher<T>() {
-                @Override
-                public void describeTo(Description description) {
-                    String className = clazz == null ? "null" : clazz.getSimpleName();
-                    description.appendText("Expected exception with class '" + className + "'");
-                }
-
-                @Override
-                public void describeMismatchSafely(T item, Description mismatchDescription) {
-                    String className = item.getClazz() == null ? "null" : item.getClazz().getSimpleName();
-                    mismatchDescription.appendText("had class '" + className + "'");
-                }
-
-                @Override
-                protected boolean matchesSafely(T item) {
-                    return Objects.equals(clazz, item.getClazz());
-                }
-            };
         }
     }
 

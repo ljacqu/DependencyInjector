@@ -9,6 +9,8 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ch.jalu.injector.utils.InjectorUtils.getDeclarer;
+
 /**
  * Fallback instantiation method for classes with an accessible no-args constructor
  * and no elements whatsoever annotated with {@link Inject} or {@link PostConstruct}.
@@ -29,7 +31,7 @@ public class InstantiationFallback<T> implements Instantiation<T> {
     @Override
     public T instantiateWith(Object... values) {
         InjectorUtils.checkArgument(values == null || values.length == 0,
-                "Instantiation fallback cannot have parameters", constructor.getDeclaringClass());
+            "Instantiation fallback cannot have parameters. Values passed for " + getDeclarer(constructor));
         return ReflectionUtils.newInstance(constructor);
     }
 }

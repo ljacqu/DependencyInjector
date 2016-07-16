@@ -32,7 +32,7 @@ public class AllTypesAnnotationHandler extends TypeSafeAnnotationHandler<AllType
     @Override
     public Object resolveValueSafely(Injector injector, AllTypes annotation,
                                      DependencyDescription dependencyDescription) {
-        InjectorUtils.checkNotNull(annotation.value(), "Annotation value may not be null", AllTypes.class);
+        InjectorUtils.checkNotNull(annotation.value(), "Annotation value may not be null");
         Set<?> subTypes = reflections.getSubTypesOf(annotation.value());
 
         Class<?> rawType = dependencyDescription.getType();

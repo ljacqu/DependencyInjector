@@ -52,15 +52,15 @@ public class InjectorImpl implements Injector {
     @Override
     public <T> void register(Class<? super T> clazz, T object) {
         if (objects.containsKey(clazz)) {
-            throw new InjectorException("There is already an object present for " + clazz, clazz);
+            throw new InjectorException("There is already an object present for " + clazz);
         }
-        InjectorUtils.checkNotNull(object, clazz);
+        InjectorUtils.checkNotNull(object);
         objects.put(clazz, object);
     }
 
     @Override
     public void provide(Class<? extends Annotation> clazz, Object object) {
-        checkNotNull(clazz, "Provided annotation may not be null", Annotation.class);
+        checkNotNull(clazz, "Provided annotation may not be null");
         for (AnnotationValueHandler annotationValueHandler : config.getAnnotationValueHandlers()) {
             try {
                 annotationValueHandler.processProvided(clazz, object);
@@ -116,7 +116,7 @@ public class InjectorImpl implements Injector {
         }
 
         if (!InjectorUtils.canInstantiate(mappedClass)) {
-            throw new InjectorException("Class " + clazz.getSimpleName() + " cannot be instantiated", clazz);
+            throw new InjectorException("Class " + clazz.getSimpleName() + " cannot be instantiated");
         }
 
         // Add the clazz to the list of traversed classes in a new Set, so each path we take has its own Set.
@@ -162,13 +162,12 @@ public class InjectorImpl implements Injector {
         }
 
         if (config.getInstantiationProviders().isEmpty()) {
-            throw new InjectorException("You did not register any instantiation methods!",
-                InstantiationProvider.class);
+            throw new InjectorException("You did not register any instantiation methods!");
         }
         throw new InjectorException("Did not find instantiation method for '" + clazz + "'. Make sure your class "
             + "conforms to one of the registered instantiations. If default: make sure you have "
             + "a constructor with @Inject or fields with @Inject. Fields with @Inject require "
-            + "the default constructor", clazz);
+            + "the default constructor");
     }
 
     /**
@@ -235,7 +234,7 @@ public class InjectorImpl implements Injector {
             Class<?> clazz = dependency.getType();
             if (traversedClasses.contains(clazz)) {
                 throw new InjectorException("Found cyclic dependency - already traversed '" + clazz
-                    + "' (full traversal list: " + traversedClasses + ")", clazz);
+                    + "' (full traversal list: " + traversedClasses + ")");
             }
         }
     }

@@ -38,7 +38,7 @@ public final class ReflectionUtils {
             return field.get(instance);
         } catch (IllegalAccessException e) {
             throw new InjectorReflectionException(
-                "Could not get value of field '" + field.getName() + "' for " + instance, e, field);
+                "Could not get value of field '" + field.getName() + "' for " + instance, e);
         }
     }
 
@@ -55,7 +55,7 @@ public final class ReflectionUtils {
             field.set(instance, value);
         } catch (IllegalAccessException e) {
             throw new InjectorReflectionException(
-                "Could not set field '" + field.getName() + "' for " + instance, e, field);
+                "Could not set field '" + field.getName() + "' for " + instance, e);
         }
     }
 
@@ -73,7 +73,7 @@ public final class ReflectionUtils {
             return method.invoke(instance, parameters);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new InjectorReflectionException(
-                "Could not invoke method '" + method.getName() + "' for " + instance, e, method);
+                "Could not invoke method '" + method.getName() + "' for " + instance, e);
         }
     }
 
@@ -86,11 +86,12 @@ public final class ReflectionUtils {
      * @return the instantiated object
      */
     public static <T> T newInstance(Constructor<T> constructor, Object... parameters) {
+        constructor.setAccessible(true);
         try {
             return constructor.newInstance(parameters);
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
             throw new InjectorReflectionException("Could not invoke constructor of class '"
-                    + constructor.getDeclaringClass() + "'", e, constructor);
+                    + constructor.getDeclaringClass() + "'", e);
         }
     }
 
@@ -125,7 +126,7 @@ public final class ReflectionUtils {
             return new ArrayList<>(result);
         }
         throw new InjectorException("Cannot convert @AllTypes result to '" + rawType + "'. "
-            + "Supported: Set, List, or any subtype thereof, and array", rawType);
+            + "Supported: Set, List, or any subtype thereof, and array");
     }
 
     /**

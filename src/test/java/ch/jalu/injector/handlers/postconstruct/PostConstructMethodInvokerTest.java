@@ -43,8 +43,7 @@ public class PostConstructMethodInvokerTest {
         WithParams withParams = new WithParams();
 
         // expect
-        exceptionCatcher.expect("@PostConstruct method may not be static or have any parameters",
-            WithParams.class);
+        exceptionCatcher.expect("@PostConstruct method may not be static or have any parameters");
 
         // when
         postConstructInvoker.process(withParams);
@@ -56,8 +55,7 @@ public class PostConstructMethodInvokerTest {
         Static classWithStaticMethod = new Static();
 
         // expect
-        exceptionCatcher.expect("@PostConstruct method may not be static or have any parameters",
-            Static.class);
+        exceptionCatcher.expect("@PostConstruct method may not be static or have any parameters");
 
         // when
         postConstructInvoker.process(classWithStaticMethod);
@@ -69,7 +67,7 @@ public class PostConstructMethodInvokerTest {
         ThrowsException throwsException = new ThrowsException();
 
         // expect
-        exceptionCatcher.expect("Could not invoke method", ThrowsException.class);
+        exceptionCatcher.expect("Could not invoke method");
 
         // when
         postConstructInvoker.process(throwsException);
@@ -82,8 +80,7 @@ public class PostConstructMethodInvokerTest {
             new MultiplePostConstructs();
 
         // expect
-        exceptionCatcher.expect("Multiple methods with @PostConstruct",
-            MultiplePostConstructs.class);
+        exceptionCatcher.expect("Multiple methods with @PostConstruct");
 
         // when
         postConstructInvoker.process(multiplePostConstructs);
@@ -95,8 +92,7 @@ public class PostConstructMethodInvokerTest {
         NotVoidReturnType notVoidReturnType = new NotVoidReturnType();
 
         // expect
-        exceptionCatcher.expect("@PostConstruct method must have return type void",
-            NotVoidReturnType.class);
+        exceptionCatcher.expect("@PostConstruct method must have return type void");
 
         // when
         postConstructInvoker.process(notVoidReturnType);

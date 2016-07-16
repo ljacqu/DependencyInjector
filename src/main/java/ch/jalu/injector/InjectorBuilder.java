@@ -46,7 +46,7 @@ public class InjectorBuilder {
      * @since 0.1
      */
     public static List<Handler> createDefaultHandlers(String rootPackage) {
-        InjectorUtils.checkNotNull(rootPackage, "root package may not be null", String.class);
+        InjectorUtils.checkNotNull(rootPackage, "root package may not be null");
         return new ArrayList<>(Arrays.asList(
             // PreConstruct
             new PreConstructPackageValidator(rootPackage),
@@ -158,8 +158,8 @@ public class InjectorBuilder {
                 foundSubtype |= addHandler(subtype, handler);
             }
             if (!foundSubtype) {
-                throw new InjectorException(
-                    "Unknown Handler type. Handlers must implement a known subtype", handler.getClass());
+                throw new InjectorException(String.format("Class '%s' must extend a known Handler subtype",
+                    handler.getClass().getName()));
             }
         }
 

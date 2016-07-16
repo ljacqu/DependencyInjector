@@ -27,7 +27,6 @@ public class ConstructorInjectionProvider implements InstantiationProvider {
         Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
             if (constructor.isAnnotationPresent(Inject.class)) {
-                constructor.setAccessible(true);
                 return (Constructor<T>) constructor;
             }
         }

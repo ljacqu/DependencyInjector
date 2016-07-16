@@ -5,24 +5,12 @@ package ch.jalu.injector.exceptions;
  */
 public class InjectorException extends RuntimeException {
 
-    private final Class<?> clazz;
-
-    public InjectorException(String message, Class<?> clazz) {
+    public InjectorException(String message) {
         super(message);
-        this.clazz = clazz;
     }
 
-    public InjectorException(String message, Throwable cause, Class<?> clazz) {
+    public InjectorException(String message, Throwable cause) {
         super(message, cause);
-        this.clazz = clazz;
     }
 
-    /**
-     * Returns the class an operation was being run for that caused the exception.
-     *
-     * @return the class
-     */
-    public Class<?> getClazz() {
-        return clazz;
-    }
 }

@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static ch.jalu.injector.utils.InjectorUtils.getDeclarer;
+
 /**
  * Functionality for field injection.
  */
@@ -34,12 +36,12 @@ public class FieldInjection<T> implements Instantiation<T> {
 
     @Override
     public T instantiateWith(Object... values) {
-        InjectorUtils.checkArgument(values.length == fields.length,
-            "The number of values must be equal to the number of fields", defaultConstructor.getDeclaringClass());
+        InjectorUtils.checkNoNullValues(values);
+        InjectorUtils.checkArgument(values.length == fields.length, "The number of values must be equal to the "
+            + "number of fields (class " + getDeclarer(defaultConstructor) + ")");
 
         T instance = ReflectionUtils.newInstance(defaultConstructor);
         for (int i = 0; i < fields.length; ++i) {
-            InjectorUtils.checkNotNull(values[i], defaultConstructor.getDeclaringClass());
             ReflectionUtils.setField(fields[i], instance, values[i]);
         }
         return instance;

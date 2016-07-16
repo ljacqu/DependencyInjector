@@ -35,7 +35,7 @@ public class ConstructorInjection<T> implements Instantiation<T> {
 
     @Override
     public T instantiateWith(Object... values) {
-        InjectorUtils.checkNotNull(values, constructor.getDeclaringClass());
+        InjectorUtils.checkNoNullValues(values);
         return ReflectionUtils.newInstance(constructor, values);
     }
 }

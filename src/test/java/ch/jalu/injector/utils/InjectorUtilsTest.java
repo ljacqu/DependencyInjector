@@ -9,9 +9,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.lang.reflect.Method;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -24,22 +22,20 @@ import static org.junit.Assert.fail;
  */
 public class InjectorUtilsTest {
 
+    private static final String DEFAULT_NOT_NULL_MSG = "Object may not be null";
+
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
 
     @Test
     public void shouldPassSimpleChecks() {
+        InjectorUtils.checkNotNull(new Object());
+        InjectorUtils.checkNotNull(new Object(), "New Object should not be null");
+
         String[] arr = {"this", "is", "a", "test", "array"};
-        List<Integer> intList = Arrays.asList(1, 2, 3, 4);
-
-        // Tests all flavors of checkNotNull() with non-null arguments
-        InjectorUtils.checkNotNull(new Object(), Object.class);
-        InjectorUtils.checkNotNull(new Object(), "New Object should not be null", Random.class);
-        InjectorUtils.checkNotNull(intList, Integer.class);
-        InjectorUtils.checkNotNull(arr, String.class);
-
-        InjectorUtils.checkArgument(arr.length == 5, "Arr length should be 5", String.class);
+        InjectorUtils.checkArgument(arr.length == 5, "Arr length should be 5");
+        InjectorUtils.checkNoNullValues(arr);
     }
 
     @Test
@@ -49,22 +45,22 @@ public class InjectorUtilsTest {
         Object o = null;
 
         // expect
-        exceptionCatcher.expect(message, Object.class);
+        exceptionCatcher.expect(message);
 
         // when
-        InjectorUtils.checkNotNull(o, message, Object.class);
+        InjectorUtils.checkNotNull(o, message);
     }
 
     @Test
-    public void shouldThrowForIterableWithNullValue() {
+    public void shouldThrowForArrayWithNullValue() {
         // given
-        Iterable<String> elems = Arrays.asList("this", "is", null, "test", "array");
+        String[] elems = {"this", "is", null, "test", "array"};
 
         // expect
-        exceptionCatcher.expect("Object may not be null", String.class);
+        exceptionCatcher.expect(DEFAULT_NOT_NULL_MSG);
 
         // when
-        InjectorUtils.checkNotNull(elems, String.class);
+        InjectorUtils.checkNoNullValues(elems);
     }
 
     @Test
@@ -73,22 +69,10 @@ public class InjectorUtilsTest {
         Iterable<Boolean> elems = null;
 
         // expect
-        exceptionCatcher.expect("Object may not be null", Iterable.class);
+        exceptionCatcher.expect(DEFAULT_NOT_NULL_MSG);
 
         // when
-        InjectorUtils.checkNotNull(elems, Iterable.class);
-    }
-
-    @Test
-    public void shouldThrowForArrayWithNullValue() {
-        // given
-        Object[] arr = {new Object(), new Object(), null, "test"};
-
-        // expect
-        exceptionCatcher.expect("Object may not be null", Class.class);
-
-        // when
-        InjectorUtils.checkNotNull(arr, Class.class);
+        InjectorUtils.checkNoNullValues(elems);
     }
 
     @Test
@@ -97,10 +81,10 @@ public class InjectorUtilsTest {
         String[] arr = null;
 
         // expect
-        exceptionCatcher.expect("Object may not be null", Random.class);
+        exceptionCatcher.expect(DEFAULT_NOT_NULL_MSG);
 
         // when
-        InjectorUtils.checkNotNull(arr, Random.class);
+        InjectorUtils.checkNotNull(arr);
     }
 
     @Test
@@ -109,10 +93,10 @@ public class InjectorUtilsTest {
         String msg = "Argument check was unsuccessful";
 
         // expect
-        exceptionCatcher.expect(msg, Object.class);
+        exceptionCatcher.expect(msg);
 
         // when
-        InjectorUtils.checkArgument(false, msg, Object.class);
+        InjectorUtils.checkArgument(false, msg);
     }
 
     @Test
@@ -133,7 +117,7 @@ public class InjectorUtilsTest {
     @Test
     public void shouldForwardException() {
         // given
-        InjectorException e = new InjectorException("Error during injection", List.class);
+        InjectorException e = new InjectorException("Error during injection");
 
         // when / then
         try {
@@ -193,6 +177,13 @@ public class InjectorUtilsTest {
         assertThat(InjectorUtils.canInstantiate(InjectorUtils.class), equalTo(true));
     }
 
+    @Test
+    public void shouldReturnDeclaringClass() throws NoSuchMethodException {
+        Method method = getClass().getDeclaredMethod("shouldReturnDeclaringClass");
+        assertThat(InjectorUtils.getDeclarer(method), equalTo(getClass().getName()));
+
+        assertThat(InjectorUtils.getDeclarer(null), equalTo("null"));
+    }
 
     @Test
     public void shouldBeWellFormedUtilsClass() {

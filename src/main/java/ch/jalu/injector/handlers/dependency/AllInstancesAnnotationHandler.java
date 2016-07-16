@@ -33,7 +33,7 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
 
     @Override
     public Object resolveValueSafely(Injector injector, AllInstances annotation,
-                                       DependencyDescription dependencyDescription) {
+                                     DependencyDescription dependencyDescription) {
         // The raw type, e.g. List or array
         final Class<?> rawType = dependencyDescription.getType();
         // The type of the collection, e.g. String for List<String> or String[]
@@ -41,7 +41,7 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
 
         if (genericType == null) {
             throw new InjectorException("Unsupported dependency of type '" + rawType
-                + "' annotated with @AllInstances. (Or did you forget the generic type?)", rawType);
+                + "' annotated with @AllInstances. (Or did you forget the generic type?)");
         }
 
         // TODO: Implement detection of cyclic dependencies

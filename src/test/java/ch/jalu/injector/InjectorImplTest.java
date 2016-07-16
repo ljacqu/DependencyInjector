@@ -92,14 +92,14 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForInvalidPackage() {
         // given / when / then
-        exceptionCatcher.expect("outside of the allowed packages", Integer.class);
+        exceptionCatcher.expect("outside of the allowed packages");
         injector.getSingleton(InvalidClass.class);
     }
 
     @Test
     public void shouldThrowForUnregisteredPrimitiveType() {
         // given / when / then
-        exceptionCatcher.expect("Primitive types must be provided", int.class);
+        exceptionCatcher.expect("Primitive types must be provided");
         injector.getSingleton(int.class);
     }
 
@@ -125,14 +125,14 @@ public class InjectorImplTest {
     @Test
     public void shouldRecognizeCircularReferences() {
         // given / when / then
-        exceptionCatcher.expect("Found cyclic dependency", CircularClasses.Circular3.class);
+        exceptionCatcher.expect("Found cyclic dependency");
         injector.getSingleton(CircularClasses.Circular3.class);
     }
 
     @Test
     public void shouldThrowForFieldInjectionWithoutNoArgsConstructor() {
         // given / when / then
-        exceptionCatcher.expect("Did not find instantiation method", BadFieldInjection.class);
+        exceptionCatcher.expect("Did not find instantiation method");
         injector.getSingleton(BadFieldInjection.class);
     }
 
@@ -157,21 +157,21 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForSecondRegistration() {
         // given / when / then
-        exceptionCatcher.expect("There is already an object present", ProvidedClass.class);
+        exceptionCatcher.expect("There is already an object present");
         injector.register(ProvidedClass.class, new ProvidedClass(""));
     }
 
     @Test
     public void shouldThrowForRegisterWithNull() {
         // given / when / then
-        exceptionCatcher.expect("may not be null", String.class);
+        exceptionCatcher.expect("may not be null");
         injector.register(String.class, null);
     }
 
     @Test
     public void shouldThrowForAbstractNonRegisteredDependency() {
         // given / when / then
-        exceptionCatcher.expect("cannot be instantiated", ClassWithAbstractDependency.AbstractDependency.class);
+        exceptionCatcher.expect("cannot be instantiated");
         injector.getSingleton(ClassWithAbstractDependency.class);
     }
 
@@ -195,7 +195,7 @@ public class InjectorImplTest {
         injector.register(BetaManager.class, new BetaManager());
 
         // when / then
-        exceptionCatcher.expect("There is already an object present", BetaManager.class);
+        exceptionCatcher.expect("There is already an object present");
         injector.register(BetaManager.class, new BetaManager());
     }
 
@@ -214,7 +214,7 @@ public class InjectorImplTest {
     @Test
     public void shouldThrowForStaticFieldInjection() {
         // given / when / then
-        exceptionCatcher.expect("is static but annotated with @Inject", InvalidStaticFieldInjection.class);
+        exceptionCatcher.expect("is static but annotated with @Inject");
         injector.newInstance(InvalidStaticFieldInjection.class);
     }
 
@@ -286,7 +286,7 @@ public class InjectorImplTest {
         Injector injector = new InjectorBuilder().addHandlers(handlers).create();
 
         // expect
-        exceptionCatcher.expect("You did not register any instantiation methods", InstantiationProvider.class);
+        exceptionCatcher.expect("You did not register any instantiation methods");
 
         // when
         injector.getSingleton(CustomInstantiationExample.class);
@@ -313,7 +313,7 @@ public class InjectorImplTest {
         // given
 
         // expect
-        exceptionCatcher.expect("annotation may not be null", Annotation.class);
+        exceptionCatcher.expect("annotation may not be null");
 
         // when
         injector.provide(null, new Object());
@@ -329,7 +329,7 @@ public class InjectorImplTest {
         config.addAnnotationValueHandlers(Collections.singletonList(annoValHandler));
 
         // expect
-        exceptionCatcher.expect("An error occurred", null);
+        exceptionCatcher.expect("An error occurred");
 
         // when
         injector.provide(annotation, object);

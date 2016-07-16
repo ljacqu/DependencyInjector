@@ -10,8 +10,8 @@ public class ReflectionsTestClass {
     private Integer integer;
     private final int finalInt = 3;
 
-    private ReflectionsTestClass(String s) {
-        string = s;
+    private ReflectionsTestClass(int i) {
+        integer = i;
     }
 
     public ReflectionsTestClass(String str, int i) {
