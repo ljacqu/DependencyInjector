@@ -1,5 +1,9 @@
 package ch.jalu.injector.handlers.instantiation;
 
+import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.utils.InjectorUtils;
+import ch.jalu.injector.utils.ReflectionUtils;
+
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
 
@@ -11,7 +15,11 @@ public class ConstructorInjectionProvider implements InstantiationProvider {
     @Override
     public <T> ConstructorInjection<T> get(Class<T> clazz) {
         Constructor<T> constructor = getInjectionConstructor(clazz);
-        return constructor == null ? null : new ConstructorInjection<>(constructor);
+        if (constructor == null) {
+            return null;
+        }
+        validateHasNoOtherInjectAnnotations(clazz);
+        return new ConstructorInjection<>(constructor);
     }
 
     /**
@@ -31,5 +39,13 @@ public class ConstructorInjectionProvider implements InstantiationProvider {
             }
         }
         return null;
+    }
+
+    private static void validateHasNoOtherInjectAnnotations(Class<?> clazz) {
+        if (InjectorUtils.isInjectAnnotationPresent(ReflectionUtils.safeGetDeclaredFields(clazz))
+                || InjectorUtils.isInjectAnnotationPresent(ReflectionUtils.safeGetDeclaredMethods(clazz))) {
+            throw new InjectorException("Class '" + clazz + "' may not have @Inject on a constructor AND "
+                + "on other members. Remove other @Inject uses or remove it from the constructor");
+        }
     }
 }

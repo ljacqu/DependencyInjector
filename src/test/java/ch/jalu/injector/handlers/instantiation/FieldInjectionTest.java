@@ -1,11 +1,7 @@
-package ch.jalu.injector.instantiation;
+package ch.jalu.injector.handlers.instantiation;
 
 import ch.jalu.injector.annotations.NoFieldScan;
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
-import ch.jalu.injector.handlers.instantiation.FieldInjection;
-import ch.jalu.injector.handlers.instantiation.FieldInjectionProvider;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
 import ch.jalu.injector.samples.BetaManager;
@@ -13,6 +9,7 @@ import ch.jalu.injector.samples.ClassWithAnnotations;
 import ch.jalu.injector.samples.Duration;
 import ch.jalu.injector.samples.FieldInjectionWithAnnotations;
 import ch.jalu.injector.samples.GammaService;
+import ch.jalu.injector.samples.InjectOnDifferentMembersClass;
 import ch.jalu.injector.samples.InvalidStaticFieldInjection;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Size;
@@ -139,6 +136,12 @@ public class FieldInjectionTest {
 
         // then
         assertThat(injection, nullValue());
+    }
+
+    @Test(expected = InjectorException.class)
+    public void shouldThrowForOtherInjectAnnotationsPresent() {
+        // Should throw - @Inject on field as well as constructors
+        provider.get(InjectOnDifferentMembersClass.class);
     }
 
     @SafeVarargs

@@ -1,10 +1,6 @@
-package ch.jalu.injector.instantiation;
+package ch.jalu.injector.handlers.instantiation;
 
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
-import ch.jalu.injector.handlers.instantiation.InstantiationFallback;
-import ch.jalu.injector.handlers.instantiation.InstantiationFallbackProvider;
 import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.InstantiationFallbackClasses;
 import org.junit.Test;

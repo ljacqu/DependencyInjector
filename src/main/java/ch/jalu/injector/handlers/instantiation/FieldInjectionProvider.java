@@ -1,6 +1,7 @@
 package ch.jalu.injector.handlers.instantiation;
 
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.utils.InjectorUtils;
 import ch.jalu.injector.utils.ReflectionUtils;
 
 import javax.inject.Inject;
@@ -22,7 +23,11 @@ public class FieldInjectionProvider implements InstantiationProvider {
             return null;
         }
         List<Field> fields = getInjectionFields(clazz);
-        return fields.isEmpty() ? null : new FieldInjection<>(constructor, fields);
+        if (fields.isEmpty()) {
+            return null;
+        }
+        validateHasNoOtherInjectAnnotations(clazz);
+        return new FieldInjection<>(constructor, fields);
     }
 
     private static List<Field> getInjectionFields(Class<?> clazz) {
@@ -33,11 +38,18 @@ public class FieldInjectionProvider implements InstantiationProvider {
                     throw new InjectorException(String.format("Field '%s' in class '%s' is static but "
                         + "annotated with @Inject", field.getName(), clazz.getSimpleName()));
                 }
-                field.setAccessible(true);
                 fields.add(field);
             }
         }
         return fields;
+    }
+
+    private static void validateHasNoOtherInjectAnnotations(Class<?> clazz) {
+        if (InjectorUtils.isInjectAnnotationPresent(clazz.getDeclaredConstructors())
+            || InjectorUtils.isInjectAnnotationPresent(ReflectionUtils.safeGetDeclaredMethods(clazz))) {
+            throw new InjectorException("Class '" + clazz + "' may not have @Inject on fields AND on other members. "
+                    + "Remove other @Inject uses or remove it from the fields");
+        }
     }
 
     @SuppressWarnings("unchecked")

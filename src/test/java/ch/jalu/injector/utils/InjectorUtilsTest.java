@@ -4,6 +4,7 @@ import ch.jalu.injector.TestUtils;
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.dependency.TypeSafeAnnotationHandler;
+import ch.jalu.injector.samples.BetaManager;
 import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
@@ -188,6 +189,14 @@ public class InjectorUtilsTest {
     @Test
     public void shouldBeWellFormedUtilsClass() {
         TestUtils.assertIsProperUtilsClass(InjectorUtils.class);
+    }
+
+    @Test
+    public void shouldFindInjectAnnotations() {
+        assertThat(InjectorUtils.isInjectAnnotationPresent(InjectorUtilsTest.class.getDeclaredMethods()),
+            equalTo(false));
+        assertThat(InjectorUtils.isInjectAnnotationPresent(BetaManager.class.getDeclaredFields()),
+            equalTo(true));
     }
 
     private enum SampleEnum {

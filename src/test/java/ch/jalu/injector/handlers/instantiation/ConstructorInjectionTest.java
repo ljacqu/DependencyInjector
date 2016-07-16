@@ -1,15 +1,12 @@
-package ch.jalu.injector.instantiation;
+package ch.jalu.injector.handlers.instantiation;
 
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.handlers.instantiation.ConstructorInjection;
-import ch.jalu.injector.handlers.instantiation.ConstructorInjectionProvider;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.ClassWithAnnotations;
 import ch.jalu.injector.samples.Duration;
 import ch.jalu.injector.samples.GammaService;
+import ch.jalu.injector.samples.InjectOnDifferentMembersClass;
 import ch.jalu.injector.samples.InvalidClass;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Size;
@@ -92,6 +89,12 @@ public class ConstructorInjectionTest {
 
         // then
         assertThat(injection, nullValue());
+    }
+
+    @Test(expected = InjectorException.class)
+    public void shouldThrowForOtherInjectAnnotationsPresent() {
+        // Should throw - @Inject on field as well as constructors
+        provider.get(InjectOnDifferentMembersClass.class);
     }
 
     @SuppressWarnings("unchecked")

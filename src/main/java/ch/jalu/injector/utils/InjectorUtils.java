@@ -3,6 +3,8 @@ package ch.jalu.injector.utils;
 import ch.jalu.injector.exceptions.InjectorException;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 
@@ -61,5 +63,14 @@ public final class InjectorUtils {
 
     public static String getDeclarer(@Nullable Member member) {
         return member == null ? "null" : member.getDeclaringClass().getName();
+    }
+
+    public static <A extends AccessibleObject> boolean isInjectAnnotationPresent(A[] accessibles) {
+        for (A accessible : accessibles) {
+            if (accessible.isAnnotationPresent(Inject.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
