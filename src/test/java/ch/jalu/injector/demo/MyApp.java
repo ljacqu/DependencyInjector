@@ -20,9 +20,7 @@ public class MyApp {
     }
 
     public static String setUpAndRun() {
-        // Create the injector via the Builder.
-        // Notice how we pass SavedAnnotationsHandler first -> we want the injector to pass through this one before
-        // the default handlers
+        // Create the injector via the Builder
         Injector injector = new InjectorBuilder()
                 .addDefaultHandlers("ch.jalu.injector.demo")
                 .create();
