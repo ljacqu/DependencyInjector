@@ -1,7 +1,7 @@
 package ch.jalu.injector.utils;
 
 /**
- * Test class with various fields, methods and
+ * Test class with various fields, methods and constructors.
  */
 public class ReflectionsTestClass {
 

@@ -5,7 +5,6 @@ import ch.jalu.injector.annotations.NoFieldScan;
 import ch.jalu.injector.annotations.NoMethodScan;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.exceptions.InjectorReflectionException;
-import ch.jalu.injector.samples.PostConstructTestClass;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
@@ -22,10 +21,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -293,13 +292,15 @@ public class ReflectionUtilsTest {
     @Test
     public void shouldReturnEmptyMethodListForNoMethodScanClass() {
         assertThat(ReflectionUtils.safeGetDeclaredMethods(NoMethodScanClass.class), emptyArray());
-        assertThat(ReflectionUtils.safeGetDeclaredMethods(PostConstructTestClass.class), arrayWithSize(3));
+        // Note: We need to check the size >= expected because plugins like Jacoco may add additional members
+        assertThat(ReflectionUtils.safeGetDeclaredMethods(ReflectionsTestClass.class).length, greaterThanOrEqualTo(4));
     }
 
     @Test
     public void shouldReturnEmptyFieldListForNoFieldScanClass() {
         assertThat(ReflectionUtils.safeGetDeclaredFields(NoFieldScanClass.class), emptyArray());
-        assertThat(ReflectionUtils.safeGetDeclaredFields(PostConstructTestClass.class), arrayWithSize(3));
+        // Note: We need to check the size >= expected because plugins like Jacoco may add additional members
+        assertThat(ReflectionUtils.safeGetDeclaredFields(ReflectionsTestClass.class).length, greaterThanOrEqualTo(4));
     }
 
     private static Field getField(String name) {
