@@ -5,7 +5,7 @@
 (https://www.versioneye.com/user/projects/5768397dfdabcd004d3fcbd1/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5768397dfdabcd004d3fcbd1) [![Codacy Badge]
 (https://api.codacy.com/project/badge/Grade/8b2ad90b769b45a892dcb4621ce484d6)](https://www.codacy.com/app/ljacqu/DependencyInjector?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ljacqu/DependencyInjector&amp;utm_campaign=Badge_Grade)
 
-Simple but customizable dependency injector for Java 1.7 or above.
+Simple but customizable dependency injector for Java 1.7 and above.
 
 
 ### Why use it
@@ -21,7 +21,7 @@ Using Maven, you can get the injector by adding this to your pom.xml:
 <dependency>
     <groupId>ch.jalu</groupId>
     <artifactId>injector</artifactId>
-    <version>0.1</version>
+    <version>0.2</version>
 </dependency>
 ```
 
