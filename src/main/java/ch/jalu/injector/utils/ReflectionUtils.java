@@ -126,7 +126,7 @@ public final class ReflectionUtils {
             return new ArrayList<>(result);
         }
         throw new InjectorException("Cannot convert @AllTypes result to '" + rawType + "'. "
-            + "Supported: Set, List, or any subtype thereof, and array");
+            + "Supported: Set, List, or any supertype thereof, and array");
     }
 
     /**

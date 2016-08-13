@@ -51,6 +51,10 @@ public class InjectorImpl implements Injector {
 
     @Override
     public <T> void register(Class<? super T> clazz, T object) {
+        register0(clazz, object);
+    }
+
+    private void register0(Class<?> clazz, Object object) {
         if (objects.containsKey(clazz)) {
             throw new InjectorException("There is already an object present for " + clazz);
         }
@@ -92,6 +96,10 @@ public class InjectorImpl implements Injector {
         return instances;
     }
 
+    public InjectorConfig getConfig() {
+        return config;
+    }
+
     /**
      * Returns an instance of the given class by retrieving it or by instantiating it if not yet present.
      *
@@ -123,7 +131,10 @@ public class InjectorImpl implements Injector {
         traversedClasses = new HashSet<>(traversedClasses);
         traversedClasses.add(mappedClass);
         T object = instantiate(mappedClass, traversedClasses);
-        storeObject(object);
+        register(clazz, object);
+        if (mappedClass != clazz) {
+            register0(mappedClass, object);
+        }
         return object;
     }
 
@@ -144,7 +155,7 @@ public class InjectorImpl implements Injector {
         T object = instantiation.instantiateWith(dependencies);
         for (PostConstructHandler postConstructHandler : config.getPostConstructHandlers()) {
             try {
-                postConstructHandler.process(object);
+                object = firstNotNull(postConstructHandler.process(object), object);
             } catch (Exception e) {
                 InjectorUtils.rethrowException(e);
             }
@@ -205,20 +216,6 @@ public class InjectorImpl implements Injector {
             }
         }
         return null;
-    }
-
-    /**
-     * Stores the given object with its class as key. Throws an exception if the key already has
-     * a value associated to it.
-     *
-     * @param object the object to store
-     */
-    private void storeObject(Object object) {
-        if (objects.containsKey(object.getClass())) {
-            throw new IllegalStateException("There is already an object present for " + object.getClass());
-        }
-        InjectorUtils.checkNotNull(object, null); // should never happen
-        objects.put(object.getClass(), object);
     }
 
     /**

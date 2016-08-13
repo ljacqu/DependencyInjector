@@ -14,12 +14,13 @@ public class ThrowingPostConstructHandler extends AbstractCountingHandler implem
     }
 
     @Override
-    public void process(Object object) throws Exception {
+    public <T> T process(T object) throws Exception {
         increment();
         for (Class<?> clazz : throwForClasses) {
             if (clazz.isInstance(object)) {
                 throw new IllegalStateException("Class not allowed!");
             }
         }
+        return null;
     }
 }

@@ -14,7 +14,7 @@ import java.lang.reflect.Modifier;
 public class PostConstructMethodInvoker implements PostConstructHandler {
 
     @Override
-    public void process(Object object) {
+    public <T> T process(T object) {
         Class<?> clazz = object.getClass();
         while (clazz != null) {
             Method postConstructMethod = getAndValidatePostConstructMethod(clazz);
@@ -23,6 +23,7 @@ public class PostConstructMethodInvoker implements PostConstructHandler {
             }
             clazz = clazz.getSuperclass();
         }
+        return null;
     }
 
     private static Method getAndValidatePostConstructMethod(Class<?> clazz) {

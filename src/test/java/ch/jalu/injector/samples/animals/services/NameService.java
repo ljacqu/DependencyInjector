@@ -1,5 +1,6 @@
 package ch.jalu.injector.samples.animals.services;
 
+import ch.jalu.injector.handlers.testimplementations.ProfilePostConstructHandler;
 import ch.jalu.injector.samples.animals.Animal;
 
 import javax.inject.Inject;
@@ -9,9 +10,14 @@ import javax.inject.Inject;
  */
 public class NameService {
 
-    @Inject
     private LanguageService languageService;
 
+    @Inject
+    NameService(LanguageService languageService) {
+        this.languageService = languageService;
+    }
+
+    @ProfilePostConstructHandler.Profile
     public String constructName(Animal animal) {
         return languageService.translate(animal.getClass().getSimpleName());
     }
