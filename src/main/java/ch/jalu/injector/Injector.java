@@ -1,6 +1,7 @@
 package ch.jalu.injector;
 
 import javax.annotation.Nullable;
+import javax.inject.Provider;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 
@@ -22,6 +23,10 @@ public interface Injector {
      * @since 0.1
      */
     <T> void register(Class<? super T> clazz, T object);
+
+    <T> void registerProvider(Class<T> clazz, Provider<? extends T> provider);
+
+    <T, P extends Provider<? extends T>> void registerProvider(Class<T> clazz, Class<P> providerClass);
 
     /**
      * Processes an annotation with an associated object. The actual behavior of this method depends on the

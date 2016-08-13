@@ -8,6 +8,15 @@ import ch.jalu.injector.handlers.testimplementations.ProfilePostConstructHandler
 public class HissService implements SoundService {
 
     private boolean isMuted;
+    private Configuration configuration;
+
+    public HissService(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
 
     @Override
     @ProfilePostConstructHandler.Profile

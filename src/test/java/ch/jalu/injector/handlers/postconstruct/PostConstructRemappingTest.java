@@ -6,6 +6,8 @@ import ch.jalu.injector.handlers.dependency.AllInstancesAnnotationHandler;
 import ch.jalu.injector.handlers.testimplementations.ProfilePostConstructHandler;
 import ch.jalu.injector.samples.animals.Sparrow;
 import ch.jalu.injector.samples.animals.services.Configuration;
+import ch.jalu.injector.samples.animals.services.HissService;
+import ch.jalu.injector.samples.animals.services.HissServiceProvider;
 import ch.jalu.injector.samples.animals.services.NameService;
 import ch.jalu.injector.samples.animals.services.SoundServiceSupervisor;
 import javassist.util.proxy.Proxy;
@@ -34,6 +36,7 @@ public class PostConstructRemappingTest {
             .create();
         ProfilePostConstructHandler profileHandler = new ProfilePostConstructHandler(injector);
         injector.getConfig().addPostConstructHandlers(singletonList(profileHandler));
+        injector.registerProvider(HissService.class, HissServiceProvider.class);
 
         // when (trigger initialization + invoke some methods)
         SoundServiceSupervisor supervisor = injector.getSingleton(SoundServiceSupervisor.class);

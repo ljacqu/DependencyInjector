@@ -13,6 +13,8 @@ import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
 import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
+import ch.jalu.injector.handlers.provider.ProviderHandler;
+import ch.jalu.injector.handlers.provider.ProviderHandlerImpl;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import java.util.ArrayList;
@@ -52,6 +54,8 @@ public class InjectorBuilder {
             new PreConstructPackageValidator(rootPackage),
             // (Annotation, Object) handler
             new SavedAnnotationsHandler(),
+            // Provider handler
+            new ProviderHandlerImpl(),
             // Instantiation providers
             new ConstructorInjectionProvider(),
             new FieldInjectionProvider(),
@@ -71,6 +75,7 @@ public class InjectorBuilder {
      */
     public static List<InstantiationProvider> createInstantiationProviders() {
         return new ArrayList<>(Arrays.asList(
+                new ProviderHandlerImpl(),
                 new ConstructorInjectionProvider(),
                 new FieldInjectionProvider(),
                 new InstantiationFallbackProvider()));
@@ -113,7 +118,7 @@ public class InjectorBuilder {
      */
     public InjectorBuilder addHandlers(Iterable<? extends Handler> handlers) {
         HandlerCollector collector = new HandlerCollector(
-            AnnotationValueHandler.class, PreConstructHandler.class, InstantiationProvider.class,
+            AnnotationValueHandler.class, ProviderHandler.class, PreConstructHandler.class, InstantiationProvider.class,
             DependencyHandler.class, PostConstructHandler.class);
 
         for (Handler handler : handlers) {
@@ -121,6 +126,7 @@ public class InjectorBuilder {
         }
 
         config.addAnnotationValueHandlers(collector.getList(AnnotationValueHandler.class));
+        config.addProviderHandlers(collector.getList(ProviderHandler.class));
         config.addPreConstructHandlers(collector.getList(PreConstructHandler.class));
         config.addInstantiationProviders(collector.getList(InstantiationProvider.class));
         config.addDependencyHandlers(collector.getList(DependencyHandler.class));

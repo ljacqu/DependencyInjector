@@ -7,7 +7,7 @@ import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 /**
  * Sample annotation handler implementation that simply counts how many times it was invoked.
  */
-public class ListeningAnnotationHandler extends AbstractCountingHandler implements DependencyHandler {
+public class ListeningDependencyHandler extends AbstractCountingHandler implements DependencyHandler {
 
     @Override
     public Object resolveValue(Injector injector, DependencyDescription dependencyDescription) {

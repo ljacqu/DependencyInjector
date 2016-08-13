@@ -8,9 +8,11 @@ import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
+import ch.jalu.injector.handlers.provider.ProviderHandler;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import javax.annotation.Nullable;
+import javax.inject.Provider;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -85,15 +87,40 @@ public class InjectorImpl implements Injector {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> Collection<T> retrieveAllOfType(Class<T> clazz) {
         List<T> instances = new ArrayList<>();
         for (Object object : objects.values()) {
             if (clazz.isInstance(object)) {
-                instances.add((T) object);
+                instances.add(clazz.cast(object));
             }
         }
         return instances;
+    }
+
+    @Override
+    public <T> void registerProvider(Class<T> clazz, Provider<? extends T> provider) {
+        checkNotNull(clazz, "Class may not be null");
+        checkNotNull(provider, "Provider may not be null");
+        for (ProviderHandler handler : config.getProviderHandlers()) {
+            try {
+                handler.onProvider(clazz, provider);
+            } catch (Exception e) {
+                InjectorUtils.rethrowException(e);
+            }
+        }
+    }
+
+    @Override
+    public <T, P extends Provider<? extends T>> void registerProvider(Class<T> clazz, Class<P> providerClass) {
+        checkNotNull(clazz, "Class may not be null");
+        checkNotNull(providerClass, "Provider class may not be null");
+        for (ProviderHandler handler : config.getProviderHandlers()) {
+            try {
+                handler.onProviderClass(clazz, providerClass);
+            } catch (Exception e) {
+                InjectorUtils.rethrowException(e);
+            }
+        }
     }
 
     public InjectorConfig getConfig() {

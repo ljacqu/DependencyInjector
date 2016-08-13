@@ -7,7 +7,7 @@ import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
 import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
 import ch.jalu.injector.handlers.testimplementations.ImplementationClassHandler;
-import ch.jalu.injector.handlers.testimplementations.ListeningAnnotationHandler;
+import ch.jalu.injector.handlers.testimplementations.ListeningDependencyHandler;
 import ch.jalu.injector.handlers.testimplementations.ThrowingPostConstructHandler;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BetaManager;
@@ -19,11 +19,10 @@ import ch.jalu.injector.samples.animals.Chicken;
 import ch.jalu.injector.samples.animals.Reptile;
 import ch.jalu.injector.samples.animals.Snake;
 import ch.jalu.injector.samples.animals.Sparrow;
+import ch.jalu.injector.samples.animals.services.HissService;
+import ch.jalu.injector.samples.animals.services.HissServiceProvider;
 import ch.jalu.injector.samples.subpackage.SubpackageClass;
-import ch.jalu.injector.utils.ReflectionUtils;
 import org.junit.Test;
-
-import java.lang.reflect.Field;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -74,7 +73,7 @@ public class InjectorBuilderTest {
      * Tests the order of handlers (important!) and that custom handlers are
      */
     @Test
-    public void shouldAllowCustomHandlers() throws NoSuchFieldException {
+    public void shouldAllowCustomHandlers() {
         // Instantiate handlers
         ImplementationClassHandler implementationClassHandler = new ImplementationClassHandler();
         implementationClassHandler.register(Animal.class, Reptile.class);
@@ -83,7 +82,7 @@ public class InjectorBuilderTest {
         PreConstructPackageValidator packageValidator = new PreConstructPackageValidator("ch.jalu");
 
         SavedAnnotationsHandler savedAnnotationsHandler = new SavedAnnotationsHandler();
-        ListeningAnnotationHandler listeningAnnotationHandler = new ListeningAnnotationHandler();
+        ListeningDependencyHandler listeningDependencyHandler = new ListeningDependencyHandler();
 
         PostConstructHandler postConstructHandler = new PostConstructMethodInvoker();
         // throw when Chicken gets instantiated
@@ -93,15 +92,18 @@ public class InjectorBuilderTest {
         InjectorBuilder builder = new InjectorBuilder();
         Injector injector = builder
             .addHandlers(implementationClassHandler, packageValidator, savedAnnotationsHandler,
-                         listeningAnnotationHandler, postConstructHandler, throwingPostConstructHandler)
+                         listeningDependencyHandler, postConstructHandler, throwingPostConstructHandler)
             .addHandlers(InjectorBuilder.createInstantiationProviders())
             .create();
 
         // Check presence of handlers and their order
-        InjectorConfig config = getConfigFromInjector(injector);
+        InjectorConfig config = ((InjectorImpl) injector).getConfig();
         assertThat(config.getPreConstructHandlers(), contains(implementationClassHandler, packageValidator));
-        assertThat(config.getDependencyHandlers(), contains(savedAnnotationsHandler, listeningAnnotationHandler));
+        assertThat(config.getDependencyHandlers(), contains(savedAnnotationsHandler, listeningDependencyHandler));
         assertThat(config.getPostConstructHandlers(), contains(postConstructHandler, throwingPostConstructHandler));
+
+        // Set Provider for HissService
+        injector.registerProvider(HissService.class, HissServiceProvider.class);
 
         // Request Animal singleton -> mapped to Reptile -> Snake
         Animal animal = injector.getSingleton(Animal.class);
@@ -110,9 +112,12 @@ public class InjectorBuilderTest {
         assertThat(snake, sameInstance(animal));
 
         // Check counts
-        assertThat(implementationClassHandler.getCounter(), equalTo(3)); // Snake, Configuration, HissService
-        assertThat(listeningAnnotationHandler.getCounter(), equalTo(2)); // Two dependencies: Configuration, HissService
-        assertThat(throwingPostConstructHandler.getCounter(), equalTo(3)); // Snake, Configuration, HissService
+        assertThat(implementationClassHandler.getCounter(), equalTo(4)); // Snake, Configuration, HissServiceProvider, HissService
+        // Snake depends on Configuration and HissService (2)
+        // HissService comes from HissServiceProvider, which needs to be instantiated (1)
+        // and it depends on Configuration (1) = 4.
+        assertThat(listeningDependencyHandler.getCounter(), equalTo(4));
+        assertThat(throwingPostConstructHandler.getCounter(), equalTo(4)); // Snake, Configuration, HissService, HissServiceProvider
 
         // Check correct behavior of ThrowingPostHandler
         try {
@@ -132,11 +137,6 @@ public class InjectorBuilderTest {
         new InjectorBuilder().addHandlers(handler);
 
         // then - expect exception
-    }
-
-    private static InjectorConfig getConfigFromInjector(Injector injector) throws NoSuchFieldException {
-        Field field = injector.getClass().getDeclaredField("config");
-        return (InjectorConfig) ReflectionUtils.getFieldValue(field, injector);
     }
 
     private static final class UnknownHandler implements Handler {

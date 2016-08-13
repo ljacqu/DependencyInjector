@@ -4,6 +4,7 @@ import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
 import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
+import ch.jalu.injector.handlers.provider.impl.Delta;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
 import ch.jalu.injector.samples.BetaManager;
@@ -20,12 +21,12 @@ import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Reloadable;
 import ch.jalu.injector.samples.SampleInstantiationImpl;
 import ch.jalu.injector.samples.Size;
-import ch.jalu.injector.utils.ReflectionUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import javax.inject.Provider;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,8 +73,7 @@ public class InjectorImplTest {
             throw new IllegalStateException("Injector from builder is not of type InjectorImpl");
         }
 
-        config = (InjectorConfig) ReflectionUtils
-            .getFieldValue(injector.getClass().getDeclaredField("config"), injector);
+        config = ((InjectorImpl) injector).getConfig();
         injector.register(ProvidedClass.class, new ProvidedClass(""));
     }
 
@@ -333,6 +333,42 @@ public class InjectorImplTest {
 
         // when
         injector.provide(annotation, object);
+    }
+
+    @Test
+    public void shouldThrowForNullProvider() {
+        // expect
+        exceptionCatcher.expect("may not be null");
+
+        // when
+        injector.registerProvider(Delta.class, (Provider<Delta>) null);
+    }
+
+    @Test
+    public void shouldThrowForNullClassWithProvider() {
+        // expect
+        exceptionCatcher.expect("may not be null");
+
+        // when
+        injector.registerProvider(null, mock(Provider.class));
+    }
+
+    @Test
+    public void shouldThrowForNullProviderClass() {
+        // expect
+        exceptionCatcher.expect("may not be null");
+
+        // when
+        injector.registerProvider(BetaManager.class, (Class<Provider<BetaManager>>) null);
+    }
+
+    @Test
+    public void shouldThrowForNullClassWithProviderClass() {
+        // expect
+        exceptionCatcher.expect("may not be null");
+
+        // when
+        injector.registerProvider(null, Provider.class);
     }
 
     private static List<Handler> getAllHandlersExceptInstantiationProviders() {

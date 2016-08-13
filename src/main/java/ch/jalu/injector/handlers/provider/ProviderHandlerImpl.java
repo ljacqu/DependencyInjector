@@ -1,0 +1,89 @@
+package ch.jalu.injector.handlers.provider;
+
+import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
+
+import javax.inject.Provider;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static ch.jalu.injector.utils.InjectorUtils.checkArgument;
+
+/**
+ * Default handler for {@link Provider} objects. Registers providers and classes and creates
+ * {@link Instantiation} objects for classes it can handle.
+ */
+public class ProviderHandlerImpl implements ProviderHandler, InstantiationProvider {
+
+    protected Map<Class<?>, Instantiation<?>> providers = new HashMap<>();
+
+    @Override
+    public <T> void onProvider(Class<T> clazz, Provider<? extends T> provider) {
+        checkArgument(!providers.containsKey(clazz), "Provider already registered for " + clazz);
+        providers.put(clazz, new ProviderInstantiation<>(provider));
+    }
+
+    @Override
+    public <T, P extends Provider<? extends T>> void onProviderClass(Class<T> clazz, Class<P> providerClass) {
+        checkArgument(!providers.containsKey(clazz), "Provider already registered for " + clazz);
+        providers.put(clazz, new UninitializedProviderInstantiation<>(clazz, providerClass));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> Instantiation<T> get(Class<T> clazz) {
+        return (Instantiation<T>) providers.get(clazz);
+    }
+
+    private static final class ProviderInstantiation<T> implements Instantiation<T> {
+
+        private final Provider<? extends T> provider;
+
+        ProviderInstantiation(Provider<? extends T> provider) {
+            this.provider = provider;
+        }
+
+        @Override
+        public List<DependencyDescription> getDependencies() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public T instantiateWith(Object... values) {
+            return provider.get();
+        }
+    }
+
+    private final class UninitializedProviderInstantiation<T> implements Instantiation<T> {
+
+        private final Class<T> clazz;
+        private final Class<? extends Provider<? extends T>> provider;
+
+        UninitializedProviderInstantiation(Class<T> clazz, Class<? extends Provider<? extends T>> provider) {
+            this.provider = provider;
+            this.clazz = clazz;
+        }
+
+        @Override
+        public List<DependencyDescription> getDependencies() {
+            return Collections.singletonList(
+                new DependencyDescription(provider, clazz));
+        }
+
+        @Override
+        public T instantiateWith(Object... values) {
+            if (values.length == 1 && values[0] instanceof Provider<?>) {
+                @SuppressWarnings("unchecked")
+                Provider<? extends T> provider = (Provider<? extends T>) values[0];
+                T object = provider.get();
+                providers.put(clazz, new ProviderInstantiation<>(provider));
+                return object;
+            }
+            throw new InjectorException("Provider is required as argument");
+        }
+    }
+}

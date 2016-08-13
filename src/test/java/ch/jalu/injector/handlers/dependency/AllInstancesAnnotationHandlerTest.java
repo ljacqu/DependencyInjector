@@ -14,6 +14,7 @@ import ch.jalu.injector.samples.animals.services.ChirpService;
 import ch.jalu.injector.samples.animals.services.Configuration;
 import ch.jalu.injector.samples.animals.services.CroakService;
 import ch.jalu.injector.samples.animals.services.HissService;
+import ch.jalu.injector.samples.animals.services.HissServiceProvider;
 import ch.jalu.injector.samples.animals.services.RoarService;
 import ch.jalu.injector.samples.animals.services.SoundServiceSupervisor;
 import ch.jalu.injector.samples.animals.services.SqueakService;
@@ -55,6 +56,7 @@ public class AllInstancesAnnotationHandlerTest {
                 .addHandlers(allInstancesHandler, allTypesHandler)
                 .addDefaultHandlers(ROOT_PACKAGE)
                 .create();
+        injector.registerProvider(HissService.class, HissServiceProvider.class);
     }
 
     @Test
