@@ -23,15 +23,12 @@ public class PreConstructPackageValidator extends PlainPreConstructHandler {
     @Override
     public void process(Class<?> clazz) {
         if (clazz.getPackage() == null) {
-            if (clazz.isPrimitive()) {
-                throw new InjectorException("Cannot instantiate '" + clazz + "'. Primitive types must be provided"
-                    + " explicitly (or use an annotation).");
-            } else if (clazz.isArray()) {
-                throw new InjectorException("Found array class '" + clazz + "'. Unknown how to inject (did you forget"
-                    + " to add a custom handler?).");
-            } else {
-                throw new InjectorException("Unknown class '" + clazz + "'.");
-            }
+            String detail = clazz.isPrimitive()
+                ? "Primitive types must be provided explicitly (or use an annotation)."
+                : clazz.isArray()
+                    ? "Unknown how to inject array classes (did you forget to add a custom handler?)"
+                    : "";
+            throw new InjectorException("Cannot instantiate '" + clazz + "'. " + detail);
         }
         String packageName = clazz.getPackage().getName();
         if (!packageName.startsWith(rootPackage)) {
