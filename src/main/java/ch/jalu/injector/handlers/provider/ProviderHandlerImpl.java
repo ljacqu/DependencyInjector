@@ -39,6 +39,11 @@ public class ProviderHandlerImpl implements ProviderHandler, InstantiationProvid
         return (Instantiation<T>) providers.get(clazz);
     }
 
+    /**
+     * Simple instantiation that creates an object with the known provider.
+     *
+     * @param <T> the type of the class to create
+     */
     private static final class ProviderInstantiation<T> implements Instantiation<T> {
 
         private final Provider<? extends T> provider;
@@ -58,6 +63,13 @@ public class ProviderHandlerImpl implements ProviderHandler, InstantiationProvid
         }
     }
 
+    /**
+     * Instantiation that internally creates the required provider first. This is triggered by
+     * declaring the provider class as a dependency, making the injector create the provider
+     * class first.
+     *
+     * @param <T> the type of the class to create
+     */
     private final class UninitializedProviderInstantiation<T> implements Instantiation<T> {
 
         private final Class<T> clazz;
@@ -80,6 +92,7 @@ public class ProviderHandlerImpl implements ProviderHandler, InstantiationProvid
                 @SuppressWarnings("unchecked")
                 Provider<? extends T> provider = (Provider<? extends T>) values[0];
                 T object = provider.get();
+                // The injector passed us the provider, so save it in the map for future uses
                 providers.put(clazz, new ProviderInstantiation<>(provider));
                 return object;
             }

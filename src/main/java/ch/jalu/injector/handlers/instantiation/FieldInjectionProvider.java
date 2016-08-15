@@ -14,10 +14,10 @@ import java.util.List;
 /**
  * Provider for {@link FieldInjection}.
  */
-public class FieldInjectionProvider implements InstantiationProvider {
+public class FieldInjectionProvider extends DirectInstantiationProvider {
 
     @Override
-    public <T> FieldInjection<T> get(Class<T> clazz) {
+    protected <T> FieldInjection<T> safeGet(Class<T> clazz) {
         Constructor<T> constructor = getNoArgsConstructor(clazz);
         if (constructor == null) {
             return null;

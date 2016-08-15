@@ -10,10 +10,10 @@ import java.lang.reflect.Constructor;
 /**
  * Provider for {@link ConstructorInjection}.
  */
-public class ConstructorInjectionProvider implements InstantiationProvider {
+public class ConstructorInjectionProvider extends DirectInstantiationProvider {
 
     @Override
-    public <T> ConstructorInjection<T> get(Class<T> clazz) {
+    protected <T> ConstructorInjection<T> safeGet(Class<T> clazz) {
         Constructor<T> constructor = getInjectionConstructor(clazz);
         if (constructor == null) {
             return null;

@@ -39,7 +39,7 @@ public class FieldInjectionTest {
     @Test
     public void shouldReturnDependencies() {
         // given
-        FieldInjection<FieldInjectionWithAnnotations> injection =
+        Instantiation<FieldInjectionWithAnnotations> injection =
             provider.get(FieldInjectionWithAnnotations.class);
 
         // when
@@ -58,7 +58,7 @@ public class FieldInjectionTest {
     @Test
     public void shouldInstantiateClass() {
         // given
-        FieldInjection<BetaManager> injection = provider.get(BetaManager.class);
+        Instantiation<BetaManager> injection = provider.get(BetaManager.class);
         ProvidedClass providedClass = new ProvidedClass("");
         AlphaService alphaService = AlphaService.newInstance(providedClass);
         GammaService gammaService = new GammaService(alphaService);
@@ -74,7 +74,7 @@ public class FieldInjectionTest {
     @Test
     public void shouldProvideNullForImpossibleFieldInjection() {
         // given / when
-        FieldInjection<BadFieldInjection> injection = provider.get(BadFieldInjection.class);
+        Instantiation<BadFieldInjection> injection = provider.get(BadFieldInjection.class);
 
         // then
         assertThat(injection, nullValue());
@@ -83,7 +83,7 @@ public class FieldInjectionTest {
     @Test(expected = InjectorException.class)
     public void shouldForwardExceptionDuringInstantiation() {
         // given
-        FieldInjection<ThrowingConstructor> injection = provider.get(ThrowingConstructor.class);
+        Instantiation<ThrowingConstructor> injection = provider.get(ThrowingConstructor.class);
 
         // when / when
         injection.instantiateWith(new ProvidedClass(""));
@@ -95,7 +95,7 @@ public class FieldInjectionTest {
         ProvidedClass providedClass = new ProvidedClass("");
         AlphaService alphaService = AlphaService.newInstance(providedClass);
         GammaService gammaService = new GammaService(alphaService);
-        FieldInjection<BetaManager> injection = provider.get(BetaManager.class);
+        Instantiation<BetaManager> injection = provider.get(BetaManager.class);
 
         // when / then
         // Correct order is provided, gamma, alpha
@@ -107,7 +107,7 @@ public class FieldInjectionTest {
         // given
         ProvidedClass providedClass = new ProvidedClass("");
         AlphaService alphaService = AlphaService.newInstance(providedClass);
-        FieldInjection<BetaManager> injection = provider.get(BetaManager.class);
+        Instantiation<BetaManager> injection = provider.get(BetaManager.class);
 
         // when / then
         // Correct order is provided, gamma, alpha
@@ -132,7 +132,7 @@ public class FieldInjectionTest {
     @Test
     public void shouldNotScanClassWithNoFieldScan() {
         // given / when
-        FieldInjection<NoFieldScanClass> injection = provider.get(NoFieldScanClass.class);
+        Instantiation<NoFieldScanClass> injection = provider.get(NoFieldScanClass.class);
 
         // then
         assertThat(injection, nullValue());

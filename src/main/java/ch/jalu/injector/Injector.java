@@ -24,8 +24,26 @@ public interface Injector {
      */
     <T> void register(Class<? super T> clazz, T object);
 
+    /**
+     * Registers a provider for the given object.
+     *
+     * @param clazz the class to register the provider for
+     * @param provider the provider
+     * @param <T> the class' type
+     * @since 0.3
+     */
     <T> void registerProvider(Class<T> clazz, Provider<? extends T> provider);
 
+    /**
+     * Registers the provider class to instantiate a given class. The first time the {@code clazz} has to
+     * be instantiated, the {@code providerClass} will be instantiated.
+     *
+     * @param clazz the class to register the provider for
+     * @param providerClass the class of the provider
+     * @param <T> the class' type
+     * @param <P> the provider's type
+     * @since 0.3
+     */
     <T, P extends Provider<? extends T>> void registerProvider(Class<T> clazz, Class<P> providerClass);
 
     /**
@@ -34,6 +52,7 @@ public interface Injector {
      *
      * @param annotation the annotation
      * @param object the object
+     * @since 0.1
      */
     void provide(Class<? extends Annotation> annotation, @Nullable Object object);
 

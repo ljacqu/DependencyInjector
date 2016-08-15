@@ -150,10 +150,6 @@ public class InjectorImpl implements Injector {
             }
         }
 
-        if (!InjectorUtils.canInstantiate(mappedClass)) {
-            throw new InjectorException("Class " + clazz.getSimpleName() + " cannot be instantiated");
-        }
-
         // Add the clazz to the list of traversed classes in a new Set, so each path we take has its own Set.
         traversedClasses = new HashSet<>(traversedClasses);
         traversedClasses.add(mappedClass);
@@ -199,8 +195,12 @@ public class InjectorImpl implements Injector {
             }
         }
 
+        // No instantiation method was found, handle error with most appropriate message
         if (config.getInstantiationProviders().isEmpty()) {
             throw new InjectorException("You did not register any instantiation methods!");
+        } else if (!InjectorUtils.canInstantiate(clazz)) {
+            throw new InjectorException("Did not find instantiation method for '" + clazz + "'. This class cannot "
+                + "be instantiated directly, please check the class or your handlers.");
         }
         throw new InjectorException("Did not find instantiation method for '" + clazz + "'. Make sure your class "
             + "conforms to one of the registered instantiations. If default: make sure you have "

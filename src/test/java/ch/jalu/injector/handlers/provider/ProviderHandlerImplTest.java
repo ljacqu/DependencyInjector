@@ -13,8 +13,6 @@ import ch.jalu.injector.handlers.provider.impl.Delta2;
 import ch.jalu.injector.handlers.provider.impl.Delta2Provider;
 import org.hamcrest.Matchers;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -29,7 +27,6 @@ import static org.mockito.Mockito.mock;
 /**
  * Test for {@link ProviderHandlerImpl}.
  */
-@RunWith(MockitoJUnitRunner.class)
 public class ProviderHandlerImplTest {
 
     private ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
@@ -131,17 +128,16 @@ public class ProviderHandlerImplTest {
     }
 
     @Test
-    // TODO #27: Change test to use interface instead of impl. class
     public void shouldInstantiateClassWithProvider() {
         // given
         Injector injector = new InjectorBuilder()
             .addDefaultHandlers("ch.jalu.injector")
             .create();
         Charlie charlie = injector.getSingleton(Charlie.class);
-        injector.registerProvider(Delta2.class, new Delta2Provider(charlie));
+        injector.registerProvider(Delta.class, new Delta2Provider(charlie));
 
         // when
-        Delta delta = injector.getSingleton(Delta2.class);
+        Delta delta = injector.getSingleton(Delta.class);
 
         // then
         assertThat(delta, instanceOf(Delta2.class));
@@ -149,16 +145,15 @@ public class ProviderHandlerImplTest {
     }
 
     @Test
-    // TODO #27: Change test to use interface instead of impl. class
     public void shouldInstantiateClassWithProviderClass() {
         // given
         Injector injector = new InjectorBuilder()
                 .addDefaultHandlers("ch.jalu.injector")
                 .create();
-        injector.registerProvider(Delta1.class, Delta1Provider.class);
+        injector.registerProvider(Delta.class, Delta1Provider.class);
 
         // when
-        Delta delta = injector.getSingleton(Delta1.class);
+        Delta delta = injector.getSingleton(Delta.class);
 
         // then
         assertThat(delta, instanceOf(Delta1.class));

@@ -10,10 +10,10 @@ import java.lang.reflect.Constructor;
 /**
  * Provider for {@link InstantiationFallback}.
  */
-public class InstantiationFallbackProvider implements InstantiationProvider {
+public class InstantiationFallbackProvider extends DirectInstantiationProvider {
 
     @Override
-    public <T> InstantiationFallback<T> get(Class<T> clazz) {
+    protected <T> InstantiationFallback<T> safeGet(Class<T> clazz) {
         Constructor<T> noArgsConstructor = getNoArgsConstructor(clazz);
         // Return fallback only if we have no args constructor and no @Inject annotation anywhere
         if (noArgsConstructor != null

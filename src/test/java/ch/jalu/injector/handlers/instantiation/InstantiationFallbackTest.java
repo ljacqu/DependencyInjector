@@ -35,7 +35,7 @@ public class InstantiationFallbackTest {
     @Test
     public void shouldHaveEmptyDependenciesAndAnnotations() {
         // given
-        InstantiationFallback<InstantiationFallbackClasses.FallbackClass> instantiation =
+        Instantiation<InstantiationFallbackClasses.FallbackClass> instantiation =
             provider.get(InstantiationFallbackClasses.FallbackClass.class);
 
         // when

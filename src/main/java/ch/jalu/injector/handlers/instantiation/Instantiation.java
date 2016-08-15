@@ -15,7 +15,7 @@ public interface Instantiation<T> {
      * @return list of dependencies
      * @see #instantiateWith
      */
-    List<? extends DependencyDescription> getDependencies();
+    List<DependencyDescription> getDependencies();
 
     /**
      * Creates a new instance with the given values as dependencies. The given values

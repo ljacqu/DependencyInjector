@@ -14,9 +14,11 @@ package ch.jalu.injector.handlers;
  *     create an object.</li>
  * <li>{@link ch.jalu.injector.handlers.dependency.DependencyHandler}: Offers a way to resolve a given dependency
  *     required to instantiate a class, e.g. to implement custom behavior for annotations.</li>
- * <li>{@link ch.jalu.injector.handlers.postconstruct.PostConstructHandler}: Perform an action on an object that
+ * <li>{@link ch.jalu.injector.handlers.postconstruct.PostConstructHandler}: Performs an action on an object that
  *     has been created with the injector. You can support {@code @PostConstruct} methods this way or perform some
  *     form of validation.</li>
+ * <li>{@link ch.jalu.injector.handlers.provider.ProviderHandler}: Processes the provider object and classes that are
+ *     supplied to the injector.</li>
  * </ul>
  *
  * Handlers are executed in the order that they are given to {@link ch.jalu.injector.InjectorBuilder}, so more important
