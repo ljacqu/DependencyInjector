@@ -14,10 +14,10 @@ import javassist.util.proxy.Proxy;
 import org.junit.Test;
 
 import static java.util.Collections.singletonList;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
 
 /**
  * Tests that {@link PostConstructHandler} implementations
