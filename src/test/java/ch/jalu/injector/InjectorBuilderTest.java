@@ -3,9 +3,11 @@ package ch.jalu.injector;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
+import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
 import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
+import ch.jalu.injector.handlers.provider.ProviderHandler;
 import ch.jalu.injector.handlers.testimplementations.ImplementationClassHandler;
 import ch.jalu.injector.handlers.testimplementations.ListeningDependencyHandler;
 import ch.jalu.injector.handlers.testimplementations.ThrowingPostConstructHandler;
@@ -23,6 +25,10 @@ import ch.jalu.injector.samples.animals.services.HissService;
 import ch.jalu.injector.samples.animals.services.HissServiceProvider;
 import ch.jalu.injector.samples.subpackage.SubpackageClass;
 import org.junit.Test;
+
+import javax.annotation.Nullable;
+
+import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -90,16 +96,19 @@ public class InjectorBuilderTest {
 
         // Create Injector with all handlers
         InjectorBuilder builder = new InjectorBuilder();
+        List<InstantiationProvider> instantiationProviders = InjectorBuilder.createInstantiationProviders();
         Injector injector = builder
             .addHandlers(implementationClassHandler, packageValidator, savedAnnotationsHandler,
                          listeningDependencyHandler, postConstructHandler, throwingPostConstructHandler)
-            .addHandlers(InjectorBuilder.createInstantiationProviders())
+            .addHandlers(instantiationProviders)
             .create();
 
         // Check presence of handlers and their order
         InjectorConfig config = ((InjectorImpl) injector).getConfig();
         assertThat(config.getPreConstructHandlers(), contains(implementationClassHandler, packageValidator));
-        assertThat(config.getDependencyHandlers(), contains(savedAnnotationsHandler, listeningDependencyHandler));
+        ProviderHandler providerHandler = getFirstOfType(ProviderHandler.class, instantiationProviders);
+        assertThat(config.getDependencyHandlers(),
+            contains(savedAnnotationsHandler, listeningDependencyHandler, providerHandler));
         assertThat(config.getPostConstructHandlers(), contains(postConstructHandler, throwingPostConstructHandler));
 
         // Set Provider for HissService
@@ -137,6 +146,16 @@ public class InjectorBuilderTest {
         new InjectorBuilder().addHandlers(handler);
 
         // then - expect exception
+    }
+
+    @Nullable
+    private static <T> T getFirstOfType(Class<T> clazz, Iterable<?> list) {
+        for (Object elem : list) {
+            if (clazz.isInstance(elem)) {
+                return clazz.cast(elem);
+            }
+        }
+        return null;
     }
 
     private static final class UnknownHandler implements Handler {

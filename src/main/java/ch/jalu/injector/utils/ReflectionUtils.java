@@ -96,6 +96,14 @@ public final class ReflectionUtils {
     }
 
     @Nullable
+    public static Class<?> getGenericType(@Nullable Type genericType) {
+        if (genericType != null && genericType instanceof ParameterizedType) {
+            return (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[0];
+        }
+        return null;
+    }
+
+    @Nullable
     public static Class<?> getGenericClass(Class<?> mainType, @Nullable Type genericType) {
         if (mainType.isArray()) {
             return mainType.getComponentType();
