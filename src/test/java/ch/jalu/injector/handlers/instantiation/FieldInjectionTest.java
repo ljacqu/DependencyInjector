@@ -13,7 +13,6 @@ import ch.jalu.injector.samples.InjectOnDifferentMembersClass;
 import ch.jalu.injector.samples.InvalidStaticFieldInjection;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Size;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -21,6 +20,7 @@ import java.lang.annotation.Annotation;
 import java.util.List;
 
 import static ch.jalu.injector.TestUtils.annotationOf;
+import static ch.jalu.injector.TestUtils.isClass;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.equalTo;
@@ -147,7 +147,7 @@ public class FieldInjectionTest {
     @SafeVarargs
     private static void assertDependencyEqualTo(DependencyDescription dependency, Class<?> type,
                                                 Class<? extends Annotation>... annotations) {
-        assertThat(dependency.getType(), Matchers.<Class<?>>equalTo(type));
+        assertThat(dependency.getType(), isClass(type));
         assertThat(dependency.getAnnotations(), arrayWithSize(annotations.length));
 
         for (int i = 0; i < annotations.length; ++i) {

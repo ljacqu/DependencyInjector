@@ -95,20 +95,36 @@ public final class ReflectionUtils {
         }
     }
 
+    /**
+     * Retrieves the generic subtype of the given type.
+     *
+     * @param genericType the type to get the generic type from
+     * @return the generic type, or null if not applicable
+     */
     @Nullable
     public static Class<?> getGenericType(@Nullable Type genericType) {
         if (genericType != null && genericType instanceof ParameterizedType) {
-            return (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[0];
+            Type[] types = ((ParameterizedType) genericType).getActualTypeArguments();
+            if (types.length > 0 && types[0] instanceof Class<?>) {
+                return (Class<?>) types[0];
+            }
         }
         return null;
     }
 
+    /**
+     * Returns the type the collection (array, Iterable) consists of.
+     *
+     * @param mainType the main type
+     * @param genericType the generic type if available
+     * @return the type the array/Iterable consists of, or null if not applicable
+     */
     @Nullable
-    public static Class<?> getGenericClass(Class<?> mainType, @Nullable Type genericType) {
+    public static Class<?> getCollectionType(Class<?> mainType, @Nullable Type genericType) {
         if (mainType.isArray()) {
             return mainType.getComponentType();
-        } else if (genericType instanceof ParameterizedType && Iterable.class.isAssignableFrom(mainType)) {
-            return (Class<?>) ((ParameterizedType) genericType).getActualTypeArguments()[0];
+        } else if (Iterable.class.isAssignableFrom(mainType)) {
+            return getGenericType(genericType);
         }
         return null;
     }

@@ -20,6 +20,7 @@ import org.junit.Test;
 import javax.inject.Provider;
 import java.util.List;
 
+import static ch.jalu.injector.TestUtils.isClass;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -107,7 +108,7 @@ public class ProviderHandlerImplTest {
         // then
         assertThat(instantiation, not(nullValue()));
         assertThat(instantiation.getDependencies(), hasSize(1));
-        assertThat(instantiation.getDependencies().get(0).getType(), Matchers.<Class<?>>equalTo(Delta2Provider.class));
+        assertThat(instantiation.getDependencies().get(0).getType(), isClass(Delta2Provider.class));
 
         // given (2)
         Charlie charlie = mock(Charlie.class);

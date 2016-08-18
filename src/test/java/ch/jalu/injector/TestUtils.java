@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 
 /**
  * Utility class for testing.
@@ -40,6 +41,10 @@ public final class TestUtils {
                 description.appendValue("Annotation of type @" + type.getSimpleName());
             }
         };
+    }
+
+    public static Matcher<? super Class<?>> isClass(Class clazz) {
+        return equalTo(clazz);
     }
 
     public static void assertIsProperUtilsClass(Class<?> clazz) {

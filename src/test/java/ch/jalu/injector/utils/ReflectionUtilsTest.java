@@ -5,9 +5,9 @@ import ch.jalu.injector.annotations.NoFieldScan;
 import ch.jalu.injector.annotations.NoMethodScan;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.exceptions.InjectorReflectionException;
-import org.hamcrest.Matcher;
 import org.junit.Test;
 
+import javax.inject.Provider;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static ch.jalu.injector.TestUtils.isClass;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyArray;
@@ -35,11 +36,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * Test for {@link ReflectionUtils}.
  */
 public class ReflectionUtilsTest {
-
-    // Used as sample Field in test
-    private Object field;
-    // Used as sample Field in test
-    private List<Boolean> boolList;
 
     @Test
     public void shouldGetFieldValue() {
@@ -59,7 +55,7 @@ public class ReflectionUtilsTest {
     public void shouldForwardException() throws NoSuchFieldException {
         // given
         ReflectionsTestClass testClass = new ReflectionsTestClass("abc", 123);
-        Field field = ReflectionUtilsTest.class.getDeclaredField("field");
+        Field field = GenericTypesClass.class.getDeclaredField("boolList");
 
         // when
         ReflectionUtils.getFieldValue(field, testClass);
@@ -173,7 +169,7 @@ public class ReflectionUtilsTest {
         Class<?> mainType = Exception[].class;
 
         // when
-        Class<?> result = ReflectionUtils.getGenericClass(mainType, null);
+        Class<?> result = ReflectionUtils.getCollectionType(mainType, null);
 
         // then
         assertThat(result, isClass(Exception.class));
@@ -186,7 +182,7 @@ public class ReflectionUtilsTest {
         Type genericType = mock(ParameterizedType.class);
 
         // when
-        Class<?> result = ReflectionUtils.getGenericClass(mainType, genericType);
+        Class<?> result = ReflectionUtils.getCollectionType(mainType, genericType);
 
         // then
         assertThat(result, nullValue());
@@ -196,10 +192,10 @@ public class ReflectionUtilsTest {
     @Test
     public void shouldReturnGenericTypeOfList() throws NoSuchFieldException {
         // given
-        Field boolList = getClass().getDeclaredField("boolList");
+        Field boolList = GenericTypesClass.class.getDeclaredField("boolList");
 
         // when
-        Class<?> result = ReflectionUtils.getGenericClass(boolList.getType(), boolList.getGenericType());
+        Class<?> result = ReflectionUtils.getCollectionType(boolList.getType(), boolList.getGenericType());
 
         // then
         assertThat(result, isClass(Boolean.class));
@@ -209,10 +205,10 @@ public class ReflectionUtilsTest {
     public void shouldNotGetGenericTypeIfNotIterableSubtype() throws NoSuchFieldException {
         // given
         // take genericType from the List<Boolean> field again, avoids us having to mock
-        Field boolList = getClass().getDeclaredField("boolList");
+        Field boolList = GenericTypesClass.class.getDeclaredField("boolList");
 
         // when
-        Class<?> result = ReflectionUtils.getGenericClass(Class.class, boolList.getGenericType());
+        Class<?> result = ReflectionUtils.getCollectionType(Class.class, boolList.getGenericType());
 
         // then
         assertThat(result, nullValue());
@@ -303,6 +299,45 @@ public class ReflectionUtilsTest {
         assertThat(ReflectionUtils.safeGetDeclaredFields(ReflectionsTestClass.class).length, greaterThanOrEqualTo(4));
     }
 
+    @Test
+    public void shouldGetTypedValue() throws ReflectiveOperationException {
+        // given
+        Field field = GenericTypesClass.class.getDeclaredField("stringProvider");
+        Type constrParam = GenericTypesClass.class.getDeclaredConstructor(Set.class, List.class)
+            .getGenericParameterTypes()[0];
+        Type methodParam = GenericTypesClass.class.getDeclaredMethod("withTypeList", List.class)
+            .getGenericParameterTypes()[0];
+
+        // when
+        Class<?> fieldType = ReflectionUtils.getGenericType(field.getGenericType());
+        Class<?> constrParamType = ReflectionUtils.getGenericType(constrParam);
+        Class<?> methodParamType = ReflectionUtils.getGenericType(methodParam);
+
+        // then
+        assertThat(fieldType, isClass(String.class));
+        assertThat(constrParamType, isClass(Integer.class));
+        assertThat(methodParamType, isClass(Type.class));
+    }
+
+    @Test
+    public void shouldReturnNullForNotPresentGenerics() throws ReflectiveOperationException {
+        // given
+        Field field1 = GenericTypesClass.class.getDeclaredField("untypedIterable");
+        Field field2 = GenericTypesClass.class.getDeclaredField("booleanField");
+        Type untypedParam = GenericTypesClass.class.getDeclaredMethod("withUntypedSet", Set.class)
+            .getGenericParameterTypes()[0];
+
+        // when
+        Class<?> fieldType1 = ReflectionUtils.getGenericType(field1.getGenericType());
+        Class<?> fieldType2 = ReflectionUtils.getGenericType(field2.getGenericType());
+        Class<?> paramType = ReflectionUtils.getGenericType(untypedParam);
+
+        // then
+        assertThat(fieldType1, nullValue());
+        assertThat(fieldType2, nullValue());
+        assertThat(paramType, nullValue());
+    }
+
     private static Field getField(String name) {
         try {
             return ReflectionsTestClass.class.getDeclaredField(name);
@@ -317,10 +352,6 @@ public class ReflectionUtilsTest {
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    private static Matcher<? super Class<?>> isClass(Class clazz) {
-        return equalTo(clazz);
     }
 
     // -------
@@ -341,5 +372,20 @@ public class ReflectionUtilsTest {
         private byte oneField;
         private boolean twoField;
         private char threeField;
+    }
+
+    private static final class GenericTypesClass {
+        private Provider<String> stringProvider;
+        private List<Boolean> boolList;
+        private Iterable<?> untypedIterable;
+        private boolean booleanField;
+
+        GenericTypesClass(Set<Integer> intSet, List<?> untypedLiteral) {
+        }
+
+        private void withTypeList(List<Type> typeList) {
+        }
+        private void withUntypedSet(Set set) {
+        }
     }
 }

@@ -10,12 +10,12 @@ import ch.jalu.injector.samples.InjectOnDifferentMembersClass;
 import ch.jalu.injector.samples.InvalidClass;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Size;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.List;
 
 import static ch.jalu.injector.TestUtils.annotationOf;
+import static ch.jalu.injector.TestUtils.isClass;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -100,7 +100,7 @@ public class ConstructorInjectionTest {
     @SuppressWarnings("unchecked")
     private static void assertDependencyEqualTo(DependencyDescription dependency,
                                                 Class<?> type, Class<?> annotationType) {
-        assertThat(dependency.getType(), Matchers.<Class<?>>equalTo(type));
+        assertThat(dependency.getType(), isClass(type));
         if (annotationType != null) {
             assertThat(dependency.getAnnotations(), arrayContaining(annotationOf(annotationType)));
         }

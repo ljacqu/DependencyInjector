@@ -147,23 +147,9 @@ public class InjectorUtilsTest {
 
     @Test
     public void shouldReturnFirstNotNull() {
-        // given
-        String[] arr = {null, null, "test", null, "other"};
-
-        // when
-        String result = InjectorUtils.firstNotNull(arr);
-
-        // then
-        assertThat(result, equalTo("test"));
-    }
-
-    @Test
-    public void shouldReturnNull() {
-        Object[] arr = {null, null, null};
-        assertThat(InjectorUtils.firstNotNull(arr), nullValue());
-
-        Integer[] empty = {};
-        assertThat(InjectorUtils.firstNotNull(empty), nullValue());
+        assertThat(InjectorUtils.firstNotNull(null, "test"), equalTo("test"));
+        assertThat(InjectorUtils.firstNotNull("rest", "pest"), equalTo("rest"));
+        assertThat(InjectorUtils.firstNotNull(null, null), nullValue());
     }
 
     @Test

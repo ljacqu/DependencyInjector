@@ -47,14 +47,8 @@ public final class InjectorUtils {
     }
 
     @Nullable
-    @SafeVarargs
-    public static <T> T firstNotNull(T... objects) {
-        for (T o : objects) {
-            if (o != null) {
-                return o;
-            }
-        }
-        return null;
+    public static <T> T firstNotNull(T obj1, T obj2) {
+        return obj1 == null ? obj2 : obj1;
     }
 
     public static boolean canInstantiate(Class<?> clazz) {
