@@ -90,6 +90,20 @@ public interface Injector {
     <T> T getIfAvailable(Class<T> clazz);
 
     /**
+     * Creates an instance of the given class if all of its dependencies are available. A new instance
+     * is returned each time and the created object is not stored in the injector.
+     * <p>
+     * <b>Note:</b> Currently, all dependencies of the class need to be registered singletons for a new
+     * instance to be created. This limitation may be lifted in future versions.
+     *
+     * @param clazz the class to construct if possible
+     * @param <T> the class' type
+     * @return instance of the class, or {@code null} if any dependency does not already exist
+     */
+    @Nullable
+    <T> T createIfHasDependencies(Class<T> clazz);
+
+    /**
      * Returns all known singletons of the given type. Typically used
      * with interfaces in order to perform an action without knowing its concrete implementors.
      * Trivially, using {@link Object} as {@code clazz} will return all known singletons.

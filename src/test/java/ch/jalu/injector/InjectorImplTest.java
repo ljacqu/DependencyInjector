@@ -371,6 +371,29 @@ public class InjectorImplTest {
         injector.registerProvider(null, Provider.class);
     }
 
+    @Test
+    public void shouldInstantiateForAllAvailableDependencies() {
+        // given
+        // Trigger initialization of AlphaService
+        injector.getSingleton(AlphaService.class);
+
+        // when
+        GammaService gammaService = injector.createIfHasDependencies(GammaService.class);
+
+        // then
+        assertThat(gammaService, not(nullValue()));
+        assertThat(injector.getIfAvailable(GammaService.class), nullValue());
+    }
+
+    @Test
+    public void shouldNotInstantiateForMissingDependencies() {
+        // given / when
+        GammaService gammaService = injector.createIfHasDependencies(GammaService.class);
+
+        // then
+        assertThat(gammaService, nullValue());
+    }
+
     private static List<Handler> getAllHandlersExceptInstantiationProviders() {
         List<Handler> handlers = InjectorBuilder.createDefaultHandlers("");
         Iterator<Handler> iterator = handlers.iterator();

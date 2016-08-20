@@ -53,10 +53,6 @@ public class InjectorImpl implements Injector {
 
     @Override
     public <T> void register(Class<? super T> clazz, T object) {
-        register0(clazz, object);
-    }
-
-    private void register0(Class<?> clazz, Object object) {
         if (objects.containsKey(clazz)) {
             throw new InjectorException("There is already an object present for " + clazz);
         }
@@ -78,12 +74,28 @@ public class InjectorImpl implements Injector {
 
     @Override
     public <T> T newInstance(Class<T> clazz) {
-        return instantiate(clazz, new HashSet<Class<?>>());
+        Class<? extends T> mappedClass = processPreConstructorHandlers(clazz);
+        return instantiate(mappedClass, new HashSet<Class<?>>());
     }
 
     @Override
     public <T> T getIfAvailable(Class<T> clazz) {
         return clazz.cast(objects.get(clazz));
+    }
+
+    @Override
+    public <T> T createIfHasDependencies(Class<T> clazz) {
+        Class<? extends T> mappedClass = processPreConstructorHandlers(clazz);
+        Instantiation<? extends T> instantiation = getInstantiation(mappedClass);
+        List<Object> dependencies = new ArrayList<>();
+        for (DependencyDescription description : instantiation.getDependencies()) {
+            Object object = objects.get(description.getType());
+            if (object == null) {
+                return null;
+            }
+            dependencies.add(object);
+        }
+        return runPostConstructHandlers(instantiation.instantiateWith(dependencies.toArray()));
     }
 
     @Override
@@ -133,30 +145,24 @@ public class InjectorImpl implements Injector {
      * @param clazz the class to retrieve the singleton instance for
      * @param traversedClasses the list of traversed classes
      * @param <T> the class' type
+     * @param <U> the remapped type (PreConstructHandler may rewrite the actual type of the object)
      * @return instance or associated value (for annotations)
      */
-    private <T> T get(Class<T> clazz, Set<Class<?>> traversedClasses) {
+    private <T, U extends T> T get(Class<T> clazz, Set<Class<?>> traversedClasses) {
         if (objects.containsKey(clazz)) {
             return clazz.cast(objects.get(clazz));
         }
 
         // First time we come across clazz, need to instantiate it. Validate that we can do so
-        Class<? extends T> mappedClass = clazz;
-        for (PreConstructHandler preConstructHandler : config.getPreConstructHandlers()) {
-            try {
-                mappedClass = firstNotNull(preConstructHandler.accept(mappedClass), mappedClass);
-            } catch (Exception e) {
-                InjectorUtils.rethrowException(e);
-            }
-        }
+        Class<U> mappedClass = processPreConstructorHandlers(clazz);
 
         // Add the clazz to the list of traversed classes in a new Set, so each path we take has its own Set.
         traversedClasses = new HashSet<>(traversedClasses);
         traversedClasses.add(mappedClass);
-        T object = instantiate(mappedClass, traversedClasses);
+        U object = instantiate(mappedClass, traversedClasses);
         register(clazz, object);
         if (mappedClass != clazz) {
-            register0(mappedClass, object);
+            register(mappedClass, object);
         }
         return object;
     }
@@ -176,15 +182,7 @@ public class InjectorImpl implements Injector {
 
         Object[] dependencies = resolveDependencies(instantiation, traversedClasses);
         T object = instantiation.instantiateWith(dependencies);
-        for (PostConstructHandler postConstructHandler : config.getPostConstructHandlers()) {
-            try {
-                object = firstNotNull(postConstructHandler.process(object), object);
-            } catch (Exception e) {
-                InjectorUtils.rethrowException(e);
-            }
-        }
-
-        return object;
+        return runPostConstructHandlers(object);
     }
 
     private <T> Instantiation<T> getInstantiation(Class<T> clazz) {
@@ -221,7 +219,7 @@ public class InjectorImpl implements Injector {
         Object[] values = new Object[dependencies.size()];
         for (int i = 0; i < dependencies.size(); ++i) {
             DependencyDescription dependency = dependencies.get(i);
-            Object object = resolveByAnnotation(dependency);
+            Object object = resolveDependency(dependency);
 
             values[i] = (object == null)
                 ? get(dependency.getType(), traversedClasses)
@@ -230,8 +228,41 @@ public class InjectorImpl implements Injector {
         return values;
     }
 
+    /**
+     * Runs all registered {@link PreConstructHandler}s for the given class and returns the result.
+     *
+     * @param clazz the class to process
+     * @param <T> the class' type
+     * @param <U> type of the remapped class (child of T or T)
+     * @return the potentially changed class
+     */
+    @SuppressWarnings("unchecked")
+    private <T, U extends T> Class<U> processPreConstructorHandlers(Class<T> clazz) {
+        Class mappedClass = clazz;
+        for (PreConstructHandler preConstructHandler : config.getPreConstructHandlers()) {
+            try {
+                mappedClass = firstNotNull(preConstructHandler.accept(mappedClass), mappedClass);
+            } catch (Exception e) {
+                InjectorUtils.rethrowException(e);
+            }
+        }
+        return mappedClass;
+    }
+
+    private <T> T runPostConstructHandlers(T instance) {
+        T object = instance;
+        for (PostConstructHandler postConstructHandler : config.getPostConstructHandlers()) {
+            try {
+                object = firstNotNull(postConstructHandler.process(object), object);
+            } catch (Exception e) {
+                InjectorUtils.rethrowException(e);
+            }
+        }
+        return object;
+    }
+
     @Nullable
-    private Object resolveByAnnotation(DependencyDescription dependencyDescription) {
+    private Object resolveDependency(DependencyDescription dependencyDescription) {
         Object o;
         for (DependencyHandler handler : config.getDependencyHandlers()) {
             try {
