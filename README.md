@@ -22,7 +22,7 @@ Using Maven, you can get the injector by adding this to your pom.xml:
 <dependency>
     <groupId>ch.jalu</groupId>
     <artifactId>injector</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
 </dependency>
 ```
 
@@ -94,4 +94,5 @@ implement specific behavior for custom annotations. There are four main types of
                       custom behavior for annotations.
  - PostConstructHandler: Allows you to perform an action on an object that has been created with the injector. 
                          You can support @PostConstruct methods this way or perform some form of validation.
+ - ProviderHandler: Called when a `Provider` or class of `Provider` is supplied for a given class.
 
