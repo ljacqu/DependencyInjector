@@ -17,6 +17,8 @@ package ch.jalu.injector.handlers;
  * <li>{@link ch.jalu.injector.handlers.postconstruct.PostConstructHandler}: Performs an action on an object that
  *     has been created with the injector. You can support {@code @PostConstruct} methods this way or perform some
  *     form of validation.</li>
+ * <li>{@link ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler}: Called when an annotation class
+ *     and object pair are passed to the injector ({@link ch.jalu.injector.Injector#provide(Class, Object)}).</li>
  * <li>{@link ch.jalu.injector.handlers.provider.ProviderHandler}: Processes the provider object and classes that are
  *     supplied to the injector.</li>
  * </ul>
