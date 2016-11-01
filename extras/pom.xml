@@ -2,10 +2,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ch.jalu</groupId>
-    <artifactId>injector</artifactId>
+    <artifactId>injector-extras</artifactId>
     <version>0.4-SNAPSHOT</version>
 
-    <name>DependencyInjector</name>
+    <name>DependencyInjector extras</name>
     <description>Lightweight dependency injector (JSR-330 implementation)</description>
     <url>https://github.com/ljacqu/DependencyInjector</url>
 
@@ -30,8 +30,8 @@
         <connection>scm:git:git@github.com:ljacqu/DependencyInjector.git</connection>
         <developerConnection>scm:git:git@github.com:ljacqu/DependencyInjector.git</developerConnection>
         <url>git@github.com:ljacqu/DependencyInjector.git</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <distributionManagement>
         <snapshotRepository>
@@ -173,6 +173,11 @@
             <version>1</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>ch.jalu</groupId>
+            <artifactId>injector</artifactId>
+            <version>0.4-SNAPSHOT</version>
+        </dependency>
         <!-- Compiler-only dependencies -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -181,6 +186,13 @@
             <version>3.0.1</version>
         </dependency>
         <!-- Optional runtime dependencies -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.10</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

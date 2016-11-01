@@ -2,7 +2,7 @@ package ch.jalu.injector.handlers.preconstruct;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
-import ch.jalu.injector.annotations.AllTypes;
+import ch.jalu.injector.handlers.dependency.DependencyHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class PreConstructPackageValidatorTest {
         // given / when
         validator.process(Injector.class);
         validator.process(PostConstructHandler.class);
-        validator.process(AllTypes.class);
+        validator.process(DependencyHandler.class);
 
         // then - no exception thrown
     }

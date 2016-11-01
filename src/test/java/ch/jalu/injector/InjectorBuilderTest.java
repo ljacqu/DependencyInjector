@@ -15,19 +15,17 @@ import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.ProvidedClass;
-import ch.jalu.injector.samples.animals.Animal;
-import ch.jalu.injector.samples.animals.Bird;
-import ch.jalu.injector.samples.animals.Chicken;
-import ch.jalu.injector.samples.animals.Reptile;
-import ch.jalu.injector.samples.animals.Snake;
-import ch.jalu.injector.samples.animals.Sparrow;
-import ch.jalu.injector.samples.animals.services.HissService;
-import ch.jalu.injector.samples.animals.services.HissServiceProvider;
+import ch.jalu.injector.samples.inheritance.ChildA;
+import ch.jalu.injector.samples.inheritance.ChildB;
+import ch.jalu.injector.samples.inheritance.DependencyB;
+import ch.jalu.injector.samples.inheritance.DependencyBProvider;
+import ch.jalu.injector.samples.inheritance.ParentA;
+import ch.jalu.injector.samples.inheritance.ParentB;
+import ch.jalu.injector.samples.inheritance.RootClass;
 import ch.jalu.injector.samples.subpackage.SubpackageClass;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
@@ -76,15 +74,15 @@ public class InjectorBuilderTest {
     }
 
     /**
-     * Tests the order of handlers (important!) and that custom handlers are
+     * Tests the order of handlers (important!) and that custom handlers are registered properly.
      */
     @Test
     public void shouldAllowCustomHandlers() {
         // Instantiate handlers
         ImplementationClassHandler implementationClassHandler = new ImplementationClassHandler();
-        implementationClassHandler.register(Animal.class, Reptile.class);
-        implementationClassHandler.register(Reptile.class, Snake.class);
-        implementationClassHandler.register(Bird.class, Sparrow.class);
+        implementationClassHandler.register(RootClass.class, ParentA.class);
+        implementationClassHandler.register(ParentA.class, ChildA.class);
+        implementationClassHandler.register(ParentB.class, ChildB.class);
         PreConstructPackageValidator packageValidator = new PreConstructPackageValidator("ch.jalu");
 
         SavedAnnotationsHandler savedAnnotationsHandler = new SavedAnnotationsHandler();
@@ -92,7 +90,7 @@ public class InjectorBuilderTest {
 
         PostConstructHandler postConstructHandler = new PostConstructMethodInvoker();
         // throw when Chicken gets instantiated
-        ThrowingPostConstructHandler throwingPostConstructHandler = new ThrowingPostConstructHandler(Chicken.class);
+        ThrowingPostConstructHandler throwingPostConstructHandler = new ThrowingPostConstructHandler(ParentB.class);
 
         // Create Injector with all handlers
         InjectorBuilder builder = new InjectorBuilder();
@@ -111,26 +109,23 @@ public class InjectorBuilderTest {
             contains(savedAnnotationsHandler, listeningDependencyHandler, providerHandler));
         assertThat(config.getPostConstructHandlers(), contains(postConstructHandler, throwingPostConstructHandler));
 
-        // Set Provider for HissService
-        injector.registerProvider(HissService.class, HissServiceProvider.class);
+        injector.registerProvider(DependencyB.class, DependencyBProvider.class);
 
-        // Request Animal singleton -> mapped to Reptile -> Snake
-        Animal animal = injector.getSingleton(Animal.class);
-        assertThat(animal, instanceOf(Snake.class));
-        Snake snake = injector.getSingleton(Snake.class);
-        assertThat(snake, sameInstance(animal));
+        // Request RootClass singleton -> mapped to ParentA -> ChildA
+        RootClass root = injector.getSingleton(RootClass.class);
+        assertThat(root, instanceOf(ChildA.class));
+        ChildA child = injector.getSingleton(ChildA.class);
+        assertThat(child, sameInstance(root));
 
         // Check counts
-        assertThat(implementationClassHandler.getCounter(), equalTo(4)); // Snake, Configuration, HissServiceProvider, HissService
-        // Snake depends on Configuration and HissService (2)
-        // HissService comes from HissServiceProvider, which needs to be instantiated (1)
-        // and it depends on Configuration (1) = 4.
-        assertThat(listeningDependencyHandler.getCounter(), equalTo(4));
-        assertThat(throwingPostConstructHandler.getCounter(), equalTo(4)); // Snake, Configuration, HissService, HissServiceProvider
+        // DependencyA, DependencyB, DependencyBProvider, ChildA
+        assertThat(implementationClassHandler.getCounter(), equalTo(4));
+        assertThat(listeningDependencyHandler.getCounter(), equalTo(3));
+        assertThat(throwingPostConstructHandler.getCounter(), equalTo(4));
 
         // Check correct behavior of ThrowingPostHandler
         try {
-            injector.getSingleton(Chicken.class);
+            injector.getSingleton(ParentB.class);
             fail("Expected exception to occur");
         } catch (InjectorException e) {
             // noop
