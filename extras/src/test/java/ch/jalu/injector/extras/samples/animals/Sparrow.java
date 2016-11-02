@@ -5,7 +5,7 @@ import ch.jalu.injector.extras.samples.animals.services.NameService;
 
 import javax.inject.Inject;
 
-public class Sparrow extends Bird {
+public class Sparrow extends Bird implements ISparrow {
 
     private NameService nameService;
 

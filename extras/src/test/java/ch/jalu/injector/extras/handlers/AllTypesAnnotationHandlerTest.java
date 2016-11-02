@@ -8,6 +8,7 @@ import ch.jalu.injector.extras.samples.animals.Bird;
 import ch.jalu.injector.extras.samples.animals.Chicken;
 import ch.jalu.injector.extras.samples.animals.Frog;
 import ch.jalu.injector.extras.samples.animals.Lion;
+import ch.jalu.injector.extras.samples.animals.Mammal;
 import ch.jalu.injector.extras.samples.animals.Ostrich;
 import ch.jalu.injector.extras.samples.animals.Reptile;
 import ch.jalu.injector.extras.samples.animals.Snake;
@@ -46,6 +47,6 @@ public class AllTypesAnnotationHandlerTest {
 
         // then
         assertThat(animalTypes, containsInAnyOrder(Bird.class, Chicken.class, Frog.class, Lion.class,
-            Ostrich.class, Reptile.class, Snake.class, Sparrow.class, Turtle.class));
+            Mammal.class, Ostrich.class, Reptile.class, Snake.class, Sparrow.class, Turtle.class));
     }
 }

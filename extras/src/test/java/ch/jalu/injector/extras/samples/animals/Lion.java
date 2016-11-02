@@ -8,7 +8,7 @@ import javax.inject.Inject;
 /**
  * Lion class.
  */
-public class Lion implements Animal {
+public class Lion extends Mammal {
 
     @Inject
     private RoarService roarService;
