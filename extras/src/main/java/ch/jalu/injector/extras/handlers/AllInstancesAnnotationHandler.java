@@ -1,8 +1,8 @@
 package ch.jalu.injector.extras.handlers;
 
-import ch.jalu.injector.extras.annotations.AllInstances;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.extras.annotations.AllInstances;
 import ch.jalu.injector.handlers.dependency.TypeSafeAnnotationHandler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.utils.InjectorUtils;

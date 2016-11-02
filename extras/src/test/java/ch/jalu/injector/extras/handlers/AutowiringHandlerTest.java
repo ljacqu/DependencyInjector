@@ -21,13 +21,14 @@ import static org.junit.Assert.fail;
  */
 public class AutowiringHandlerTest {
 
+    private static final String SAMPLE_PACKAGE = "ch.jalu.injector.extras";
+
     @Test
     public void shouldFindUniqueImplementation() {
         // given
-        String pkg = "ch.jalu.injector.extra";
         Injector injector = new InjectorBuilder()
-                .addHandlers(new AutowiringHandler(pkg))
-                .addDefaultHandlers(pkg)
+                .addHandlers(new AutowiringHandler(SAMPLE_PACKAGE))
+                .addDefaultHandlers(SAMPLE_PACKAGE)
                 .create();
 
         // when
@@ -42,8 +43,7 @@ public class AutowiringHandlerTest {
     @Test
     public void shouldReturnNullForZeroOrMultipleImplementations() throws Exception {
         // given
-        String pkg = "ch.jalu.injector.extra";
-        AutowiringHandler autowiringHandler = new AutowiringHandler(pkg);
+        AutowiringHandler autowiringHandler = new AutowiringHandler(SAMPLE_PACKAGE);
 
         // when
         Class<?> noImpl = autowiringHandler.accept(NoImpl.class);
@@ -59,13 +59,12 @@ public class AutowiringHandlerTest {
     @Test
     public void shouldThrowForMultipleImplementations() {
         // given
-        String pkg = "ch.jalu.injector.extra";
-        AutowiringHandler autowiringHandler = new AutowiringHandler(pkg);
+        AutowiringHandler autowiringHandler = new AutowiringHandler(SAMPLE_PACKAGE);
         autowiringHandler.setThrowIfNoUniqueSubtypeFound(true);
 
         Injector injector = new InjectorBuilder()
                 .addHandlers(autowiringHandler)
-                .addDefaultHandlers(pkg)
+                .addDefaultHandlers(SAMPLE_PACKAGE)
                 .create();
 
         // when / then
@@ -80,13 +79,12 @@ public class AutowiringHandlerTest {
     @Test
     public void shouldThrowForNoImplementation() {
         // given
-        String pkg = "ch.jalu.injector.extra";
-        AutowiringHandler autowiringHandler = new AutowiringHandler(pkg);
+        AutowiringHandler autowiringHandler = new AutowiringHandler(SAMPLE_PACKAGE);
         autowiringHandler.setThrowIfNoUniqueSubtypeFound(true);
 
         Injector injector = new InjectorBuilder()
                 .addHandlers(autowiringHandler)
-                .addDefaultHandlers(pkg)
+                .addDefaultHandlers(SAMPLE_PACKAGE)
                 .create();
 
         // when / then
@@ -98,9 +96,11 @@ public class AutowiringHandlerTest {
         }
     }
 
+    /** Interface with no concrete implementation. */
     private interface NoImpl {
     }
 
+    /** Abstract class with no concrete extension. */
     private abstract class AbstrNoImpl implements NoImpl {
     }
 

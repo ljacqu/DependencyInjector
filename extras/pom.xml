@@ -1,12 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+
     <groupId>ch.jalu</groupId>
-    <artifactId>injector-extras</artifactId>
+    <artifactId>injector.extras</artifactId>
     <version>0.4-SNAPSHOT</version>
 
     <name>DependencyInjector extras</name>
-    <description>Lightweight dependency injector (JSR-330 implementation)</description>
+    <description>Additional features for the dependency injector</description>
     <url>https://github.com/ljacqu/DependencyInjector</url>
 
     <issueManagement>
@@ -168,15 +169,16 @@
     <dependencies>
         <!-- Runtime dependencies -->
         <dependency>
+            <groupId>ch.jalu</groupId>
+            <artifactId>injector</artifactId>
+            <version>0.4-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>1</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.jalu</groupId>
-            <artifactId>injector</artifactId>
-            <version>0.4-SNAPSHOT</version>
         </dependency>
         <!-- Compiler-only dependencies -->
         <dependency>
@@ -197,14 +199,14 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
-            <scope>compile</scope>
+            <scope>test</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>2.2.7</version>
-            <scope>compile</scope>
+            <scope>test</scope>
             <optional>true</optional>
         </dependency>
         <!-- Testing-only dependencies -->

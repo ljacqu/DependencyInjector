@@ -9,5 +9,11 @@ jdk: oraclejdk7
 #  - coveralls:report send the coverage reports to the coveralls service
 # Switches:
 #  - B: batch mode (no UI)
-#  - U: force update, download everytime the dependencies
-script: mvn clean test jacoco:report coveralls:report -B -U
+#  - U: force update, download the dependencies every time
+script:
+  - mvn clean -B -f core/pom.xml
+  - mvn clean -B -f extras/pom.xml
+  - mvn clean -B -f test-module/pom.xml
+  - mvn install jacoco:report coveralls:report -B -U -f core/pom.xml
+  - mvn install jacoco:report coveralls:report -B -U -f extras/pom.xml
+  - mvn test -B -U -f test-module/pom.xml
