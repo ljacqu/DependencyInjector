@@ -13,7 +13,5 @@ jdk: oraclejdk7
 script:
   - mvn clean -B -f core/pom.xml
   - mvn clean -B -f extras/pom.xml
-  - mvn clean -B -f test-module/pom.xml
   - mvn install jacoco:report coveralls:report -B -U -f core/pom.xml
   - mvn install jacoco:report coveralls:report -B -U -f extras/pom.xml
-  - mvn test -B -U -f test-module/pom.xml
