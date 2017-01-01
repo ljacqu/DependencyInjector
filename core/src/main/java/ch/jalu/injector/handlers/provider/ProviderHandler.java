@@ -1,6 +1,7 @@
 package ch.jalu.injector.handlers.provider;
 
 import ch.jalu.injector.handlers.Handler;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 
 import javax.inject.Provider;
 
@@ -20,14 +21,14 @@ public interface ProviderHandler extends Handler {
     <T> void onProvider(Class<T> clazz, Provider<? extends T> provider) throws Exception;
 
     /**
-     * Processes the given provider class.
+     * Processes the given instantiation of a provider for the given class.
      *
-     * @param clazz the class to associate the provider class with
-     * @param providerClass the provider class
+     * @param clazz the class to associate the future provider with
+     * @param providerInstantiation the instantiation method of the provider
      * @param <T> the class' type
-     * @param <P> the provider class' type
-     * @throws Exception for unsuccessful validation, etc.
+     * @throws Exception upon unsuccessful operation, etc.
      */
-    <T, P extends Provider<? extends T>> void onProviderClass(Class<T> clazz, Class<P> providerClass) throws Exception;
+    <T> void onProvider(Class<T> clazz, Instantiation<? extends Provider<? extends T>> providerInstantiation)
+                        throws Exception;
 
 }

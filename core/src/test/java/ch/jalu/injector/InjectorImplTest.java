@@ -1,6 +1,7 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
+import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
 import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
@@ -21,6 +22,8 @@ import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Reloadable;
 import ch.jalu.injector.samples.SampleInstantiationImpl;
 import ch.jalu.injector.samples.Size;
+import ch.jalu.injector.samples.configurations.InvalidInjectorConfigurations;
+import ch.jalu.injector.samples.configurations.SampleConfiguration;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,6 +37,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -41,6 +45,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -368,7 +373,12 @@ public class InjectorImplTest {
         exceptionCatcher.expect("may not be null");
 
         // when
-        injector.registerProvider(null, Provider.class);
+        injector.registerProvider(null, new Provider<GammaService>() {
+            @Override
+            public GammaService get() {
+                return null;
+            }
+        });
     }
 
     @Test
@@ -392,6 +402,64 @@ public class InjectorImplTest {
 
         // then
         assertThat(gammaService, nullValue());
+    }
+
+    @Test
+    public void shouldGetProvidersFromConfigurationClass() {
+        // given
+        Injector injector = new InjectorBuilder()
+            .addDefaultHandlers("ch.jalu")
+            .create();
+        SampleConfiguration sampleConfiguration = new SampleConfiguration();
+        injector.addConfiguration(sampleConfiguration);
+
+        // when
+        ProvidedClass providedClass = injector.getSingleton(ProvidedClass.class);
+        BetaManager betaManager = injector.getSingleton(BetaManager.class);
+        AlphaService alphaService = injector.getSingleton(AlphaService.class);
+
+        // then
+        assertThat(providedClass, sameInstance(sampleConfiguration.getProvidedClass()));
+        assertThat(betaManager, sameInstance(sampleConfiguration.initBetaManager()));
+        assertThat(alphaService.getProvidedClass(), equalTo(providedClass));
+    }
+
+    @Test
+    public void shouldThrowForMultipleProviders() {
+        // given
+        Injector injector = new InjectorBuilder()
+                .addDefaultHandlers("ch.jalu")
+                .create();
+        injector.registerProvider(ProvidedClass.class, new Provider<ProvidedClass>() {
+            @Override
+            public ProvidedClass get() {
+                return new ProvidedClass("");
+            }
+        });
+
+        // when / then
+        try {
+            injector.addConfiguration(new SampleConfiguration());
+            fail("Expected exception to be thrown");
+        } catch (InjectorException e) {
+            assertThat(e.getMessage(), containsString("Provider already registered"));
+        }
+    }
+
+    @Test
+    public void shouldThrowForProvidesMethodWithVoidType() {
+        // given
+        Injector injector = new InjectorBuilder()
+                .addDefaultHandlers("ch.jalu")
+                .create();
+
+        // when / then
+        try {
+            injector.addConfiguration(new InvalidInjectorConfigurations.ConfigurationWithVoidReturnType());
+            fail("Expected exception to be thrown");
+        } catch (InjectorException e) {
+            assertThat(e.getMessage(), containsString("has void return type"));
+        }
     }
 
     private static List<Handler> getAllHandlersExceptInstantiationProviders() {

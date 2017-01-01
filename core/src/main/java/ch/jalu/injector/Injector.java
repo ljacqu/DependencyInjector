@@ -1,5 +1,8 @@
 package ch.jalu.injector;
 
+import ch.jalu.injector.config.InjectorConfiguration;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+
 import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.lang.annotation.Annotation;
@@ -41,10 +44,9 @@ public interface Injector {
      * @param clazz the class to register the provider for
      * @param providerClass the class of the provider
      * @param <T> the class' type
-     * @param <P> the provider's type
-     * @since 0.3
+     * @since 0.4
      */
-    <T, P extends Provider<? extends T>> void registerProvider(Class<T> clazz, Class<P> providerClass);
+    <T> void registerProvider(Class<T> clazz, Class<? extends Provider<? extends T>> providerClass);
 
     /**
      * Processes an annotation with an associated object. The actual behavior of this method depends on the
@@ -55,6 +57,14 @@ public interface Injector {
      * @since 0.1
      */
     void provide(Class<? extends Annotation> annotation, @Nullable Object object);
+
+    /**
+     * Processes the given configuration class.
+     *
+     * @param configuration the configuration
+     * @since 0.4
+     */
+    void addConfiguration(InjectorConfiguration configuration);
 
     /**
      * Retrieves or instantiates an object of the given type (singleton scope).
@@ -102,6 +112,16 @@ public interface Injector {
      */
     @Nullable
     <T> T createIfHasDependencies(Class<T> clazz);
+
+    /**
+     * Resolves the given dependency description object. This method is intended for hooking into the injector
+     * mechanism. Other methods such as {@link #getSingleton(Class)} should be preferred whenever possible.
+     *
+     * @param dependency the dependency to resolve
+     * @return the resolved object, or {@code null} if no dependency handler processed the request
+     */
+    @Nullable
+    Object resolveDependency(DependencyDescription dependency);
 
     /**
      * Returns all known singletons of the given type. Typically used

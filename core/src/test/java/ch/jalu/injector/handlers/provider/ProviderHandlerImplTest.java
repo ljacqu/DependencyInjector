@@ -64,7 +64,7 @@ public class ProviderHandlerImplTest {
 
         // when / then
         try {
-            providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
+            providerHandler.onProvider(Delta.class, createInstantiation(Delta2Provider.class));
             fail("Expected exception to be thrown");
         } catch (InjectorException e) {
             // all good
@@ -74,7 +74,7 @@ public class ProviderHandlerImplTest {
     @Test
     public void shouldReturnNullForClassWithoutProvider() {
         // given
-        providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
+        providerHandler.onProvider(Delta.class, createInstantiation(Delta2Provider.class));
 
         // when
         Instantiation<Alfa> result = providerHandler.get(Alfa.class);
@@ -100,7 +100,7 @@ public class ProviderHandlerImplTest {
     @Test
     public void shouldReturnProviderClassWrappedAsInstantiation() {
         // given
-        providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
+        providerHandler.onProvider(Delta.class, createInstantiation(Delta2Provider.class));
 
         // when
         Instantiation<Delta> instantiation = providerHandler.get(Delta.class);
@@ -125,7 +125,7 @@ public class ProviderHandlerImplTest {
     @Test
     public void shouldThrowForInvalidArgument() {
         // given
-        providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
+        providerHandler.onProvider(Delta.class, createInstantiation(Delta2Provider.class));
         Instantiation<Delta> instantiation = providerHandler.get(Delta.class);
 
         // when / then
@@ -242,5 +242,10 @@ public class ProviderHandlerImplTest {
         // then
         assertThat(value, nullValue());
         verifyZeroInteractions(injector);
+    }
+
+    private static <T> Instantiation<? extends Provider<? extends T>> createInstantiation(
+            Class<? extends Provider<? extends T>> clazz) {
+        return new UninitializedProviderByClass<>(clazz);
     }
 }

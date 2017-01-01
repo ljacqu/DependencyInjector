@@ -1,5 +1,7 @@
 package ch.jalu.injector;
 
+import ch.jalu.injector.annotations.Provides;
+import ch.jalu.injector.config.InjectorConfiguration;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
@@ -9,11 +11,13 @@ import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
 import ch.jalu.injector.handlers.provider.ProviderHandler;
+import ch.jalu.injector.handlers.provider.UninitializedProviderByClass;
+import ch.jalu.injector.handlers.provider.UninitializedProviderByMethod;
 import ch.jalu.injector.utils.InjectorUtils;
 
-import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -110,6 +114,19 @@ public class InjectorImpl implements Injector {
     }
 
     @Override
+    public void addConfiguration(InjectorConfiguration configuration) {
+        for (Method method : configuration.getClass().getDeclaredMethods()) {
+            if (method.isAnnotationPresent(Provides.class)) {
+                Class providerType = method.getReturnType();
+                if (Void.TYPE.equals(providerType)) {
+                    throw new InjectorException("@Provides method '" + method + "' has void return type");
+                }
+                registerProviderInstantiation(providerType, new UninitializedProviderByMethod<>(method, configuration));
+            }
+        }
+    }
+
+    @Override
     public <T> void registerProvider(Class<T> clazz, Provider<? extends T> provider) {
         checkNotNull(clazz, "Class may not be null");
         checkNotNull(provider, "Provider may not be null");
@@ -123,12 +140,17 @@ public class InjectorImpl implements Injector {
     }
 
     @Override
-    public <T, P extends Provider<? extends T>> void registerProvider(Class<T> clazz, Class<P> providerClass) {
+    public <T> void registerProvider(Class<T> clazz, Class<? extends Provider<? extends T>> providerClass) {
         checkNotNull(clazz, "Class may not be null");
         checkNotNull(providerClass, "Provider class may not be null");
+        registerProviderInstantiation(clazz, new UninitializedProviderByClass<>(providerClass));
+    }
+
+    private <T> void registerProviderInstantiation(Class<T> clazz,
+                                                 Instantiation<? extends Provider<? extends T>> providerInstantiation) {
         for (ProviderHandler handler : config.getProviderHandlers()) {
             try {
-                handler.onProviderClass(clazz, providerClass);
+                handler.onProvider(clazz, providerInstantiation);
             } catch (Exception e) {
                 InjectorUtils.rethrowException(e);
             }
@@ -218,12 +240,7 @@ public class InjectorImpl implements Injector {
         List<? extends DependencyDescription> dependencies = instantiation.getDependencies();
         Object[] values = new Object[dependencies.size()];
         for (int i = 0; i < dependencies.size(); ++i) {
-            DependencyDescription dependency = dependencies.get(i);
-            Object object = resolveDependency(dependency);
-
-            values[i] = (object == null)
-                ? get(dependency.getType(), traversedClasses)
-                : object;
+            values[i] = resolveDependency(dependencies.get(i), traversedClasses);
         }
         return values;
     }
@@ -261,8 +278,20 @@ public class InjectorImpl implements Injector {
         return object;
     }
 
-    @Nullable
-    private Object resolveDependency(DependencyDescription dependencyDescription) {
+    @Override
+    public Object resolveDependency(DependencyDescription dependency) {
+        return resolveDependency(dependency, new HashSet<Class<?>>());
+    }
+
+    private Object resolveDependency(DependencyDescription dependency, Set<Class<?>> traversedClasses) {
+        Object object = getDependencyFromHandlers(dependency);
+
+        return (object == null)
+                ? get(dependency.getType(), traversedClasses)
+                : object;
+    }
+
+    private Object getDependencyFromHandlers(DependencyDescription dependencyDescription) {
         Object o;
         for (DependencyHandler handler : config.getDependencyHandlers()) {
             try {
