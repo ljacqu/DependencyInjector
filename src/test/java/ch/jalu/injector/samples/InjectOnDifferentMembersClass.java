@@ -7,6 +7,8 @@ import javax.inject.Inject;
  */
 public class InjectOnDifferentMembersClass {
 
+    private final ProvidedClass providedClass;
+
     @Inject
     private GammaService gammaService;
 
@@ -14,12 +16,11 @@ public class InjectOnDifferentMembersClass {
     private BetaManager betaManager;
 
     InjectOnDifferentMembersClass() {
-        // Field injection requires no-args constructor
+        this.providedClass = null;
     }
 
     @Inject
-    InjectOnDifferentMembersClass(GammaService gammaService, ProvidedClass providedClass) {
-        // noop
+    InjectOnDifferentMembersClass(ProvidedClass providedClass) {
+        this.providedClass = providedClass;
     }
-
 }

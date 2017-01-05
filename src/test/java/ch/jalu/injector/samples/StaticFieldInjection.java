@@ -5,13 +5,20 @@ import javax.inject.Inject;
 /**
  * Sample class - attempted field injection on a static member.
  */
-public class InvalidStaticFieldInjection {
+public class StaticFieldInjection {
 
     @Inject
     private ProvidedClass providedClass;
     @Inject
     protected static AlphaService alphaService;
 
-    InvalidStaticFieldInjection() { }
+    StaticFieldInjection() { }
 
+    public static AlphaService getAlphaService() {
+        return alphaService;
+    }
+
+    public ProvidedClass getProvidedClass() {
+        return providedClass;
+    }
 }

@@ -16,7 +16,7 @@ import ch.jalu.injector.samples.FieldInjectionWithAnnotations;
 import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.InstantiationFallbackClasses;
 import ch.jalu.injector.samples.InvalidClass;
-import ch.jalu.injector.samples.InvalidStaticFieldInjection;
+import ch.jalu.injector.samples.StaticFieldInjection;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Reloadable;
 import ch.jalu.injector.samples.SampleInstantiationImpl;
@@ -212,10 +212,13 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldThrowForStaticFieldInjection() {
-        // given / when / then
-        exceptionCatcher.expect("is static but annotated with @Inject");
-        injector.newInstance(InvalidStaticFieldInjection.class);
+    public void shouldSupportInjectionOfStaticFields() {
+        // given / when
+        StaticFieldInjection objectWithStaticField = injector.newInstance(StaticFieldInjection.class);
+
+        // then
+        assertThat(StaticFieldInjection.getAlphaService(), equalTo(injector.getSingleton(AlphaService.class)));
+        assertThat(objectWithStaticField.getProvidedClass(), equalTo(injector.getSingleton(ProvidedClass.class)));
     }
 
     @Test

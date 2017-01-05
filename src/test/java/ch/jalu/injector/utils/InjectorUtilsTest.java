@@ -4,13 +4,10 @@ import ch.jalu.injector.TestUtils;
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.dependency.TypeSafeAnnotationHandler;
-import ch.jalu.injector.samples.BetaManager;
 import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import java.lang.reflect.Method;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -165,24 +162,8 @@ public class InjectorUtilsTest {
     }
 
     @Test
-    public void shouldReturnDeclaringClass() throws NoSuchMethodException {
-        Method method = getClass().getDeclaredMethod("shouldReturnDeclaringClass");
-        assertThat(InjectorUtils.getDeclarer(method), equalTo(getClass().getName()));
-
-        assertThat(InjectorUtils.getDeclarer(null), equalTo("null"));
-    }
-
-    @Test
     public void shouldBeWellFormedUtilsClass() {
         TestUtils.assertIsProperUtilsClass(InjectorUtils.class);
-    }
-
-    @Test
-    public void shouldFindInjectAnnotations() {
-        assertThat(InjectorUtils.isInjectAnnotationPresent(InjectorUtilsTest.class.getDeclaredMethods()),
-            equalTo(false));
-        assertThat(InjectorUtils.isInjectAnnotationPresent(BetaManager.class.getDeclaredFields()),
-            equalTo(true));
     }
 
     private enum SampleEnum {

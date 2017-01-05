@@ -28,22 +28,12 @@ public abstract class InstantiationFallbackClasses {
         }
     }
 
-    public static final class InvalidFallbackClass {
-        private InvalidFallbackClass() {
-            // no-args constructor must be public for fallback instantiation
+    public static final class InvalidNoArgConstructorClass {
+        private InvalidNoArgConstructorClass() {
+            // no-args constructor must be public for public classes
         }
     }
 
-    public static final class InvalidInjectOnMethodClass {
-        // We don't support method injection but this should still be detected and an exception returned
-        // Only use instantiation fallback if we're sure there isn't some sort of misconfiguration
-        @Inject
-        public void setGammaService(GammaService gammaService) {
-            // --
-        }
-    }
-
-    // Class with @PostConstruct method should never be instantiated by instantiation fallback
     public static final class ClassWithPostConstruct {
         @PostConstruct
         public void postConstructMethod() {

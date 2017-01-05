@@ -5,10 +5,8 @@ import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
 import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
-import ch.jalu.injector.handlers.instantiation.ConstructorInjectionProvider;
-import ch.jalu.injector.handlers.instantiation.FieldInjectionProvider;
-import ch.jalu.injector.handlers.instantiation.InstantiationFallbackProvider;
 import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
+import ch.jalu.injector.handlers.instantiation.StandardInjectionProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
@@ -56,10 +54,8 @@ public class InjectorBuilder {
             new SavedAnnotationsHandler(),
             // Provider handler
             new ProviderHandlerImpl(),
-            // Instantiation providers
-            new ConstructorInjectionProvider(),
-            new FieldInjectionProvider(),
-            new InstantiationFallbackProvider(),
+            // Instantiation provider
+            new StandardInjectionProvider(),
             // PostConstruct
             new PostConstructMethodInvoker()));
     }
@@ -76,9 +72,7 @@ public class InjectorBuilder {
     public static List<InstantiationProvider> createInstantiationProviders() {
         return new ArrayList<>(Arrays.asList(
                 new ProviderHandlerImpl(),
-                new ConstructorInjectionProvider(),
-                new FieldInjectionProvider(),
-                new InstantiationFallbackProvider()));
+                new StandardInjectionProvider()));
     }
 
     /**
