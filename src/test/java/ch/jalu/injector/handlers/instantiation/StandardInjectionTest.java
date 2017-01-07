@@ -17,6 +17,7 @@ import ch.jalu.injector.samples.InvalidClass;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Size;
 import ch.jalu.injector.samples.StaticFieldInjection;
+import ch.jalu.injector.samples.inheritance.Child;
 import org.junit.Test;
 
 import javax.inject.Inject;
@@ -269,6 +270,14 @@ public class StandardInjectionTest {
         assertThat(instance, not(nullValue()));
     }
 
+    @Test
+    public void shouldHandleInheritance() {
+        // given / when
+        Instantiation<Child> instantiation = provider.get(Child.class);
+
+        // then
+        assertThat(instantiation.getDependencies(), hasSize(5));
+    }
 
     @SafeVarargs
     private static void assertDependencyEqualTo(DependencyDescription dependency, Class<?> type,

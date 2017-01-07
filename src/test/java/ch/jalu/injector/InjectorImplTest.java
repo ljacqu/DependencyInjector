@@ -21,6 +21,7 @@ import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Reloadable;
 import ch.jalu.injector.samples.SampleInstantiationImpl;
 import ch.jalu.injector.samples.Size;
+import ch.jalu.injector.samples.inheritance.Child;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -395,6 +396,20 @@ public class InjectorImplTest {
 
         // then
         assertThat(gammaService, nullValue());
+    }
+
+    @Test
+    public void shouldInstantiateClassWithInheritedInjects() {
+        // given / when
+        Child child = injector.getSingleton(Child.class);
+
+        // then
+        assertThat(child.isPostConstructRunAfterParent(), equalTo(true));
+        assertThat(child.getChildGammaService(), not(nullValue()));
+        assertThat(child.getParentProvidedClass(), not(nullValue()));
+        assertThat(child.getParentBetaManager(), not(nullValue()));
+        assertThat(child.getParentBetaManager(), sameInstance(child.getBetaManager()));
+        assertThat(child.getAlphaService(), not(nullValue()));
     }
 
     private static List<Handler> getAllHandlersExceptInstantiationProviders() {
