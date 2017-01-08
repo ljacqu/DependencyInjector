@@ -104,9 +104,9 @@ public class InjectorConfig {
         this.instantiationProviders.addAll(instantiationProviders);
     }
 
-    public void addDependencyHandlers(List<? extends DependencyHandler> annotationHandlers) {
-        InjectorUtils.checkNotNull(annotationHandlers, null);
-        this.dependencyHandlers.addAll(annotationHandlers);
+    public void addDependencyHandlers(List<? extends DependencyHandler> dependencyHandlers) {
+        InjectorUtils.checkNotNull(dependencyHandlers, null);
+        this.dependencyHandlers.addAll(dependencyHandlers);
     }
 
     public void addPostConstructHandlers(List<? extends PostConstructHandler> postConstructHandlers) {

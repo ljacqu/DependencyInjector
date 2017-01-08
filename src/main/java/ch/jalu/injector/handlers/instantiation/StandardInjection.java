@@ -23,6 +23,12 @@ public class StandardInjection<T> implements Instantiation<T> {
     private final List<Field> fields;
     private SoftReference<List<DependencyDescription>> dependencies;
 
+    /**
+     * Constructs a standard injection object.
+     *
+     * @param constructor the constructor to create objects with
+     * @param fields the fields to inject after instantiation
+     */
     public StandardInjection(Constructor<T> constructor, List<Field> fields) {
         this.constructor = constructor;
         this.fields = fields;

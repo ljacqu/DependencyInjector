@@ -9,17 +9,16 @@ import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 
 /**
  * Custom JUnit runner which adds support for {@link InjectDelayed} and {@link BeforeInjecting}.
- * This runner also initializes fields with Mockito's {@link Mock}, {@link org.mockito.Spy} and
+ * This runner also initializes fields with Mockito's {@link org.mockito.Mock}, {@link org.mockito.Spy} and
  * {@link org.mockito.InjectMocks}.
  * <p>
- * Mockito's {@link Mock} and {@link org.mockito.InjectMocks} are initialized <i>before</i>
+ * Mockito's {@link org.mockito.Mock} and {@link org.mockito.InjectMocks} are initialized <i>before</i>
  * {@link org.junit.Before} methods are run. This leaves no possibility to initialize some mock
  * behavior before {@link org.mockito.InjectMocks} fields get instantiated.
  * <p>
@@ -31,7 +30,7 @@ import java.util.List;
  * {@link javax.annotation.PostConstruct} method will be invoked, if available.
  * <p>
  * Important: It is required to declare all dependencies of classes annotated with
- * {@link InjectDelayed} as {@link Mock} fields. If a dependency is missing, an exception
+ * {@link InjectDelayed} as {@link org.mockito.Mock} fields. If a dependency is missing, an exception
  * will be thrown.
  */
 public class DelayedInjectionRunner extends BlockJUnit4ClassRunner {

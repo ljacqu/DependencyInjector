@@ -1,7 +1,5 @@
 package ch.jalu.injector.testing.runner;
 
-import ch.jalu.injector.testing.BeforeInjecting;
-import ch.jalu.injector.testing.InjectDelayed;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
@@ -9,9 +7,9 @@ import org.junit.runners.model.Statement;
 import java.util.List;
 
 /**
- * Statement for running {@link BeforeInjecting} methods. Such methods are run
+ * Statement for running {@link ch.jalu.injector.testing.BeforeInjecting} methods. Such methods are run
  * after Mockito's &#064;Mock, &#064;Spy and &#064;InjectMocks have taken effect,
- * but before {@link InjectDelayed} fields are handled.
+ * but before {@link ch.jalu.injector.testing.InjectDelayed} fields are handled.
  */
 public class RunBeforeInjectings extends Statement {
 

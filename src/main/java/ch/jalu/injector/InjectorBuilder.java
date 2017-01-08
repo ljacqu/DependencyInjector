@@ -71,8 +71,8 @@ public class InjectorBuilder {
      */
     public static List<InstantiationProvider> createInstantiationProviders() {
         return new ArrayList<>(Arrays.asList(
-                new ProviderHandlerImpl(),
-                new DefaultInjectionProvider()));
+            new ProviderHandlerImpl(),
+            new DefaultInjectionProvider()));
     }
 
     /**
@@ -152,7 +152,7 @@ public class InjectorBuilder {
             }
         }
 
-        public void process(Handler handler) {
+        void process(Handler handler) {
             boolean foundSubtype = false;
             for (Class<? extends Handler> subtype : subtypes) {
                 foundSubtype |= addHandler(subtype, handler);

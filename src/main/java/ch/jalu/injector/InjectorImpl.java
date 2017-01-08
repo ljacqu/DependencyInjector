@@ -31,7 +31,7 @@ import static ch.jalu.injector.utils.InjectorUtils.rethrowException;
  */
 public class InjectorImpl implements Injector {
 
-    protected final Map<Class<?>, Object> objects;
+    protected Map<Class<?>, Object> objects;
     protected InjectorConfig config;
 
     /**
@@ -42,8 +42,8 @@ public class InjectorImpl implements Injector {
      */
     protected InjectorImpl(InjectorConfig config) {
         this.config = config;
-        objects = new HashMap<>();
-        objects.put(Injector.class, this);
+        this.objects = new HashMap<>();
+        this.objects.put(Injector.class, this);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class InjectorImpl implements Injector {
         if (objects.containsKey(clazz)) {
             throw new InjectorException("There is already an object present for " + clazz);
         }
-        InjectorUtils.checkNotNull(object);
+        checkNotNull(object);
         objects.put(clazz, object);
     }
 
@@ -117,7 +117,7 @@ public class InjectorImpl implements Injector {
             try {
                 handler.onProvider(clazz, provider);
             } catch (Exception e) {
-                InjectorUtils.rethrowException(e);
+                rethrowException(e);
             }
         }
     }
@@ -130,7 +130,7 @@ public class InjectorImpl implements Injector {
             try {
                 handler.onProviderClass(clazz, providerClass);
             } catch (Exception e) {
-                InjectorUtils.rethrowException(e);
+                rethrowException(e);
             }
         }
     }
@@ -243,7 +243,7 @@ public class InjectorImpl implements Injector {
             try {
                 mappedClass = firstNotNull(preConstructHandler.accept(mappedClass), mappedClass);
             } catch (Exception e) {
-                InjectorUtils.rethrowException(e);
+                rethrowException(e);
             }
         }
         return mappedClass;
@@ -255,7 +255,7 @@ public class InjectorImpl implements Injector {
             try {
                 object = firstNotNull(postConstructHandler.process(object), object);
             } catch (Exception e) {
-                InjectorUtils.rethrowException(e);
+                rethrowException(e);
             }
         }
         return object;
@@ -270,7 +270,7 @@ public class InjectorImpl implements Injector {
                     return o;
                 }
             } catch (Exception e) {
-                InjectorUtils.rethrowException(e);
+                rethrowException(e);
             }
         }
         return null;

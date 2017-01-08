@@ -4,8 +4,6 @@ import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
-import ch.jalu.injector.testing.BeforeInjecting;
-import ch.jalu.injector.testing.InjectDelayed;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.Statement;
@@ -15,8 +13,8 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * Statement for initializing {@link InjectDelayed} fields. These fields are
- * constructed after {@link BeforeInjecting} and before JUnit's &#064;Before.
+ * Statement for initializing {@link ch.jalu.injector.testing.InjectDelayed} fields. These fields are
+ * constructed after {@link ch.jalu.injector.testing.BeforeInjecting} and before JUnit's &#064;Before.
  */
 public class RunDelayedInjects extends Statement {
 

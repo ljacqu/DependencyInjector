@@ -3,9 +3,8 @@ package ch.jalu.injector.demo;
 /**
  * Settings instance.
  * <p>
- * This is a simple class without any dependencies. The injector can create it with the
- * {@link ch.jalu.injector.handlers.instantiation.InstantiationFallback}, which allows to create
- * classes that have a public no-args constructor.
+ * This is a simple class without any dependencies. The injector can instantiate classes with
+ * no inject dependencies if they have a public no-args constructor (default constructor).
  */
 public class Settings {
 
