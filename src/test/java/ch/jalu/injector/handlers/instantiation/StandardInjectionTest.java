@@ -1,11 +1,13 @@
 package ch.jalu.injector.handlers.instantiation;
 
+import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.annotations.NoFieldScan;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.ClassWithAnnotations;
+import ch.jalu.injector.samples.ClassWithInjectMethod;
 import ch.jalu.injector.samples.Duration;
 import ch.jalu.injector.samples.FieldInjectionWithAnnotations;
 import ch.jalu.injector.samples.GammaService;
@@ -14,14 +16,19 @@ import ch.jalu.injector.samples.InstantiationFallbackClasses.ClassWithPostConstr
 import ch.jalu.injector.samples.InstantiationFallbackClasses.FallbackClass;
 import ch.jalu.injector.samples.InstantiationFallbackClasses.InvalidNoArgConstructorClass;
 import ch.jalu.injector.samples.InvalidClass;
+import ch.jalu.injector.samples.InvalidFinalInjectField;
+import ch.jalu.injector.samples.InvalidMultipleInjectConstructors;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Size;
 import ch.jalu.injector.samples.StaticFieldInjection;
 import ch.jalu.injector.samples.inheritance.Child;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import static ch.jalu.injector.TestUtils.annotationOf;
@@ -31,9 +38,11 @@ import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
  * Test for {@link StandardInjectionProvider} and {@link StandardInjection}.
@@ -41,6 +50,10 @@ import static org.junit.Assert.assertThat;
 public class StandardInjectionTest {
     
     private InstantiationProvider provider = new StandardInjectionProvider();
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+    private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
 
     @Test
     public void shouldReturnDependencies() {
@@ -165,13 +178,19 @@ public class StandardInjectionTest {
         assertThat(injection, nullValue());
     }
 
-    @Test(expected = InjectorException.class)
+    @Test
     public void shouldForwardExceptionDuringInstantiation() {
         // given
         Instantiation<ThrowingConstructor> injection = provider.get(ThrowingConstructor.class);
 
-        // when / when
-        injection.instantiateWith(new ProvidedClass(""));
+        // when / then
+        try {
+            injection.instantiateWith(new ProvidedClass(""));
+            fail("Expected exception to be thrown");
+        } catch (InjectorException e) {
+            assertThat(e.getCause(), instanceOf(InvocationTargetException.class));
+            assertThat(e.getCause().getCause().getMessage(), equalTo("Exception in constructor"));
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -277,6 +296,33 @@ public class StandardInjectionTest {
 
         // then
         assertThat(instantiation.getDependencies(), hasSize(5));
+    }
+
+    @Test
+    public void shouldThrowDueToFinalField() {
+        // expect
+        exceptionCatcher.expect("may not be final and have @Inject");
+
+        // when
+        provider.get(InvalidFinalInjectField.class);
+    }
+
+    @Test
+    public void shouldThrowForMultipleInjectConstructors() {
+        // expect
+        exceptionCatcher.expect("may not have multiple @Inject constructors");
+
+        // when
+        provider.get(InvalidMultipleInjectConstructors.class);
+    }
+
+    @Test
+    public void shouldThrowForClassWithInjectMethods() {
+        // expect
+        exceptionCatcher.expect("@Inject on methods is not supported");
+
+        // when
+        provider.get(ClassWithInjectMethod.class);
     }
 
     @SafeVarargs

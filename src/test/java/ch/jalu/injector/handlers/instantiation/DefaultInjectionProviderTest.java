@@ -1,13 +1,18 @@
 package ch.jalu.injector.handlers.instantiation;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
+import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BetaManager;
+import ch.jalu.injector.samples.ClassWithInjectMethod;
 import ch.jalu.injector.samples.InjectOnDifferentMembersClass;
 import ch.jalu.injector.samples.StaticFieldInjection;
 import ch.jalu.injector.samples.inheritance.Child;
+import ch.jalu.injector.samples.inheritance.ChildWithNoInjection;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import javax.inject.Inject;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
@@ -61,6 +66,33 @@ public class DefaultInjectionProviderTest {
 
         // when
         provider.get(InjectOnDifferentMembersClass.class);
+    }
+
+    @Test
+    public void shouldInjectClass() {
+        // given / when
+        Instantiation<ChildWithNoInjection> injection = provider.get(ChildWithNoInjection.class);
+
+        // then
+        assertThat(injection, not(nullValue()));
+        assertThat(injection.getDependencies(), hasSize(2));
+    }
+
+    @Test
+    public void shouldThrowForInjectMethodInParent() {
+        // expect
+        exceptionCatcher.expect("@Inject on methods is not supported");
+
+        // when
+        provider.get(ChildOfParentWithInjectMethod.class);
+    }
+
+    private static final class ChildOfParentWithInjectMethod  extends ClassWithInjectMethod {
+
+        @Inject
+        private ChildOfParentWithInjectMethod(AlphaService alphaService) {
+
+        }
     }
 
 }
