@@ -213,13 +213,12 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldSupportInjectionOfStaticFields() {
-        // given / when
-        StaticFieldInjection objectWithStaticField = injector.newInstance(StaticFieldInjection.class);
+    public void shouldThrowForStaticFieldToInject() {
+        // expect
+        exceptionCatcher.expect("@Inject may not be placed on static fields");
 
-        // then
-        assertThat(StaticFieldInjection.getAlphaService(), equalTo(injector.getSingleton(AlphaService.class)));
-        assertThat(objectWithStaticField.getProvidedClass(), equalTo(injector.getSingleton(ProvidedClass.class)));
+        // when
+        injector.newInstance(StaticFieldInjection.class);
     }
 
     @Test

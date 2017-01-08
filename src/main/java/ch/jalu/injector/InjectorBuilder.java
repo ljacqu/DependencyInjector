@@ -5,8 +5,8 @@ import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
 import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
+import ch.jalu.injector.handlers.instantiation.DefaultInjectionProvider;
 import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
-import ch.jalu.injector.handlers.instantiation.StandardInjectionProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
@@ -55,7 +55,7 @@ public class InjectorBuilder {
             // Provider handler
             new ProviderHandlerImpl(),
             // Instantiation provider
-            new StandardInjectionProvider(),
+            new DefaultInjectionProvider(),
             // PostConstruct
             new PostConstructMethodInvoker()));
     }
@@ -72,7 +72,7 @@ public class InjectorBuilder {
     public static List<InstantiationProvider> createInstantiationProviders() {
         return new ArrayList<>(Arrays.asList(
                 new ProviderHandlerImpl(),
-                new StandardInjectionProvider()));
+                new DefaultInjectionProvider()));
     }
 
     /**
@@ -145,7 +145,7 @@ public class InjectorBuilder {
         private final Class<? extends Handler>[] subtypes;
 
         @SafeVarargs
-        public HandlerCollector(Class<? extends Handler>... subtypes) {
+        HandlerCollector(Class<? extends Handler>... subtypes) {
             this.subtypes = subtypes;
             for (Class<? extends Handler> subtype : subtypes) {
                 handlersByType.put(subtype, new ArrayList<Handler>());
@@ -163,7 +163,7 @@ public class InjectorBuilder {
             }
         }
 
-        public <T extends Handler> List<T> getList(Class<T> clazz) {
+        <T extends Handler> List<T> getList(Class<T> clazz) {
             return (List<T>) handlersByType.get(clazz);
         }
 

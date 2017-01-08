@@ -13,8 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * The injector's default provider of {@link Instantiation} objects for classes. It roughly follows the conditions
- * as given in {@link Inject}. The following is a summary of the instantiation's behavior and its deviations.
+ * Provider of {@link Instantiation} objects that roughly follows the documentation as given in {@link Inject}.
+ * The following is a summary of the instantiation's behavior and its deviations.
  * <p>
  * If available, the constructor with @{@link Inject} is used. Multiple {@code &#64;Inject} constructors results in
  * an exception being thrown. Otherwise, if there is only one constructor, of public visibility taking no arguments,

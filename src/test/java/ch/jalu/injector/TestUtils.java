@@ -13,7 +13,6 @@ import java.lang.reflect.Modifier;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.matchesPattern;
 
 /**
  * Utility class for testing.
@@ -92,11 +91,6 @@ public final class TestUtils {
         public void expect(String message) {
             expectedException.expect(InjectorException.class);
             expectedException.expectMessage(containsString(message));
-        }
-
-        public void expectRegexp(String regexp) {
-            expectedException.expect(InjectorException.class);
-            expectedException.expectMessage(matchesPattern(regexp));
         }
     }
 
