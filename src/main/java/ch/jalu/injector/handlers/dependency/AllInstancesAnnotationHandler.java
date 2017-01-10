@@ -2,6 +2,7 @@ package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.annotations.AllInstances;
 import ch.jalu.injector.Injector;
+import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.utils.InjectorUtils;
@@ -32,7 +33,7 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
     }
 
     @Override
-    public Object resolveValueSafely(Injector injector, AllInstances annotation,
+    public Object resolveValueSafely(ResolvedInstantiationContext<?> context, AllInstances annotation,
                                      DependencyDescription dependencyDescription) {
         // The raw type, e.g. List or array
         final Class<?> rawType = dependencyDescription.getType();
@@ -50,6 +51,7 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
         Set<Class<?>> subTypes = (Set<Class<?>>) (Object) reflections.getSubTypesOf(genericType);
         Set<Object> instances = new HashSet<>(subTypes.size());
 
+        final Injector injector = context.getInjector();
         for (Class<?> type : subTypes) {
             if (InjectorUtils.canInstantiate(type)) {
                 instances.add(injector.getSingleton(type));

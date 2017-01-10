@@ -2,6 +2,8 @@ package ch.jalu.injector.handlers.provider;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
+import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
@@ -77,7 +79,7 @@ public class ProviderHandlerImplTest {
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
 
         // when
-        Instantiation<Alfa> result = providerHandler.get(Alfa.class);
+        Instantiation<Alfa> result = providerHandler.get(newContext(Alfa.class));
 
         // then
         assertThat(result, nullValue());
@@ -90,7 +92,7 @@ public class ProviderHandlerImplTest {
         providerHandler.onProvider(Delta.class, new Delta2Provider(charlie));
 
         // when
-        Instantiation<Delta> instantiation = providerHandler.get(Delta.class);
+        Instantiation<Delta> instantiation = providerHandler.get(newContext(Delta.class));
 
         // then
         assertThat(instantiation, not(nullValue()));
@@ -103,7 +105,7 @@ public class ProviderHandlerImplTest {
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
 
         // when
-        Instantiation<Delta> instantiation = providerHandler.get(Delta.class);
+        Instantiation<Delta> instantiation = providerHandler.get(newContext(Delta.class));
 
         // then
         assertThat(instantiation, not(nullValue()));
@@ -119,14 +121,14 @@ public class ProviderHandlerImplTest {
 
         // then (2)
         assertThat(delta, instanceOf(Delta2.class));
-        assertThat(providerHandler.get(Delta.class).getDependencies(), empty());
+        assertThat(providerHandler.get(newContext(Delta.class)).getDependencies(), empty());
     }
 
     @Test
     public void shouldThrowForInvalidArgument() {
         // given
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
-        Instantiation<Delta> instantiation = providerHandler.get(Delta.class);
+        Instantiation<Delta> instantiation = providerHandler.get(newContext(Delta.class));
 
         // when / then
         try {
@@ -219,12 +221,15 @@ public class ProviderHandlerImplTest {
         ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
         DependencyDescription dependency = new DependencyDescription(Provider.class, null);
         Injector injector = mock(Injector.class);
+        ResolvedInstantiationContext context = new ResolvedInstantiationContext<>(
+            injector, null, Object.class, null, null);
 
         // when / then
         try {
-            providerHandler.resolveValue(injector, dependency);
+            providerHandler.resolveValue(context, dependency);
             fail("Expected exception to be thrown");
         } catch (InjectorException e) {
+            assertThat(e.getMessage(), equalTo("Injection of a provider was requested but no generic type was given"));
             verifyZeroInteractions(injector);
         }
     }
@@ -235,12 +240,18 @@ public class ProviderHandlerImplTest {
         ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
         DependencyDescription dependency = new DependencyDescription(Bravo.class, null);
         Injector injector = mock(Injector.class);
+        ResolvedInstantiationContext context = new ResolvedInstantiationContext<>(
+            injector, null, Object.class, null, null);
 
         // when
-        Object value = providerHandler.resolveValue(injector, dependency);
+        Object value = providerHandler.resolveValue(context, dependency);
 
         // then
         assertThat(value, nullValue());
         verifyZeroInteractions(injector);
+    }
+
+    private static <T> UnresolvedInstantiationContext<T> newContext(Class<T> clazz) {
+        return new UnresolvedInstantiationContext<>(null, clazz, null);
     }
 }

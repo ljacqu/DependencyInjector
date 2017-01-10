@@ -3,6 +3,7 @@ package ch.jalu.injector.handlers.preconstruct;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.annotations.AllTypes;
+import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,9 +25,9 @@ public class PreConstructPackageValidatorTest {
     @Test
     public void shouldAcceptValidPackage() {
         // given / when
-        validator.process(Injector.class);
-        validator.process(PostConstructHandler.class);
-        validator.process(AllTypes.class);
+        validator.accept(buildContext(Injector.class));
+        validator.accept(buildContext(PostConstructHandler.class));
+        validator.accept(buildContext(AllTypes.class));
 
         // then - no exception thrown
     }
@@ -37,7 +38,7 @@ public class PreConstructPackageValidatorTest {
         exceptionCatcher.expect("Primitive types must be provided");
 
         // when
-        validator.process(boolean.class);
+        validator.accept(buildContext(boolean.class));
     }
 
     @Test
@@ -46,7 +47,7 @@ public class PreConstructPackageValidatorTest {
         exceptionCatcher.expect("Unknown how to inject array classes");
 
         // when
-        validator.process(PostConstructHandler[].class);
+        validator.accept(buildContext(PostConstructHandler[].class));
     }
 
     @Test
@@ -55,7 +56,10 @@ public class PreConstructPackageValidatorTest {
         exceptionCatcher.expect("outside of the allowed packages");
 
         // when
-        validator.process(Test.class);
+        validator.accept(buildContext(Test.class));
     }
 
+    private static <T> UnresolvedInstantiationContext<T> buildContext(Class<T> clz) {
+        return new UnresolvedInstantiationContext<>(null, clz, null);
+    }
 }

@@ -1,6 +1,7 @@
 package ch.jalu.injector.testing.runner;
 
 import ch.jalu.injector.Injector;
+import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.ClassWithAbstractDependency;
@@ -10,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.model.TestClass;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -44,7 +45,7 @@ public class MockDependencyHandlerTest {
         given(injector.getIfAvailable(AlphaService.class)).willReturn(alphaService);
 
         // when
-        Object value = mockDependencyHandler.resolveValue(injector, dependencyDescription);
+        Object value = mockDependencyHandler.resolveValue(newContext(Object.class), dependencyDescription);
 
         // then
         assertThat(value == alphaService, equalTo(true));
@@ -66,13 +67,17 @@ public class MockDependencyHandlerTest {
 
         // when
         try {
-            mockDependencyHandler.resolveValue(injector, dependencyDescription);
+            mockDependencyHandler.resolveValue(newContext(Object.class), dependencyDescription);
             fail("Expected exception to be thrown");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("dependencies of @InjectDelayed must be provided as @Mock"));
             verify(injector, times(3)).register(any(Class.class), any(Object.class));
             verify(injector).getIfAvailable(AlphaService.class);
         }
+    }
+
+    private <T> ResolvedInstantiationContext<T> newContext(Class<T> contextClass) {
+        return new ResolvedInstantiationContext<>(injector, null, contextClass, contextClass, null);
     }
 
 }

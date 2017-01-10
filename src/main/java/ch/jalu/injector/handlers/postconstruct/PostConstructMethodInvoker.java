@@ -1,5 +1,6 @@
 package ch.jalu.injector.handlers.postconstruct;
 
+import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.utils.ReflectionUtils;
 
@@ -17,7 +18,7 @@ import java.util.List;
 public class PostConstructMethodInvoker implements PostConstructHandler {
 
     @Override
-    public <T> T process(T object) {
+    public <T> T process(T object, ResolvedInstantiationContext<T> context) {
         Class<?> clazz = object.getClass();
         List<Method> postConstructMethods = getPostConstructMethods(clazz);
         for (int i = postConstructMethods.size() - 1; i >= 0; --i) {
@@ -44,13 +45,13 @@ public class PostConstructMethodInvoker implements PostConstructHandler {
         for (Method method : ReflectionUtils.safeGetDeclaredMethods(clazz)) {
             if (method.isAnnotationPresent(PostConstruct.class)) {
                 if (postConstructMethod != null) {
-                    throw new InjectorException("Multiple methods with @PostConstruct on " + clazz);
+                    throw new InjectorException("Multiple methods with @PostConstruct in " + clazz);
                 } else if (method.getParameterTypes().length > 0 || Modifier.isStatic(method.getModifiers())) {
                     throw new InjectorException("@PostConstruct method may not be static or have any parameters. "
-                            + "Invalid method in " + clazz);
+                        + "Invalid method in " + clazz);
                 } else if (method.getReturnType() != void.class) {
                     throw new InjectorException("@PostConstruct method must have return type void. "
-                            + "Offending class: " + clazz);
+                        + "Offending class: " + clazz);
                 } else {
                     postConstructMethod = method;
                 }

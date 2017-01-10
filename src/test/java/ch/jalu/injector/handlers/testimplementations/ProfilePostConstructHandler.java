@@ -1,6 +1,7 @@
 package ch.jalu.injector.handlers.testimplementations;
 
 import ch.jalu.injector.InjectorImpl;
+import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.MethodHandler;
@@ -38,7 +39,7 @@ public class ProfilePostConstructHandler implements PostConstructHandler {
     }
 
     @Override
-    public <T> T process(final T object) throws ReflectiveOperationException {
+    public <T> T process(final T object, ResolvedInstantiationContext<T> context) throws ReflectiveOperationException {
         final Class<?> clazz = object.getClass();
         if (!hasProfileMethod(clazz)) {
             return null;

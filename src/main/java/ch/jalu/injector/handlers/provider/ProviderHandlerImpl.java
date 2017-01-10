@@ -1,6 +1,8 @@
 package ch.jalu.injector.handlers.provider;
 
 import ch.jalu.injector.Injector;
+import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
@@ -38,18 +40,19 @@ public class ProviderHandlerImpl implements ProviderHandler, InstantiationProvid
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Instantiation<T> get(Class<T> clazz) {
-        return (Instantiation<T>) providers.get(clazz);
+    public <T> Instantiation<T> get(UnresolvedInstantiationContext<T> context) {
+        return (Instantiation<T>) providers.get(context.getMappedClass());
     }
 
     @Override
-    public Object resolveValue(Injector injector, DependencyDescription dependencyDescription) {
+    public Object resolveValue(ResolvedInstantiationContext<?> context, DependencyDescription dependencyDescription) {
         if (dependencyDescription.getType() == Provider.class) {
             Class<?> genericType = ReflectionUtils.getGenericType(dependencyDescription.getGenericType());
             if (genericType == null) {
                 throw new InjectorException("Injection of a provider was requested but no generic type was given");
             }
 
+            Injector injector = context.getInjector();
             ProviderWrappedInstantiation<?> instantiation = providers.get(genericType);
             if (instantiation != null) {
                 return instantiation.getProvider(injector);

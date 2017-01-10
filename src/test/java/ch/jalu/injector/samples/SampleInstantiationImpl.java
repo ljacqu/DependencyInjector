@@ -1,5 +1,6 @@
 package ch.jalu.injector.samples;
 
+import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
@@ -17,7 +18,8 @@ import java.util.List;
 public class SampleInstantiationImpl implements InstantiationProvider {
 
     @Override
-    public <T> CustomInstantiation<T> get(Class<T> clazz) {
+    public <T> CustomInstantiation<T> get(UnresolvedInstantiationContext<T> context) {
+        final Class<?> clazz = context.getMappedClass();
         try {
             Method method = clazz.getDeclaredMethod("create");
             if (Modifier.isStatic(method.getModifiers()) && clazz.isAssignableFrom(method.getReturnType())) {

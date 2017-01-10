@@ -1,5 +1,6 @@
 package ch.jalu.injector.handlers.testimplementations;
 
+import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
 
 import java.util.HashMap;
@@ -24,9 +25,12 @@ public class ImplementationClassHandler extends AbstractCountingHandler implemen
     }
 
     @Override
-    public <T> Class<? extends T> accept(Class<T> clazz) {
+    public <T> void accept(UnresolvedInstantiationContext<T> context) {
         increment();
-        return getImplClass(clazz);
+        Class<? extends T> implClass = getImplClass(context.getMappedClass());
+        if (implClass != null) {
+            context.setMappedClass(implClass);
+        }
     }
 
     @SuppressWarnings("unchecked")

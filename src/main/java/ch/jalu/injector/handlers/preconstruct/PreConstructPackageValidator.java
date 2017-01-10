@@ -1,5 +1,6 @@
 package ch.jalu.injector.handlers.preconstruct;
 
+import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
 
 /**
@@ -7,7 +8,7 @@ import ch.jalu.injector.exceptions.InjectorException;
  * This ensures that we don't try to instantiate things that are beyond our reach in case some
  * external dependency has not been registered by accident.
  */
-public class PreConstructPackageValidator extends PlainPreConstructHandler {
+public class PreConstructPackageValidator implements PreConstructHandler {
 
     private final String rootPackage;
 
@@ -21,7 +22,8 @@ public class PreConstructPackageValidator extends PlainPreConstructHandler {
     }
 
     @Override
-    public void process(Class<?> clazz) {
+    public <T> void accept(UnresolvedInstantiationContext<T> context) {
+        final Class<?> clazz = context.getMappedClass();
         if (clazz.getPackage() == null) {
             String detail = clazz.isPrimitive()
                 ? "Primitive types must be provided explicitly (or use an annotation)."
@@ -36,5 +38,4 @@ public class PreConstructPackageValidator extends PlainPreConstructHandler {
                 + "allowed packages. It must be provided explicitly or the package must be passed to the constructor.");
         }
     }
-
 }

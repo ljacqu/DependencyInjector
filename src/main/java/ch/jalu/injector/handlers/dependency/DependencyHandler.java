@@ -1,6 +1,6 @@
 package ch.jalu.injector.handlers.dependency;
 
-import ch.jalu.injector.Injector;
+import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 
@@ -22,12 +22,13 @@ public interface DependencyHandler extends Handler {
      * Note that you are you not forced to check if the returned Object is valid for the given
      * dependency {@code type}, unless you want to show a specific error message.
      *
-     * @param injector the injector
+     * @param context instantiation context
      * @param dependencyDescription description of the dependency
      * @return the resolved value, or null if not applicable
      * @throws Exception for invalid usage of annotation
      */
     @Nullable
-    Object resolveValue(Injector injector, DependencyDescription dependencyDescription) throws Exception;
+    Object resolveValue(ResolvedInstantiationContext<?> context,
+                        DependencyDescription dependencyDescription) throws Exception;
 
 }

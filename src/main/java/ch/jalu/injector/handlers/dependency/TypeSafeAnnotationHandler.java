@@ -1,6 +1,6 @@
 package ch.jalu.injector.handlers.dependency;
 
-import ch.jalu.injector.Injector;
+import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 
 import javax.annotation.Nullable;
@@ -13,11 +13,12 @@ import java.lang.annotation.Annotation;
 public abstract class TypeSafeAnnotationHandler<T extends Annotation> implements DependencyHandler {
 
     @Override
-    public final Object resolveValue(Injector injector, DependencyDescription dependencyDescription) throws Exception {
+    public final Object resolveValue(ResolvedInstantiationContext<?> context,
+                                     DependencyDescription dependencyDescription) throws Exception {
         final Class<T> type = getAnnotationType();
         for (Annotation annotation : dependencyDescription.getAnnotations()) {
             if (type.isInstance(annotation)) {
-                return resolveValueSafely(injector, type.cast(annotation), dependencyDescription);
+                return resolveValueSafely(context, type.cast(annotation), dependencyDescription);
             }
         }
         return null;
@@ -33,13 +34,13 @@ public abstract class TypeSafeAnnotationHandler<T extends Annotation> implements
     /**
      * Resolves the value with the matched annotation, guaranteed to never be null.
      *
-     * @param injector the injector
+     * @param context the instantiation context
      * @param annotation the matched annotation
      * @param dependencyDescription the entire dependency description
      * @return the resolved value, or null if none applicable
      * @throws Exception for invalid usage of annotation
      */
     @Nullable
-    protected abstract Object resolveValueSafely(Injector injector, T annotation,
+    protected abstract Object resolveValueSafely(ResolvedInstantiationContext<?> context, T annotation,
                                                  DependencyDescription dependencyDescription) throws Exception;
 }

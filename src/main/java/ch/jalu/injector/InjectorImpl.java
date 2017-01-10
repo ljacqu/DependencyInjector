@@ -1,5 +1,7 @@
 package ch.jalu.injector;
 
+import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
@@ -22,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static ch.jalu.injector.context.ResolutionType.REQUEST_SCOPED;
+import static ch.jalu.injector.context.ResolutionType.SINGLETON;
 import static ch.jalu.injector.utils.InjectorUtils.checkNotNull;
 import static ch.jalu.injector.utils.InjectorUtils.firstNotNull;
 import static ch.jalu.injector.utils.InjectorUtils.rethrowException;
@@ -74,8 +78,9 @@ public class InjectorImpl implements Injector {
 
     @Override
     public <T> T newInstance(Class<T> clazz) {
-        Class<? extends T> mappedClass = processPreConstructorHandlers(clazz);
-        return instantiate(mappedClass, new HashSet<Class<?>>());
+        return instantiate(
+            new UnresolvedInstantiationContext<>(this, clazz, REQUEST_SCOPED),
+            new HashSet<Class<?>>());
     }
 
     @Override
@@ -85,17 +90,22 @@ public class InjectorImpl implements Injector {
 
     @Override
     public <T> T createIfHasDependencies(Class<T> clazz) {
-        Class<? extends T> mappedClass = processPreConstructorHandlers(clazz);
-        Instantiation<? extends T> instantiation = getInstantiation(mappedClass);
-        List<Object> dependencies = new ArrayList<>();
-        for (DependencyDescription description : instantiation.getDependencies()) {
-            Object object = objects.get(description.getType());
+        UnresolvedInstantiationContext<T> unresolvedContext =
+            new UnresolvedInstantiationContext<>(this, clazz, REQUEST_SCOPED);
+        processPreConstructorHandlers(unresolvedContext);
+        Instantiation<? extends T> instantiation = getInstantiation(unresolvedContext);
+        Object[] dependencies = new Object[instantiation.getDependencies().size()];
+        int i = 0;
+        for (DependencyDescription dependency : instantiation.getDependencies()) {
+            Object object = objects.get(dependency.getType());
             if (object == null) {
                 return null;
             }
-            dependencies.add(object);
+            dependencies[i] = objects.get(dependency.getType());
+            ++i;
         }
-        return runPostConstructHandlers(instantiation.instantiateWith(dependencies.toArray()));
+        return runPostConstructHandlers(instantiation.instantiateWith(dependencies),
+            unresolvedContext.buildResolvedContext(instantiation));
     }
 
     @Override
@@ -145,24 +155,20 @@ public class InjectorImpl implements Injector {
      * @param clazz the class to retrieve the singleton instance for
      * @param traversedClasses the list of traversed classes
      * @param <T> the class' type
-     * @param <U> the remapped type (PreConstructHandler may rewrite the actual type of the object)
      * @return instance or associated value (for annotations)
      */
-    private <T, U extends T> T get(Class<T> clazz, Set<Class<?>> traversedClasses) {
+    private <T> T get(Class<T> clazz, Set<Class<?>> traversedClasses) {
         if (objects.containsKey(clazz)) {
             return clazz.cast(objects.get(clazz));
         }
 
-        // First time we come across clazz, need to instantiate it. Validate that we can do so
-        Class<U> mappedClass = processPreConstructorHandlers(clazz);
-
         // Add the clazz to the list of traversed classes in a new Set, so each path we take has its own Set.
         traversedClasses = new HashSet<>(traversedClasses);
-        traversedClasses.add(mappedClass);
-        U object = instantiate(mappedClass, traversedClasses);
+        UnresolvedInstantiationContext<T> context = new UnresolvedInstantiationContext<>(this, clazz, SINGLETON);
+        T object = instantiate(context, traversedClasses);
         register(clazz, object);
-        if (mappedClass != clazz) {
-            register(mappedClass, object);
+        if (context.getMappedClass() != clazz) {
+            register((Class) context.getMappedClass(), object);
         }
         return object;
     }
@@ -171,55 +177,38 @@ public class InjectorImpl implements Injector {
      * Instantiates the given class by locating its @Inject elements and retrieving
      * or instantiating the required instances.
      *
-     * @param clazz the class to instantiate
+     * @param context the instantiation context
      * @param traversedClasses collection of classes already traversed
      * @param <T> the class' type
      * @return the instantiated object
      */
-    private <T> T instantiate(Class<T> clazz, Set<Class<?>> traversedClasses) {
-        Instantiation<T> instantiation = getInstantiation(clazz);
+    private <T> T instantiate(UnresolvedInstantiationContext<T> context, Set<Class<?>> traversedClasses) {
+        processPreConstructorHandlers(context);
+        Instantiation<? extends T> instantiation = getInstantiation(context);
+        traversedClasses.add(context.getMappedClass());
         validateInjectionHasNoCircularDependencies(instantiation.getDependencies(), traversedClasses);
 
-        Object[] dependencies = resolveDependencies(instantiation, traversedClasses);
+        ResolvedInstantiationContext<T> resolvedContext = context.buildResolvedContext(instantiation);
+        Object[] dependencies = resolveDependencies(resolvedContext, traversedClasses);
         T object = instantiation.instantiateWith(dependencies);
-        return runPostConstructHandlers(object);
-    }
-
-    private <T> Instantiation<T> getInstantiation(Class<T> clazz) {
-        for (InstantiationProvider provider : config.getInstantiationProviders()) {
-            Instantiation<T> instantiation = provider.get(clazz);
-            if (instantiation != null) {
-                return instantiation;
-            }
-        }
-
-        // No instantiation method was found, handle error with most appropriate message
-        if (config.getInstantiationProviders().isEmpty()) {
-            throw new InjectorException("You did not register any instantiation methods!");
-        } else if (!InjectorUtils.canInstantiate(clazz)) {
-            throw new InjectorException("Did not find instantiation method for '" + clazz + "'. This class cannot "
-                + "be instantiated directly, please check the class or your handlers.");
-        }
-        throw new InjectorException("Did not find instantiation method for '" + clazz + "'. Make sure your class "
-            + "conforms to one of the registered instantiations. If default: make sure you have "
-            + "a constructor with @Inject or fields with @Inject. Fields with @Inject require "
-            + "the default constructor");
+        return runPostConstructHandlers(object, resolvedContext);
     }
 
     /**
      * Resolves the dependencies for the given class instantiation, i.e. returns a collection that satisfy
      * the class' dependencies by retrieving elements or instantiating them where necessary.
      *
-     * @param instantiation the injection parameters
+     * @param resolvedContext the initialization context
      * @param traversedClasses collection of traversed classes
      * @return array with the parameters to use in the constructor
      */
-    private Object[] resolveDependencies(Instantiation<?> instantiation, Set<Class<?>> traversedClasses) {
-        List<? extends DependencyDescription> dependencies = instantiation.getDependencies();
+    private Object[] resolveDependencies(ResolvedInstantiationContext<?> resolvedContext,
+                                         Set<Class<?>> traversedClasses) {
+        List<? extends DependencyDescription> dependencies = resolvedContext.getInstantiation().getDependencies();
         Object[] values = new Object[dependencies.size()];
         for (int i = 0; i < dependencies.size(); ++i) {
             DependencyDescription dependency = dependencies.get(i);
-            Object object = resolveDependency(dependency);
+            Object object = resolveDependency(resolvedContext, dependency);
 
             values[i] = (object == null)
                 ? get(dependency.getType(), traversedClasses)
@@ -228,32 +217,47 @@ public class InjectorImpl implements Injector {
         return values;
     }
 
+    private <T> Instantiation<T> getInstantiation(UnresolvedInstantiationContext<T> context) {
+        for (InstantiationProvider provider : config.getInstantiationProviders()) {
+            Instantiation<T> instantiation = provider.get(context);
+            if (instantiation != null) {
+                return instantiation;
+            }
+        }
+
+        // No instantiation method was found, handle error with most appropriate message
+        if (config.getInstantiationProviders().isEmpty()) {
+            throw new InjectorException("You did not register any instantiation methods!");
+        } else if (!InjectorUtils.canInstantiate(context.getMappedClass())) {
+            throw new InjectorException("Did not find instantiation method for '" + context.getMappedClass()
+                + "'. This class cannot be instantiated directly, please check the class or your handlers.");
+        }
+        throw new InjectorException("Did not find instantiation method for '" + context.getMappedClass()
+            + "'. Make sure your class conforms to one of the registered instantiations. If default: "
+            + "make sure you have a constructor with @Inject or fields with @Inject. Fields with @Inject "
+            + "require the default constructor");
+    }
+
     /**
-     * Runs all registered {@link PreConstructHandler}s for the given class and returns the result.
+     * Runs the given instantiation context through all registered {@link PreConstructHandler}s.
      *
-     * @param clazz the class to process
-     * @param <T> the class' type
-     * @param <U> type of the remapped class (child of T or T)
-     * @return the potentially changed class
+     * @param unresolvedContext the instantiation context
      */
-    @SuppressWarnings("unchecked")
-    private <T, U extends T> Class<U> processPreConstructorHandlers(Class<T> clazz) {
-        Class mappedClass = clazz;
+    private void processPreConstructorHandlers(UnresolvedInstantiationContext<?> unresolvedContext) {
         for (PreConstructHandler preConstructHandler : config.getPreConstructHandlers()) {
             try {
-                mappedClass = firstNotNull(preConstructHandler.accept(mappedClass), mappedClass);
+                preConstructHandler.accept(unresolvedContext);
             } catch (Exception e) {
                 rethrowException(e);
             }
         }
-        return mappedClass;
     }
 
-    private <T> T runPostConstructHandlers(T instance) {
+    private <T> T runPostConstructHandlers(T instance, ResolvedInstantiationContext<T> resolvedContext) {
         T object = instance;
         for (PostConstructHandler postConstructHandler : config.getPostConstructHandlers()) {
             try {
-                object = firstNotNull(postConstructHandler.process(object), object);
+                object = firstNotNull(postConstructHandler.process(object, resolvedContext), object);
             } catch (Exception e) {
                 rethrowException(e);
             }
@@ -262,11 +266,12 @@ public class InjectorImpl implements Injector {
     }
 
     @Nullable
-    private Object resolveDependency(DependencyDescription dependencyDescription) {
+    private Object resolveDependency(ResolvedInstantiationContext<?> resolvedContext,
+                                     DependencyDescription dependencyDescription) {
         Object o;
         for (DependencyHandler handler : config.getDependencyHandlers()) {
             try {
-                if ((o = handler.resolveValue(this, dependencyDescription)) != null) {
+                if ((o = handler.resolveValue(resolvedContext, dependencyDescription)) != null) {
                     return o;
                 }
             } catch (Exception e) {
@@ -293,5 +298,4 @@ public class InjectorImpl implements Injector {
             }
         }
     }
-
 }
