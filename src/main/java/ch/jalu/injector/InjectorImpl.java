@@ -79,7 +79,7 @@ public class InjectorImpl implements Injector {
     @Override
     public <T> T newInstance(Class<T> clazz) {
         return instantiate(
-            new UnresolvedInstantiationContext<>(this, clazz, REQUEST_SCOPED),
+            new UnresolvedInstantiationContext<>(this, REQUEST_SCOPED, clazz),
             new HashSet<Class<?>>());
     }
 
@@ -91,7 +91,7 @@ public class InjectorImpl implements Injector {
     @Override
     public <T> T createIfHasDependencies(Class<T> clazz) {
         UnresolvedInstantiationContext<T> unresolvedContext =
-            new UnresolvedInstantiationContext<>(this, clazz, REQUEST_SCOPED);
+            new UnresolvedInstantiationContext<>(this, REQUEST_SCOPED, clazz);
         processPreConstructorHandlers(unresolvedContext);
         Instantiation<? extends T> instantiation = getInstantiation(unresolvedContext);
         Object[] dependencies = new Object[instantiation.getDependencies().size()];
@@ -164,7 +164,7 @@ public class InjectorImpl implements Injector {
 
         // Add the clazz to the list of traversed classes in a new Set, so each path we take has its own Set.
         traversedClasses = new HashSet<>(traversedClasses);
-        UnresolvedInstantiationContext<T> context = new UnresolvedInstantiationContext<>(this, clazz, SINGLETON);
+        UnresolvedInstantiationContext<T> context = new UnresolvedInstantiationContext<>(this, SINGLETON, clazz);
         T object = instantiate(context, traversedClasses);
         register(clazz, object);
         if (context.getMappedClass() != clazz) {
@@ -217,9 +217,9 @@ public class InjectorImpl implements Injector {
         return values;
     }
 
-    private <T> Instantiation<T> getInstantiation(UnresolvedInstantiationContext<T> context) {
+    private <T> Instantiation<? extends T> getInstantiation(UnresolvedInstantiationContext<T> context) {
         for (InstantiationProvider provider : config.getInstantiationProviders()) {
-            Instantiation<T> instantiation = provider.get(context);
+            Instantiation<? extends T> instantiation = provider.get(context);
             if (instantiation != null) {
                 return instantiation;
             }

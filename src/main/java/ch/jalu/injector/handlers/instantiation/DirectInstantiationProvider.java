@@ -12,11 +12,10 @@ import javax.annotation.Nullable;
 public abstract class DirectInstantiationProvider implements InstantiationProvider {
 
     @Override
-    public final <T> Instantiation<T> get(UnresolvedInstantiationContext<T> context) {
+    public final <T> Instantiation<? extends T> get(UnresolvedInstantiationContext<T> context) {
         final Class<? extends T> clazz = context.getMappedClass();
         if (InjectorUtils.canInstantiate(clazz)) {
-            // TODO #19: How to handle this?
-            return (Instantiation<T>) safeGet(clazz);
+            return safeGet(clazz);
         }
         return null;
     }

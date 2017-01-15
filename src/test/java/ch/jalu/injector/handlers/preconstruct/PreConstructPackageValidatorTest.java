@@ -60,6 +60,6 @@ public class PreConstructPackageValidatorTest {
     }
 
     private static <T> UnresolvedInstantiationContext<T> buildContext(Class<T> clz) {
-        return new UnresolvedInstantiationContext<>(null, clz, null);
+        return new UnresolvedInstantiationContext<>(null, null, clz);
     }
 }

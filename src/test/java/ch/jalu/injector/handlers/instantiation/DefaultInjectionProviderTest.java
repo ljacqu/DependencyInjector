@@ -89,7 +89,7 @@ public class DefaultInjectionProviderTest {
     }
 
     private static <T> UnresolvedInstantiationContext<T> contextOf(Class<T> clazz) {
-        return new UnresolvedInstantiationContext<>(null, clazz, null);
+        return new UnresolvedInstantiationContext<>(null, null, clazz);
     }
 
     private static final class ChildOfParentWithInjectMethod extends ClassWithInjectMethod {

@@ -18,6 +18,6 @@ public interface InstantiationProvider extends Handler {
      * @return the instantiation for the class, or {@code null} if not possible
      */
     @Nullable
-    <T> Instantiation<T> get(UnresolvedInstantiationContext<T> context);
+    <T> Instantiation<? extends T> get(UnresolvedInstantiationContext<T> context);
 
 }

@@ -252,6 +252,6 @@ public class ProviderHandlerImplTest {
     }
 
     private static <T> UnresolvedInstantiationContext<T> newContext(Class<T> clazz) {
-        return new UnresolvedInstantiationContext<>(null, clazz, null);
+        return new UnresolvedInstantiationContext<>(null, null, clazz);
     }
 }
