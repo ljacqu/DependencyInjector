@@ -38,7 +38,7 @@ public class UnresolvedInstantiationContextTest {
     public void shouldCreateResolvedContext() {
         // given
         Injector injector = mock(Injector.class);
-        ResolutionType resolutionType = ResolutionType.DEPENDENCY;
+        ResolutionType resolutionType = StandardResolutionType.REQUEST_SCOPED;
         UnresolvedInstantiationContext<Number> context =
             new UnresolvedInstantiationContext<>(injector, resolutionType, Number.class);
         context.setMappedClass(Double.class);

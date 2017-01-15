@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static ch.jalu.injector.context.ResolutionType.REQUEST_SCOPED;
-import static ch.jalu.injector.context.ResolutionType.SINGLETON;
+import static ch.jalu.injector.context.StandardResolutionType.REQUEST_SCOPED;
+import static ch.jalu.injector.context.StandardResolutionType.SINGLETON;
 import static ch.jalu.injector.utils.InjectorUtils.checkNotNull;
 import static ch.jalu.injector.utils.InjectorUtils.firstNotNull;
 import static ch.jalu.injector.utils.InjectorUtils.rethrowException;
