@@ -167,9 +167,6 @@ public class InjectorImpl implements Injector {
         UnresolvedInstantiationContext<T> context = new UnresolvedInstantiationContext<>(this, SINGLETON, clazz);
         T object = instantiate(context, traversedClasses);
         register(clazz, object);
-        if (context.getMappedClass() != clazz) {
-            register((Class) context.getMappedClass(), object);
-        }
         return object;
     }
 

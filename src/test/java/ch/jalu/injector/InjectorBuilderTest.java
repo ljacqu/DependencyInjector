@@ -109,7 +109,8 @@ public class InjectorBuilderTest {
         ProviderHandler providerHandler = getFirstOfType(ProviderHandler.class, instantiationProviders);
         assertThat(config.getDependencyHandlers(),
             contains(savedAnnotationsHandler, listeningDependencyHandler, providerHandler));
-        assertThat(config.getPostConstructHandlers(), contains(postConstructHandler, throwingPostConstructHandler));
+        assertThat(config.getPostConstructHandlers(),
+            contains(implementationClassHandler, postConstructHandler, throwingPostConstructHandler));
 
         // Set Provider for HissService
         injector.registerProvider(HissService.class, HissServiceProvider.class);

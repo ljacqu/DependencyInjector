@@ -1,6 +1,9 @@
 package ch.jalu.injector.handlers.testimplementations;
 
+import ch.jalu.injector.Injector;
+import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
 
 import java.util.HashMap;
@@ -9,7 +12,8 @@ import java.util.Map;
 /**
  * Pre construct handler that maps abstract classes to a previously registered implementation.
  */
-public class ImplementationClassHandler extends AbstractCountingHandler implements PreConstructHandler {
+public class ImplementationClassHandler extends AbstractCountingHandler
+    implements PreConstructHandler, PostConstructHandler {
 
     private Map<Class<?>, Class<?>> classMap = new HashMap<>();
 
@@ -40,5 +44,16 @@ public class ImplementationClassHandler extends AbstractCountingHandler implemen
             return clazz;
         }
         return getImplClass(child);
+    }
+
+    @Override
+    public <T> T process(T object, ResolvedInstantiationContext<T> context) {
+        // Injector doesn't register the object with the mapped class by default. In this test case, this is desirable.
+        Injector injector = context.getInjector();
+        if (context.getMappedClass() != context.getOriginalClass()
+                && injector.getIfAvailable(context.getMappedClass()) == null) {
+            injector.register((Class) context.getMappedClass(), object);
+        }
+        return null;
     }
 }
