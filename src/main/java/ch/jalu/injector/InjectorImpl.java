@@ -1,6 +1,7 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.StandardResolutionType;
 import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static ch.jalu.injector.context.StandardResolutionType.REQUEST_SCOPED;
+import static ch.jalu.injector.context.StandardResolutionType.REQUEST_SCOPED_IF_HAS_DEPENDENCIES;
 import static ch.jalu.injector.context.StandardResolutionType.SINGLETON;
 import static ch.jalu.injector.utils.InjectorUtils.checkNotNull;
 import static ch.jalu.injector.utils.InjectorUtils.firstNotNull;
@@ -90,22 +92,9 @@ public class InjectorImpl implements Injector {
 
     @Override
     public <T> T createIfHasDependencies(Class<T> clazz) {
-        UnresolvedInstantiationContext<T> unresolvedContext =
-            new UnresolvedInstantiationContext<>(this, REQUEST_SCOPED, clazz);
-        processPreConstructorHandlers(unresolvedContext);
-        Instantiation<? extends T> instantiation = getInstantiation(unresolvedContext);
-        Object[] dependencies = new Object[instantiation.getDependencies().size()];
-        int i = 0;
-        for (DependencyDescription dependency : instantiation.getDependencies()) {
-            Object object = objects.get(dependency.getType());
-            if (object == null) {
-                return null;
-            }
-            dependencies[i] = objects.get(dependency.getType());
-            ++i;
-        }
-        return runPostConstructHandlers(instantiation.instantiateWith(dependencies),
-            unresolvedContext.buildResolvedContext(instantiation));
+        return instantiate(
+            new UnresolvedInstantiationContext<>(this, REQUEST_SCOPED_IF_HAS_DEPENDENCIES, clazz),
+            new HashSet<Class<?>>());
     }
 
     @Override
@@ -177,8 +166,9 @@ public class InjectorImpl implements Injector {
      * @param context the instantiation context
      * @param traversedClasses collection of classes already traversed
      * @param <T> the class' type
-     * @return the instantiated object
+     * @return the instantiated object, or {@code null} if dependency lookup returned {@code null}
      */
+    @Nullable
     private <T> T instantiate(UnresolvedInstantiationContext<T> context, Set<Class<?>> traversedClasses) {
         processPreConstructorHandlers(context);
         Instantiation<? extends T> instantiation = getInstantiation(context);
@@ -187,6 +177,9 @@ public class InjectorImpl implements Injector {
 
         ResolvedInstantiationContext<T> resolvedContext = context.buildResolvedContext(instantiation);
         Object[] dependencies = resolveDependencies(resolvedContext, traversedClasses);
+        if (dependencies == null) {
+            return null;
+        }
         T object = instantiation.instantiateWith(dependencies);
         return runPostConstructHandlers(object, resolvedContext);
     }
@@ -197,8 +190,11 @@ public class InjectorImpl implements Injector {
      *
      * @param resolvedContext the initialization context
      * @param traversedClasses collection of traversed classes
-     * @return array with the parameters to use in the constructor
+     * @return array with the parameters to use in the constructor, {@code null} if a dependency is not available
+     *         and the instantiation should only be performed
+     *         {@link StandardResolutionType#REQUEST_SCOPED_IF_HAS_DEPENDENCIES if all dependencies are present}
      */
+    @Nullable
     private Object[] resolveDependencies(ResolvedInstantiationContext<?> resolvedContext,
                                          Set<Class<?>> traversedClasses) {
         List<? extends DependencyDescription> dependencies = resolvedContext.getInstantiation().getDependencies();
@@ -206,10 +202,14 @@ public class InjectorImpl implements Injector {
         for (int i = 0; i < dependencies.size(); ++i) {
             DependencyDescription dependency = dependencies.get(i);
             Object object = resolveDependency(resolvedContext, dependency);
-
-            values[i] = (object == null)
-                ? get(dependency.getType(), traversedClasses)
-                : object;
+            if (object == null) {
+                if (REQUEST_SCOPED_IF_HAS_DEPENDENCIES == resolvedContext.getResolutionType()
+                    && objects.get(dependency.getType()) == null) {
+                    return null;
+                }
+                object = get(dependency.getType(), traversedClasses);
+            }
+            values[i] = object;
         }
         return values;
     }

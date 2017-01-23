@@ -398,6 +398,35 @@ public class InjectorImplTest {
     }
 
     @Test
+    public void shouldInstantiateForAllAvailableDependenciesAndAnnotations() {
+        // given
+        injector.provide(Size.class, 2809375);
+        injector.provide(Duration.class, 13095L);
+        injector.register(BetaManager.class, new BetaManager());
+        injector.getSingleton(ClassWithAnnotations.class); // trigger instantiation
+
+        // when
+        FieldInjectionWithAnnotations result = injector.createIfHasDependencies(FieldInjectionWithAnnotations.class);
+
+        // then
+        assertThat(result, not(nullValue()));
+    }
+
+    @Test
+    public void shouldReturnNullForMissingDependency() {
+        // given
+        injector.provide(Size.class, 2809375);
+        injector.provide(Duration.class, 13095L);
+        injector.register(BetaManager.class, new BetaManager());
+
+        // when
+        FieldInjectionWithAnnotations result = injector.createIfHasDependencies(FieldInjectionWithAnnotations.class);
+
+        // then
+        assertThat(result, nullValue());
+    }
+
+    @Test
     public void shouldInstantiateClassWithInheritedInjects() {
         // given / when
         Child child = injector.getSingleton(Child.class);
