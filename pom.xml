@@ -3,7 +3,7 @@
 
     <groupId>ch.jalu</groupId>
     <artifactId>injector</artifactId>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.5-SNAPSHOT</version>
 
     <name>DependencyInjector</name>
     <description>Lightweight dependency injector (JSR-330 implementation)</description>
