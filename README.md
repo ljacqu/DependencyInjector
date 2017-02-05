@@ -22,7 +22,7 @@ Using Maven, you can get the injector by adding this to your pom.xml:
 <dependency>
     <groupId>ch.jalu</groupId>
     <artifactId>injector</artifactId>
-    <version>0.3</version>
+    <version>0.4</version>
 </dependency>
 ```
 

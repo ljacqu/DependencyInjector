@@ -4,7 +4,7 @@
     <groupId>ch.jalu</groupId>
     <artifactId>injector.testmodule</artifactId>
     <!-- Keep version in sync with ch.jalu.injector -->
-    <version>0.4-SNAPSHOT</version>
+    <version>0.5-SNAPSHOT</version>
 
     <name>Dependency Injector test module</name>
     <description>Test for the ch.jalu.injector project</description>
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>ch.jalu</groupId>
             <artifactId>injector</artifactId>
-            <version>0.4-SNAPSHOT</version>
+            <version>0.5-SNAPSHOT</version>
         </dependency>
 
         <dependency>
