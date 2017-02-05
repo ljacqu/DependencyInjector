@@ -53,7 +53,7 @@ public class RunDelayedInjects extends Statement {
      * Override this method to provide your own injector in the test runner, e.g. if your application uses
      * custom instantiation methods or annotation behavior.
      *
-     * @return the injector used to set {@link InjectDelayed} fields
+     * @return the injector used to set {@link ch.jalu.injector.testing.InjectDelayed} fields
      */
     protected Injector getInjector() {
         List<InstantiationProvider> instantiationProviders = InjectorBuilder.createInstantiationProviders();
