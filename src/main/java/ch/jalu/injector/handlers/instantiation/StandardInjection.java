@@ -83,7 +83,8 @@ public class StandardInjection<T> implements Instantiation<T> {
     private List<DependencyDescription> buildFieldDependencies() {
         List<DependencyDescription> dependencies = new ArrayList<>(fields.size());
         for (Field field : fields) {
-            dependencies.add(new DependencyDescription(field.getType(), field.getGenericType(), field.getAnnotations()));
+            dependencies.add(new DependencyDescription(
+                field.getType(), field.getGenericType(), field.getAnnotations()));
         }
         return dependencies;
     }

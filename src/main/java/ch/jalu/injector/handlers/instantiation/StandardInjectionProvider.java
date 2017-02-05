@@ -114,13 +114,14 @@ public class StandardInjectionProvider extends DirectInstantiationProvider {
      */
     protected List<Field> getFieldsToInject(Class<?> clazz) {
         List<Field> fields = new LinkedList<>();
-        while (clazz != null) {
-            for (Field f : ReflectionUtils.safeGetDeclaredFields(clazz)) {
+        Class<?> currentClass = clazz;
+        while (currentClass != null) {
+            for (Field f : ReflectionUtils.safeGetDeclaredFields(currentClass)) {
                 if (f.isAnnotationPresent(Inject.class)) {
                     fields.add(f);
                 }
             }
-            clazz = clazz.getSuperclass();
+            currentClass = currentClass.getSuperclass();
         }
         return fields;
     }
@@ -150,14 +151,15 @@ public class StandardInjectionProvider extends DirectInstantiationProvider {
     }
 
     private void validateHasNoInjectMethods(Class<?> clazz) {
-        while (clazz != null) {
-            for (Method m : ReflectionUtils.safeGetDeclaredMethods(clazz)) {
+        Class<?> currentClass = clazz;
+        while (currentClass != null) {
+            for (Method m : ReflectionUtils.safeGetDeclaredMethods(currentClass)) {
                 if (m.isAnnotationPresent(Inject.class)) {
                     throw new InjectorException("@Inject on methods is not supported, but found it on '" + m
-                        + "' while trying to instantiate '" + clazz + "'");
+                        + "' while trying to instantiate '" + currentClass + "'");
                 }
             }
-            clazz = clazz.getSuperclass();
+            currentClass = currentClass.getSuperclass();
         }
     }
 }

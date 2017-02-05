@@ -29,12 +29,13 @@ public class PostConstructMethodInvoker implements PostConstructHandler {
 
     private static List<Method> getPostConstructMethods(Class<?> clazz) {
         List<Method> postConstructMethods = new ArrayList<>();
-        while (clazz != null) {
-            Method postConstruct = getAndValidatePostConstructMethod(clazz);
+        Class<?> currentClass = clazz;
+        while (currentClass != null) {
+            Method postConstruct = getAndValidatePostConstructMethod(currentClass);
             if (postConstruct != null) {
                 postConstructMethods.add(postConstruct);
             }
-            clazz = clazz.getSuperclass();
+            currentClass = currentClass.getSuperclass();
         }
         return postConstructMethods;
     }

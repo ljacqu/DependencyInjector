@@ -1,7 +1,6 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.context.ResolvedInstantiationContext;
-import ch.jalu.injector.context.StandardResolutionType;
 import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
@@ -151,10 +150,9 @@ public class InjectorImpl implements Injector {
             return clazz.cast(objects.get(clazz));
         }
 
-        // Add the clazz to the list of traversed classes in a new Set, so each path we take has its own Set.
-        traversedClasses = new HashSet<>(traversedClasses);
         UnresolvedInstantiationContext<T> context = new UnresolvedInstantiationContext<>(this, SINGLETON, clazz);
-        T object = instantiate(context, traversedClasses);
+        // Add the clazz to the list of traversed classes in a new Set, so each path we take has its own Set.
+        T object = instantiate(context, new HashSet<>(traversedClasses));
         register(clazz, object);
         return object;
     }
@@ -191,8 +189,8 @@ public class InjectorImpl implements Injector {
      * @param resolvedContext the initialization context
      * @param traversedClasses collection of traversed classes
      * @return array with the parameters to use in the constructor, {@code null} if a dependency is not available
-     *         and the instantiation should only be performed
-     *         {@link StandardResolutionType#REQUEST_SCOPED_IF_HAS_DEPENDENCIES if all dependencies are present}
+     *         and {@link ch.jalu.injector.context.StandardResolutionType#REQUEST_SCOPED_IF_HAS_DEPENDENCIES} is the
+     *         resolution type
      */
     @Nullable
     private Object[] resolveDependencies(ResolvedInstantiationContext<?> resolvedContext,
