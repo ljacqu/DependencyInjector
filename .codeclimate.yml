@@ -1,0 +1,18 @@
+engines:
+  duplication:
+    enabled: true
+    config:
+        languages:
+        - java
+  checkstyle:
+    enabled: true
+    channel: beta
+    config: '.checkstyle.xml'
+  pmd:
+    enabled: true
+    channel: beta
+ratings:
+  paths:
+  # Check only production files
+  - 'src/main/java/**'
+
