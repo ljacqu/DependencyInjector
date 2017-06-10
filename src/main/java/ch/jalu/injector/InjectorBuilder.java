@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Configures and creates an {@link Injector}.
@@ -115,20 +116,14 @@ public class InjectorBuilder {
      * @since 0.1
      */
     public InjectorBuilder addHandlers(Iterable<? extends Handler> handlers) {
-        HandlerCollector collector = new HandlerCollector(
-            AnnotationValueHandler.class, ProviderHandler.class, PreConstructHandler.class, InstantiationProvider.class,
-            DependencyHandler.class, PostConstructHandler.class);
-
-        for (Handler handler : handlers) {
-            collector.process(handler);
-        }
-
-        config.addAnnotationValueHandlers(collector.getList(AnnotationValueHandler.class));
-        config.addProviderHandlers(collector.getList(ProviderHandler.class));
-        config.addPreConstructHandlers(collector.getList(PreConstructHandler.class));
-        config.addInstantiationProviders(collector.getList(InstantiationProvider.class));
-        config.addDependencyHandlers(collector.getList(DependencyHandler.class));
-        config.addPostConstructHandlers(collector.getList(PostConstructHandler.class));
+        new HandlerCollector()
+            .registerType(AnnotationValueHandler.class, config::addAnnotationValueHandlers)
+            .registerType(ProviderHandler.class, config::addProviderHandlers)
+            .registerType(PreConstructHandler.class, config::addPreConstructHandlers)
+            .registerType(InstantiationProvider.class, config::addInstantiationProviders)
+            .registerType(DependencyHandler.class, config::addDependencyHandlers)
+            .registerType(PostConstructHandler.class, config::addPostConstructHandlers)
+        .process(handlers);
         return this;
     }
 
@@ -145,20 +140,31 @@ public class InjectorBuilder {
     @SuppressWarnings("unchecked")
     private static final class HandlerCollector {
 
-        private final Map<Class<? extends Handler>, List<? extends Handler>> handlersByType = new HashMap<>();
-        private final Class<? extends Handler>[] subtypes;
+        private final Map<Class, List> handlersByType = new HashMap<>();
+        private final Map<Class, Consumer<List>> handlerListSetters = new HashMap<>();
 
-        @SafeVarargs
-        HandlerCollector(Class<? extends Handler>... subtypes) {
-            this.subtypes = subtypes;
-            for (Class<? extends Handler> subtype : subtypes) {
-                handlersByType.put(subtype, new ArrayList<Handler>());
+        <T extends Handler> HandlerCollector registerType(Class<T> subType, Consumer<List<T>> handlerListSetter) {
+            if (handlersByType.containsKey(subType)) {
+                throw new IllegalStateException("Already provided " + subType);
+            }
+            handlersByType.put(subType, new ArrayList<>());
+            handlerListSetters.put(subType, (Consumer) handlerListSetter);
+            return this;
+        }
+
+        void process(Iterable<? extends Handler> handlers) {
+            for (Handler handler : handlers) {
+                process(handler);
+            }
+            for (Map.Entry<Class, Consumer<List>> listSetter : handlerListSetters.entrySet()) {
+                listSetter.getValue().accept(
+                    handlersByType.get(listSetter.getKey()));
             }
         }
 
-        void process(Handler handler) {
+        private void process(Handler handler) {
             boolean foundSubtype = false;
-            for (Class<? extends Handler> subtype : subtypes) {
+            for (Class subtype : handlersByType.keySet()) {
                 foundSubtype |= addHandler(subtype, handler);
             }
             if (!foundSubtype) {
@@ -167,13 +173,9 @@ public class InjectorBuilder {
             }
         }
 
-        <T extends Handler> List<T> getList(Class<T> clazz) {
-            return (List<T>) handlersByType.get(clazz);
-        }
-
-        private <T extends Handler> boolean addHandler(Class<T> clazz, Handler handler) {
+        private boolean addHandler(Class clazz, Handler handler) {
             if (clazz.isInstance(handler)) {
-                getList(clazz).add((T) handler);
+                handlersByType.get(clazz).add(handler);
                 return true;
             }
             return false;

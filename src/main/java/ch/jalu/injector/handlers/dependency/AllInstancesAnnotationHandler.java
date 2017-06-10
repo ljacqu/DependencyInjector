@@ -28,7 +28,7 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
     }
 
     @Override
-    public Class<AllInstances> getAnnotationType() {
+    protected Class<AllInstances> getAnnotationType() {
         return AllInstances.class;
     }
 
@@ -38,7 +38,7 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
         // The raw type, e.g. List or array
         final Class<?> rawType = dependencyDescription.getTypeAsClass();
         // The type of the collection, e.g. String for List<String> or String[]
-        final Class<?> genericType = ReflectionUtils.getCollectionType(rawType, dependencyDescription.getType());
+        final Class genericType = ReflectionUtils.getCollectionType(rawType, dependencyDescription.getType());
 
         if (genericType == null) {
             throw new InjectorException("Unsupported dependency of type '" + rawType
@@ -46,9 +46,8 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
         }
 
         // TODO: Implement detection of cyclic dependencies
-        // Eclipse complains about Set<Class<? extends ?>>, so we need to cast it to Object first. Should be safe.
         @SuppressWarnings("unchecked")
-        Set<Class<?>> subTypes = (Set<Class<?>>) (Object) reflections.getSubTypesOf(genericType);
+        Set<Class<?>> subTypes = reflections.getSubTypesOf(genericType);
         Set<Object> instances = new HashSet<>(subTypes.size());
 
         final Injector injector = context.getInjector();

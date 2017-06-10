@@ -48,7 +48,7 @@ public class ReflectionUtilsTest {
         Object result = ReflectionUtils.getFieldValue(field, testClass);
 
         // then
-        assertThat(result, equalTo((Object) str));
+        assertThat(result, equalTo(str));
     }
 
     @Test(expected = IllegalArgumentException.class)

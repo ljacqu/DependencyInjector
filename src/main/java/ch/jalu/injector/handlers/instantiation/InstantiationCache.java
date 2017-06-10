@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class InstantiationCache implements InstantiationProvider, PostConstructHandler {
 
-    protected Map<String, WeakReference<Instantiation<?>>> entries = new ConcurrentHashMap<>();
+    protected Map<String, WeakReference<Instantiation>> entries = new ConcurrentHashMap<>();
 
     @Override
     public <T> Instantiation<? extends T> get(UnresolvedInstantiationContext<T> context) {
@@ -29,7 +29,7 @@ public class InstantiationCache implements InstantiationProvider, PostConstructH
     public <T> T process(T object, ResolvedInstantiationContext<T> context) throws Exception {
         if (shouldCacheMethod(context) && getInstantiation(context) == null) {
             entries.put(context.getMappedClass().getCanonicalName(),
-                new WeakReference<Instantiation<?>>(context.getInstantiation()));
+                new WeakReference<>(context.getInstantiation()));
         }
         return null;
     }
@@ -37,8 +37,8 @@ public class InstantiationCache implements InstantiationProvider, PostConstructH
     @Nullable
     @SuppressWarnings("unchecked")
     private <T> Instantiation<? extends T> getInstantiation(InstantiationContext<T> context) {
-        WeakReference<Instantiation<?>> instantiation = entries.get(context.getMappedClass().getCanonicalName());
-        return instantiation == null ? null : (Instantiation) instantiation.get();
+        WeakReference<Instantiation> instantiation = entries.get(context.getMappedClass().getCanonicalName());
+        return instantiation == null ? null : instantiation.get();
     }
 
     /**

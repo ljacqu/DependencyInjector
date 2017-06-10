@@ -25,7 +25,7 @@ public class AllTypesAnnotationHandler extends TypeSafeAnnotationHandler<AllType
     }
 
     @Override
-    public Class<AllTypes> getAnnotationType() {
+    protected Class<AllTypes> getAnnotationType() {
         return AllTypes.class;
     }
 

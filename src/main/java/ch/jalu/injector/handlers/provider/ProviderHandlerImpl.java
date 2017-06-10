@@ -62,13 +62,8 @@ public class ProviderHandlerImpl implements ProviderHandler, InstantiationProvid
         return null;
     }
 
-    private static <T> Provider<T> constructStandardProvider(final Class<T> genericType, final Injector injector) {
-        return new Provider<T>() {
-            @Override
-            public T get() {
-                return injector.newInstance(genericType);
-            }
-        };
+    private static <T> Provider<T> constructStandardProvider(Class<T> genericType, Injector injector) {
+        return () -> injector.newInstance(genericType);
     }
 
     private <T> void saveConstructedProvider(Class<T> clazz, Provider<? extends T> provider) {

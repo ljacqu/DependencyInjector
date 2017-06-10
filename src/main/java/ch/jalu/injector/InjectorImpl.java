@@ -53,7 +53,7 @@ public class InjectorImpl implements Injector {
 
     @Override
     public <T> T getSingleton(Class<T> clazz) {
-        return get(clazz, new HashSet<Class<?>>());
+        return get(clazz, new HashSet<>());
     }
 
     @Override
@@ -81,7 +81,7 @@ public class InjectorImpl implements Injector {
     public <T> T newInstance(Class<T> clazz) {
         return instantiate(
             new UnresolvedInstantiationContext<>(this, REQUEST_SCOPED, clazz),
-            new HashSet<Class<?>>());
+            new HashSet<>());
     }
 
     @Override
@@ -93,7 +93,7 @@ public class InjectorImpl implements Injector {
     public <T> T createIfHasDependencies(Class<T> clazz) {
         return instantiate(
             new UnresolvedInstantiationContext<>(this, REQUEST_SCOPED_IF_HAS_DEPENDENCIES, clazz),
-            new HashSet<Class<?>>());
+            new HashSet<>());
     }
 
     @Override

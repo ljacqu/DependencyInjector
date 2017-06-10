@@ -66,6 +66,6 @@ public class MultipleDelayedInjectRunnerIntegrationTest {
         assertThat(sampleInjectClass.getStringField(), equalTo(name));
         assertThat(sampleInjectClass.getAlphaService().getProvidedClass(), sameInstance(providedClass));
         assertThat(sampleInjectClass.getProvidedClass(), sameInstance(providedClass));
-        assertThat((GammaService) betaManager.getDependencies()[1], sameInstance(gammaService));
+        assertThat(betaManager.getDependencies()[1], sameInstance(gammaService));
     }
 }

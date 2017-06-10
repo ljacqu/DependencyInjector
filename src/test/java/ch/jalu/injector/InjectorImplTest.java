@@ -16,11 +16,11 @@ import ch.jalu.injector.samples.FieldInjectionWithAnnotations;
 import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.InstantiationFallbackClasses;
 import ch.jalu.injector.samples.InvalidClass;
-import ch.jalu.injector.samples.StaticFieldInjection;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Reloadable;
 import ch.jalu.injector.samples.SampleInstantiationImpl;
 import ch.jalu.injector.samples.Size;
+import ch.jalu.injector.samples.StaticFieldInjection;
 import ch.jalu.injector.samples.inheritance.Child;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,7 +32,6 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import static org.hamcrest.Matchers.empty;
@@ -442,13 +441,7 @@ public class InjectorImplTest {
 
     private static List<Handler> getAllHandlersExceptInstantiationProviders() {
         List<Handler> handlers = InjectorBuilder.createDefaultHandlers("");
-        Iterator<Handler> iterator = handlers.iterator();
-        while (iterator.hasNext()) {
-            Handler next = iterator.next();
-            if (next instanceof InstantiationProvider) {
-                iterator.remove();
-            }
-        }
+        handlers.removeIf(next -> next instanceof InstantiationProvider);
         return handlers;
     }
 
