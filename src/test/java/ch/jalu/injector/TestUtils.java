@@ -10,6 +10,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.function.Predicate;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -79,6 +81,11 @@ public final class TestUtils {
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
             throw new UnsupportedOperationException(e);
         }
+    }
+
+    public static <T> T findOrThrow(Collection<T> coll, Predicate<? super T> predicate) {
+        return coll.stream().filter(predicate).findFirst()
+            .orElseThrow(() -> new IllegalStateException("Could not find any matching item"));
     }
 
     public static final class ExceptionCatcher {

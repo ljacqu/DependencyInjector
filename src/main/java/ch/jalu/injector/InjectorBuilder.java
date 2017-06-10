@@ -4,7 +4,9 @@ import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
 import ch.jalu.injector.handlers.dependency.DependencyHandler;
+import ch.jalu.injector.handlers.dependency.FactoryDependencyHandler;
 import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
+import ch.jalu.injector.handlers.dependency.SingletonStoreDependencyHandler;
 import ch.jalu.injector.handlers.instantiation.DefaultInjectionProvider;
 import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
@@ -52,8 +54,10 @@ public class InjectorBuilder {
             new PreConstructPackageValidator(rootPackage),
             // (Annotation, Object) handler
             new SavedAnnotationsHandler(),
-            // Provider handler
+            // Provider / Factory / SingletonStore
             new ProviderHandlerImpl(),
+            new FactoryDependencyHandler(),
+            new SingletonStoreDependencyHandler(),
             // Instantiation provider
             new DefaultInjectionProvider(),
             // PostConstruct
