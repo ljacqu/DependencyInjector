@@ -40,7 +40,7 @@ public class MockDependencyHandlerTest {
         MockitoAnnotations.initMocks(runnerTest);
         TestClass testClass = new TestClass(runnerTest.getClass());
         MockDependencyHandler mockDependencyHandler = new MockDependencyHandler(testClass, runnerTest);
-        DependencyDescription dependencyDescription = new DependencyDescription(AlphaService.class, null, null);
+        DependencyDescription dependencyDescription = new DependencyDescription(AlphaService.class, null);
         AlphaService alphaService = mock(AlphaService.class);
         given(injector.getIfAvailable(AlphaService.class)).willReturn(alphaService);
 
@@ -62,7 +62,7 @@ public class MockDependencyHandlerTest {
         MockitoAnnotations.initMocks(runnerTest);
         TestClass testClass = new TestClass(runnerTest.getClass());
         MockDependencyHandler mockDependencyHandler = new MockDependencyHandler(testClass, runnerTest);
-        DependencyDescription dependencyDescription = new DependencyDescription(AlphaService.class, null, null);
+        DependencyDescription dependencyDescription = new DependencyDescription(AlphaService.class, null);
         given(injector.getIfAvailable(AlphaService.class)).willReturn(null);
 
         // when

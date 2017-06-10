@@ -36,9 +36,9 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
     public Object resolveValueSafely(ResolvedInstantiationContext<?> context, AllInstances annotation,
                                      DependencyDescription dependencyDescription) {
         // The raw type, e.g. List or array
-        final Class<?> rawType = dependencyDescription.getType();
+        final Class<?> rawType = dependencyDescription.getTypeAsClass();
         // The type of the collection, e.g. String for List<String> or String[]
-        final Class<?> genericType = ReflectionUtils.getCollectionType(rawType, dependencyDescription.getGenericType());
+        final Class<?> genericType = ReflectionUtils.getCollectionType(rawType, dependencyDescription.getType());
 
         if (genericType == null) {
             throw new InjectorException("Unsupported dependency of type '" + rawType

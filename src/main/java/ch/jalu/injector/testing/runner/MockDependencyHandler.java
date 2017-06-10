@@ -38,7 +38,7 @@ public class MockDependencyHandler implements DependencyHandler {
             areMocksRegistered = true;
         }
 
-        Class<?> type = dependencyDescription.getType();
+        Class<?> type = dependencyDescription.getTypeAsClass();
         Object object = injector.getIfAvailable(type);
         if (object != null) {
             return object;

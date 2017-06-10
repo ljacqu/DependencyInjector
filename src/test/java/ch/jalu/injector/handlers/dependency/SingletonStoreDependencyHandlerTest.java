@@ -133,7 +133,7 @@ public class SingletonStoreDependencyHandlerTest {
         // given
         ResolvedInstantiationContext<BetaManager> context = new ResolvedInstantiationContext<>(
             injector, StandardResolutionType.SINGLETON, BetaManager.class, BetaManager.class, null);
-        DependencyDescription description = new DependencyDescription(SingletonStore.class, null, null);
+        DependencyDescription description = new DependencyDescription(SingletonStore.class,  null);
 
         // expect
         exceptionCatcher.expect("Singleton store fields must have concrete generic type.");
@@ -147,7 +147,7 @@ public class SingletonStoreDependencyHandlerTest {
         // given
         ResolvedInstantiationContext<Object> context = new ResolvedInstantiationContext<>(
             injector, StandardResolutionType.SINGLETON, Object.class, Object.class, null);
-        DependencyDescription description = new DependencyDescription(Parent.class, null, null);
+        DependencyDescription description = new DependencyDescription(Parent.class, null);
 
         // when
         Object result = getSingletonStoreHandler().resolveValue(context, description);
@@ -162,7 +162,7 @@ public class SingletonStoreDependencyHandlerTest {
         return (SingletonStore<T>) singletonStoreHandler.resolveValue(
             new ResolvedInstantiationContext<>(injector, StandardResolutionType.SINGLETON,
                 Object.class, Object.class, null),
-            new DependencyDescription(SingletonStore.class, createParameterizedType(SingletonStore.class, clazz), null)
+            new DependencyDescription(createParameterizedType(SingletonStore.class, clazz), null)
         );
     }
 

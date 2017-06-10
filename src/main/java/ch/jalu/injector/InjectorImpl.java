@@ -202,10 +202,10 @@ public class InjectorImpl implements Injector {
             Object object = resolveDependency(resolvedContext, dependency);
             if (object == null) {
                 if (REQUEST_SCOPED_IF_HAS_DEPENDENCIES == resolvedContext.getResolutionType()
-                    && objects.get(dependency.getType()) == null) {
+                    && objects.get(dependency.getTypeAsClass()) == null) {
                     return null;
                 }
-                object = get(dependency.getType(), traversedClasses);
+                object = get(dependency.getTypeAsClass(), traversedClasses);
             }
             values[i] = object;
         }
@@ -286,7 +286,7 @@ public class InjectorImpl implements Injector {
     private static void validateInjectionHasNoCircularDependencies(List<? extends DependencyDescription> dependencies,
                                                                    Set<Class<?>> traversedClasses) {
         for (DependencyDescription dependency : dependencies) {
-            Class<?> clazz = dependency.getType();
+            Class<?> clazz = dependency.getTypeAsClass();
             if (traversedClasses.contains(clazz)) {
                 throw new InjectorException("Found cyclic dependency - already traversed '" + clazz
                     + "' (full traversal list: " + traversedClasses + ")");

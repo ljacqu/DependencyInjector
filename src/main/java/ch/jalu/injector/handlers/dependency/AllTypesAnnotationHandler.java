@@ -35,7 +35,7 @@ public class AllTypesAnnotationHandler extends TypeSafeAnnotationHandler<AllType
         InjectorUtils.checkNotNull(annotation.value(), "Annotation value may not be null");
         Set<?> subTypes = reflections.getSubTypesOf(annotation.value());
 
-        Class<?> rawType = dependencyDescription.getType();
+        Class<?> rawType = dependencyDescription.getTypeAsClass();
         return ReflectionUtils.toSuitableCollectionType(rawType, subTypes);
     }
 }

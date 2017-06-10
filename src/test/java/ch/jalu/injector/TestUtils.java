@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.function.Predicate;
 
@@ -45,7 +46,7 @@ public final class TestUtils {
         };
     }
 
-    public static Matcher<? super Class<?>> isClass(Class clazz) {
+    public static Matcher<? super Type> isClass(Class clazz) {
         return equalTo(clazz);
     }
 

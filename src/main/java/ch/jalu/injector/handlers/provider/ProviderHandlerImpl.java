@@ -46,8 +46,8 @@ public class ProviderHandlerImpl implements ProviderHandler, InstantiationProvid
 
     @Override
     public Object resolveValue(ResolvedInstantiationContext<?> context, DependencyDescription dependencyDescription) {
-        if (dependencyDescription.getType() == Provider.class) {
-            Class<?> genericType = ReflectionUtils.getGenericType(dependencyDescription.getGenericType());
+        if (Provider.class.equals(dependencyDescription.getTypeAsClass())) {
+            Class<?> genericType = ReflectionUtils.getGenericType(dependencyDescription.getType());
             if (genericType == null) {
                 throw new InjectorException("Injection of a provider was requested but no generic type was given");
             }
@@ -129,8 +129,7 @@ public class ProviderHandlerImpl implements ProviderHandler, InstantiationProvid
 
         @Override
         public List<DependencyDescription> getDependencies() {
-            return Collections.singletonList(
-                new DependencyDescription(providerClass, clazz));
+            return Collections.singletonList(new DependencyDescription(providerClass));
         }
 
         @Override

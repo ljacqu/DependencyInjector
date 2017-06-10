@@ -219,7 +219,7 @@ public class ProviderHandlerImplTest {
     public void shouldThrowForMissingGeneric() {
         // given
         ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
-        DependencyDescription dependency = new DependencyDescription(Provider.class, null);
+        DependencyDescription dependency = new DependencyDescription(Provider.class);
         Injector injector = mock(Injector.class);
         ResolvedInstantiationContext context = new ResolvedInstantiationContext<>(
             injector, null, Object.class, null, null);
@@ -238,7 +238,7 @@ public class ProviderHandlerImplTest {
     public void shouldIgnoreNonProviderDependency() {
         // given
         ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
-        DependencyDescription dependency = new DependencyDescription(Bravo.class, null);
+        DependencyDescription dependency = new DependencyDescription(Bravo.class);
         Injector injector = mock(Injector.class);
         ResolvedInstantiationContext context = new ResolvedInstantiationContext<>(
             injector, null, Object.class, null, null);

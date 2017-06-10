@@ -45,7 +45,7 @@ public class AnnotationResolver implements DependencyHandler {
     public Object resolveValue(ResolvedInstantiationContext<?> context,
                                DependencyDescription dependencyDescription) throws Exception {
         for (Annotation annotation : dependencyDescription.getAnnotations()) {
-            Object o = resolveByAnnotation(annotation.annotationType(), dependencyDescription.getType());
+            Object o = resolveByAnnotation(annotation.annotationType(), dependencyDescription.getTypeAsClass());
             if (o != null) {
                 return o;
             }

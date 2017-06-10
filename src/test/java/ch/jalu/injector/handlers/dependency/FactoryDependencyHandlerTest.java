@@ -100,7 +100,7 @@ public class FactoryDependencyHandlerTest {
         // given
         ResolvedInstantiationContext<Object> context = new ResolvedInstantiationContext<>(
             injector, StandardResolutionType.SINGLETON, Object.class, Object.class, null);
-        DependencyDescription description = new DependencyDescription(Factory.class, null, null);
+        DependencyDescription description = new DependencyDescription(Factory.class, null);
 
         // expect
         exceptionCatcher.expect("Factory fields must have concrete generic type.");
@@ -114,7 +114,7 @@ public class FactoryDependencyHandlerTest {
         // given
         ResolvedInstantiationContext<Object> context = new ResolvedInstantiationContext<>(
             injector, StandardResolutionType.SINGLETON, Object.class, Object.class, null);
-        DependencyDescription description = new DependencyDescription(Parent.class, null, null);
+        DependencyDescription description = new DependencyDescription(Parent.class, null);
 
         // when
         Object result = getFactoryHandler().resolveValue(context, description);
@@ -129,7 +129,7 @@ public class FactoryDependencyHandlerTest {
         return (Factory<T>) factoryHandler.resolveValue(
             new ResolvedInstantiationContext<>(injector, StandardResolutionType.SINGLETON,
                 Object.class, Object.class, null),
-            new DependencyDescription(Factory.class, createParameterizedType(Factory.class, clazz), null)
+            new DependencyDescription(createParameterizedType(Factory.class, clazz), null)
         );
     }
 

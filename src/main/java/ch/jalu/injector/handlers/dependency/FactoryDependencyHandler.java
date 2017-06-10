@@ -14,8 +14,8 @@ public class FactoryDependencyHandler implements DependencyHandler {
 
     @Override
     public Object resolveValue(ResolvedInstantiationContext<?> context, DependencyDescription dependencyDescription) {
-        if (dependencyDescription.getType() == Factory.class) {
-            Class<?> genericType = ReflectionUtils.getGenericType(dependencyDescription.getGenericType());
+        if (Factory.class.equals(dependencyDescription.getTypeAsClass())) {
+            Class<?> genericType = ReflectionUtils.getGenericType(dependencyDescription.getType());
             if (genericType == null) {
                 throw new InjectorException("Factory fields must have concrete generic type. "
                     + "Cannot get generic type for field in '" + context.getMappedClass() + "'");

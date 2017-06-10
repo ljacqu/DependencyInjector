@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The injector's default instantiation method; injects constructor and fields.
@@ -69,23 +70,19 @@ public class StandardInjection<T> implements Instantiation<T> {
     }
 
     private List<DependencyDescription> buildConstructorDependencies() {
-        final Class<?>[] parameters = constructor.getParameterTypes();
-        final Type[] genericTypes = constructor.getGenericParameterTypes();
+        final Type[] parameters = constructor.getGenericParameterTypes();
         final Annotation[][] annotations = constructor.getParameterAnnotations();
 
         List<DependencyDescription> dependencies = new ArrayList<>(parameters.length);
         for (int i = 0; i < parameters.length; ++i) {
-            dependencies.add(new DependencyDescription(parameters[i], genericTypes[i], annotations[i]));
+            dependencies.add(new DependencyDescription(parameters[i], annotations[i]));
         }
         return dependencies;
     }
 
     private List<DependencyDescription> buildFieldDependencies() {
-        List<DependencyDescription> dependencies = new ArrayList<>(fields.size());
-        for (Field field : fields) {
-            dependencies.add(new DependencyDescription(
-                field.getType(), field.getGenericType(), field.getAnnotations()));
-        }
-        return dependencies;
+        return fields.stream()
+            .map(f -> new DependencyDescription(f.getGenericType(), f.getAnnotations()))
+            .collect(Collectors.toList());
     }
 }

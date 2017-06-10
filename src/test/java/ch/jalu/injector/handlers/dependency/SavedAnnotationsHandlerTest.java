@@ -27,7 +27,7 @@ public class SavedAnnotationsHandlerTest {
         Annotation[] annotations = {
                 newSizeAnnotation("value"), newDurationAnnotation()
         };
-        DependencyDescription dependencyDescription = new DependencyDescription(null, null, annotations);
+        DependencyDescription dependencyDescription = new DependencyDescription( null, annotations);
 
         // when
         // Injector param not needed -> null
@@ -43,7 +43,7 @@ public class SavedAnnotationsHandlerTest {
         Annotation[] annotations = {
             newSizeAnnotation("value"), newDurationAnnotation()
         };
-        DependencyDescription dependencyDescription = new DependencyDescription(null, null, annotations);
+        DependencyDescription dependencyDescription = new DependencyDescription(null, annotations);
         // register some object under another annotation for the heck of it
         savedAnnotationsHandler.processProvided(Test.class, new Object());
 
