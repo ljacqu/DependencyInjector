@@ -11,6 +11,7 @@
     <artifactId>injector-extras</artifactId>
 
     <dependencies>
+        <!-- Compile dependencies -->
         <dependency>
             <groupId>ch.jalu</groupId>
             <artifactId>injector</artifactId>
@@ -23,12 +24,12 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>java-hamcrest</artifactId>

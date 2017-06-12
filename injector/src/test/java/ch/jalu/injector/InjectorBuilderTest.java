@@ -15,15 +15,15 @@ import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.ProvidedClass;
-import ch.jalu.injector.samples.animals.Animal;
-import ch.jalu.injector.samples.animals.Bird;
-import ch.jalu.injector.samples.animals.Chicken;
-import ch.jalu.injector.samples.animals.Reptile;
-import ch.jalu.injector.samples.animals.Snake;
-import ch.jalu.injector.samples.animals.Sparrow;
-import ch.jalu.injector.samples.animals.services.HissService;
-import ch.jalu.injector.samples.animals.services.HissServiceProvider;
 import ch.jalu.injector.samples.subpackage.SubpackageClass;
+import ch.jalu.injector.samples.vehicles.Car;
+import ch.jalu.injector.samples.vehicles.Ship;
+import ch.jalu.injector.samples.vehicles.ShoppingCart;
+import ch.jalu.injector.samples.vehicles.UnidentifiableVehicle;
+import ch.jalu.injector.samples.vehicles.Vehicle;
+import ch.jalu.injector.samples.vehicles.VehicleWithHorn;
+import ch.jalu.injector.samples.vehicles.services.SailService;
+import ch.jalu.injector.samples.vehicles.services.SailServiceProvider;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
@@ -75,32 +75,32 @@ public class InjectorBuilderTest {
     }
 
     /**
-     * Tests the order of handlers (important!) and that custom handlers are
+     * Tests the order of handlers (important!) and that custom handlers are included.
      */
     @Test
     public void shouldAllowCustomHandlers() {
         // Instantiate handlers
         ImplementationClassHandler implementationClassHandler = new ImplementationClassHandler();
-        implementationClassHandler.register(Animal.class, Reptile.class);
-        implementationClassHandler.register(Reptile.class, Snake.class);
-        implementationClassHandler.register(Bird.class, Sparrow.class);
+        implementationClassHandler.register(Vehicle.class, UnidentifiableVehicle.class);
+        implementationClassHandler.register(UnidentifiableVehicle.class, ShoppingCart.class);
+        implementationClassHandler.register(VehicleWithHorn.class, Ship.class);
         PreConstructPackageValidator packageValidator = new PreConstructPackageValidator("ch.jalu");
 
         SavedAnnotationsHandler savedAnnotationsHandler = new SavedAnnotationsHandler();
         ListeningDependencyHandler listeningDependencyHandler = new ListeningDependencyHandler();
 
         PostConstructHandler postConstructHandler = new PostConstructMethodInvoker();
-        // throw when Chicken gets instantiated
-        ThrowingPostConstructHandler throwingPostConstructHandler = new ThrowingPostConstructHandler(Chicken.class);
+        // throw when Car gets instantiated
+        ThrowingPostConstructHandler throwingPostConstructHandler = new ThrowingPostConstructHandler(Car.class);
 
         // Create Injector with all handlers
-        InjectorBuilder builder = new InjectorBuilder();
         List<InstantiationProvider> instantiationProviders = InjectorBuilder.createInstantiationProviders();
-        Injector injector = builder
+        Injector injector = new InjectorBuilder()
             .addHandlers(implementationClassHandler, packageValidator, savedAnnotationsHandler,
                          listeningDependencyHandler, postConstructHandler, throwingPostConstructHandler)
             .addHandlers(instantiationProviders)
             .create();
+        injector.register(ProvidedClass.class, new ProvidedClass(""));
 
         // Check presence of handlers and their order
         InjectorConfig config = ((InjectorImpl) injector).getConfig();
@@ -111,26 +111,26 @@ public class InjectorBuilderTest {
         assertThat(config.getPostConstructHandlers(),
             contains(implementationClassHandler, postConstructHandler, throwingPostConstructHandler));
 
-        // Set Provider for HissService
-        injector.registerProvider(HissService.class, HissServiceProvider.class);
+        // Set Provider for SailService
+        injector.registerProvider(SailService.class, SailServiceProvider.class);
 
-        // Request Animal singleton -> mapped to Reptile -> Snake
-        Animal animal = injector.getSingleton(Animal.class);
-        assertThat(animal, instanceOf(Snake.class));
-        Snake snake = injector.getSingleton(Snake.class);
-        assertThat(snake, sameInstance(animal));
+        // Request Vehicle singleton -> mapped to UnidentifiableVehicle -> ShoppingCart
+        Vehicle vehicle = injector.getSingleton(Vehicle.class);
+        assertThat(vehicle, instanceOf(ShoppingCart.class));
+        ShoppingCart cart = injector.getSingleton(ShoppingCart.class);
+        assertThat(cart, sameInstance(vehicle));
 
         // Check counts
-        assertThat(implementationClassHandler.getCounter(), equalTo(4)); // Snake, Configuration, HissServiceProvider, HissService
-        // Snake depends on Configuration and HissService (2)
-        // HissService comes from HissServiceProvider, which needs to be instantiated (1)
-        // and it depends on Configuration (1) = 4.
-        assertThat(listeningDependencyHandler.getCounter(), equalTo(4));
-        assertThat(throwingPostConstructHandler.getCounter(), equalTo(4)); // Snake, Configuration, HissService, HissServiceProvider
+        assertThat(implementationClassHandler.getCounter(), equalTo(4)); // ShoppingCart, Alpha/Beta/Gamma
+        // ShoppingCart depends on BetaManager (2)
+        // BetaManager -> ProvidedClass, AlphaService, GammaService (3)
+        // GammaService -> AlphaService (1)
+        assertThat(listeningDependencyHandler.getCounter(), equalTo(6));
+        assertThat(throwingPostConstructHandler.getCounter(), equalTo(4)); // ShoppingCart, Alpha/Beta/Gamma
 
         // Check correct behavior of ThrowingPostHandler
         try {
-            injector.getSingleton(Chicken.class);
+            injector.getSingleton(Car.class);
             fail("Expected exception to occur");
         } catch (InjectorException e) {
             // noop
