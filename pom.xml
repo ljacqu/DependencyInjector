@@ -2,8 +2,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ch.jalu</groupId>
-    <artifactId>injector</artifactId>
+    <artifactId>injector-parent</artifactId>
+    <packaging>pom</packaging>
     <version>0.5-SNAPSHOT</version>
+    <modules>
+        <module>injector</module>
+        <module>injector-extras</module>
+    </modules>
 
     <name>DependencyInjector</name>
     <description>Lightweight dependency injector (JSR-330 implementation)</description>
@@ -165,49 +170,56 @@
         </plugins>
     </build>
 
-    <dependencies>
-        <!-- Runtime dependencies -->
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>1</version>
-            <scope>compile</scope>
-        </dependency>
-        <!-- Compiler-only dependencies -->
-        <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <scope>provided</scope>
-            <version>3.0.1</version>
-        </dependency>
-        <!-- Optional runtime dependencies -->
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.11</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>2.7.14</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <!-- Testing-only dependencies -->
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>java-hamcrest</artifactId>
-            <scope>test</scope>
-            <version>2.0.0.0</version>
-        </dependency>
-    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Runtime dependencies -->
+            <dependency>
+                <groupId>javax.inject</groupId>
+                <artifactId>javax.inject</artifactId>
+                <version>1</version>
+                <scope>compile</scope>
+            </dependency>
+            <!-- Compiler-only dependencies -->
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <scope>provided</scope>
+                <version>3.0.1</version>
+            </dependency>
+            <!-- Optional runtime dependencies -->
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>0.9.11</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>compile</scope>
+                <optional>true</optional>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>2.7.14</version>
+                <scope>compile</scope>
+                <optional>true</optional>
+            </dependency>
+            <!-- Testing-only dependencies -->
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>java-hamcrest</artifactId>
+                <scope>test</scope>
+                <version>2.0.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.21.0-GA</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>
