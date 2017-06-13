@@ -21,8 +21,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 /**
- * Tests that {@link PostConstructHandler} implementations
- * can change the object that will be stored.
+ * Tests that handler implementations can change the object that will be stored on post construct.
  */
 public class PostConstructRemappingTest {
 

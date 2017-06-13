@@ -23,7 +23,7 @@ public class PreConstructPackageValidator implements Handler {
     }
 
     @Override
-    public <T> void accept(UnresolvedInstantiationContext<T> context) {
+    public <T> void preProcess(UnresolvedInstantiationContext<T> context) {
         final Class<?> clazz = context.getMappedClass();
         if (clazz.getPackage() == null) {
             String detail = clazz.isPrimitive()

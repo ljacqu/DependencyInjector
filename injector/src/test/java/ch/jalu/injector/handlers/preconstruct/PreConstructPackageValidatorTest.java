@@ -4,7 +4,8 @@ import ch.jalu.injector.Injector;
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.annotations.NoFieldScan;
 import ch.jalu.injector.context.UnresolvedInstantiationContext;
-import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
+import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
+import ch.jalu.injector.handlers.provider.ProviderHandlerImpl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,9 +26,9 @@ public class PreConstructPackageValidatorTest {
     @Test
     public void shouldAcceptValidPackage() {
         // given / when
-        validator.accept(buildContext(Injector.class));
-        validator.accept(buildContext(PostConstructHandler.class));
-        validator.accept(buildContext(NoFieldScan.class));
+        validator.preProcess(buildContext(Injector.class));
+        validator.preProcess(buildContext(PostConstructMethodInvoker.class));
+        validator.preProcess(buildContext(NoFieldScan.class));
 
         // then - no exception thrown
     }
@@ -38,7 +39,7 @@ public class PreConstructPackageValidatorTest {
         exceptionCatcher.expect("Primitive types must be provided");
 
         // when
-        validator.accept(buildContext(boolean.class));
+        validator.preProcess(buildContext(boolean.class));
     }
 
     @Test
@@ -47,7 +48,7 @@ public class PreConstructPackageValidatorTest {
         exceptionCatcher.expect("Unknown how to inject array classes");
 
         // when
-        validator.accept(buildContext(PostConstructHandler[].class));
+        validator.preProcess(buildContext(ProviderHandlerImpl[].class));
     }
 
     @Test
@@ -56,7 +57,7 @@ public class PreConstructPackageValidatorTest {
         exceptionCatcher.expect("outside of the allowed packages");
 
         // when
-        validator.accept(buildContext(Test.class));
+        validator.preProcess(buildContext(Test.class));
     }
 
     private static <T> UnresolvedInstantiationContext<T> buildContext(Class<T> clz) {

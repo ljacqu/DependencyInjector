@@ -15,7 +15,7 @@ public class ThrowingPostConstructHandler extends AbstractCountingHandler implem
     }
 
     @Override
-    public <T> T process(T object, ResolvedInstantiationContext<T> context) {
+    public <T> T postProcess(T object, ResolvedInstantiationContext<T> context) {
         increment();
         for (Class<?> clazz : throwForClasses) {
             if (clazz.isInstance(object)) {

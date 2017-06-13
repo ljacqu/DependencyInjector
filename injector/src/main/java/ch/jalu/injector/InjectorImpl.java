@@ -65,7 +65,7 @@ public class InjectorImpl implements Injector {
         checkNotNull(clazz, "Provided annotation may not be null");
         for (Handler handler : config.getHandlers()) {
             try {
-                handler.processProvided(clazz, object);
+                handler.onAnnotation(clazz, object);
             } catch (Exception e) {
                 rethrowException(e);
             }
@@ -238,7 +238,7 @@ public class InjectorImpl implements Injector {
     private void processPreConstructorHandlers(UnresolvedInstantiationContext<?> unresolvedContext) {
         for (Handler handler : config.getHandlers()) {
             try {
-                handler.accept(unresolvedContext);
+                handler.preProcess(unresolvedContext);
             } catch (Exception e) {
                 rethrowException(e);
             }
@@ -249,7 +249,7 @@ public class InjectorImpl implements Injector {
         T object = instance;
         for (Handler handler : config.getHandlers()) {
             try {
-                object = firstNotNull(handler.process(object, resolvedContext), object);
+                object = firstNotNull(handler.postProcess(object, resolvedContext), object);
             } catch (Exception e) {
                 rethrowException(e);
             }

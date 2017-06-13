@@ -19,7 +19,7 @@ import java.util.List;
 public class PostConstructMethodInvoker implements Handler {
 
     @Override
-    public <T> T process(T object, ResolvedInstantiationContext<T> context) {
+    public <T> T postProcess(T object, ResolvedInstantiationContext<T> context) {
         Class<?> clazz = object.getClass();
         List<Method> postConstructMethods = getPostConstructMethods(clazz);
         for (int i = postConstructMethods.size() - 1; i >= 0; --i) {

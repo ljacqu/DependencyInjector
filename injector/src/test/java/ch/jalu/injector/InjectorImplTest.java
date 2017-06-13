@@ -311,8 +311,8 @@ public class InjectorImplTest {
         injector.provide(Duration.class, object);
 
         // then
-        verify(annoValHandler1).processProvided(Duration.class, object);
-        verify(annoValHandler2).processProvided(Duration.class, object);
+        verify(annoValHandler1).onAnnotation(Duration.class, object);
+        verify(annoValHandler2).onAnnotation(Duration.class, object);
     }
 
     @Test
@@ -332,7 +332,7 @@ public class InjectorImplTest {
         Class<? extends Annotation> annotation = Size.class;
         Object object = 123;
         Handler annoValHandler = mock(Handler.class);
-        doThrow(Exception.class).when(annoValHandler).processProvided(annotation, object);
+        doThrow(Exception.class).when(annoValHandler).onAnnotation(annotation, object);
         config.addHandlers(Collections.singletonList(annoValHandler));
 
         // expect

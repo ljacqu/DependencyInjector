@@ -25,7 +25,7 @@ public interface Handler {
      * @param <T> the class' type
      * @throws Exception for failed validation or preconditions
      */
-    default <T> void accept(UnresolvedInstantiationContext<T> context) throws Exception {
+    default <T> void preProcess(UnresolvedInstantiationContext<T> context) throws Exception {
     }
 
     /**
@@ -69,7 +69,7 @@ public interface Handler {
      * @throws Exception for validation errors or similar
      */
     @Nullable
-    default <T> T process(T object, ResolvedInstantiationContext<T> context) throws Exception {
+    default <T> T postProcess(T object, ResolvedInstantiationContext<T> context) throws Exception {
         return null;
     }
 
@@ -80,7 +80,7 @@ public interface Handler {
      * @param object the object
      * @throws Exception for failed validations
      */
-    default void processProvided(Class<? extends Annotation> annotationType, @Nullable Object object) throws Exception {
+    default void onAnnotation(Class<? extends Annotation> annotationType, @Nullable Object object) throws Exception {
     }
 
     /**

@@ -27,7 +27,7 @@ public class ImplementationClassHandler extends AbstractCountingHandler implemen
     }
 
     @Override
-    public <T> void accept(UnresolvedInstantiationContext<T> context) {
+    public <T> void preProcess(UnresolvedInstantiationContext<T> context) {
         increment();
         Class<? extends T> implClass = getImplClass(context.getMappedClass());
         if (implClass != null) {
@@ -45,7 +45,7 @@ public class ImplementationClassHandler extends AbstractCountingHandler implemen
     }
 
     @Override
-    public <T> T process(T object, ResolvedInstantiationContext<T> context) {
+    public <T> T postProcess(T object, ResolvedInstantiationContext<T> context) {
         // Injector doesn't register the object with the mapped class by default. In this test case, this is desirable.
         Injector injector = context.getInjector();
         if (context.getMappedClass() != context.getOriginalClass()

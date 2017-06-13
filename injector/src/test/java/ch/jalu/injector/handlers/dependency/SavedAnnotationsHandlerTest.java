@@ -23,7 +23,7 @@ public class SavedAnnotationsHandlerTest {
     public void shouldReturnRegisteredValue() {
         // given
         Object object = "value for @Duration";
-        savedAnnotationsHandler.processProvided(Duration.class, object);
+        savedAnnotationsHandler.onAnnotation(Duration.class, object);
         Annotation[] annotations = {
                 newSizeAnnotation("value"), newDurationAnnotation()
         };
@@ -45,7 +45,7 @@ public class SavedAnnotationsHandlerTest {
         };
         DependencyDescription dependencyDescription = new DependencyDescription(null, annotations);
         // register some object under another annotation for the heck of it
-        savedAnnotationsHandler.processProvided(Test.class, new Object());
+        savedAnnotationsHandler.onAnnotation(Test.class, new Object());
 
         // when
         Object result = savedAnnotationsHandler.resolveValue(null, dependencyDescription);
@@ -57,10 +57,10 @@ public class SavedAnnotationsHandlerTest {
     @Test(expected = InjectorException.class)
     public void shouldThrowForSecondAnnotationRegistration() {
         // given
-        savedAnnotationsHandler.processProvided(Size.class, 12);
+        savedAnnotationsHandler.onAnnotation(Size.class, 12);
 
         // when
-        savedAnnotationsHandler.processProvided(Size.class, -8);
+        savedAnnotationsHandler.onAnnotation(Size.class, -8);
 
         // then - exception
     }
@@ -68,7 +68,7 @@ public class SavedAnnotationsHandlerTest {
     @Test(expected = InjectorException.class)
     public void shouldThrowForNullValueAssociatedToAnnotation() {
         // given / when
-        savedAnnotationsHandler.processProvided(Duration.class, null);
+        savedAnnotationsHandler.onAnnotation(Duration.class, null);
 
         // then - exception
     }

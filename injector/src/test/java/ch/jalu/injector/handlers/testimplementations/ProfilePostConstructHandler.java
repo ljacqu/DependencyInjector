@@ -34,7 +34,7 @@ public class ProfilePostConstructHandler implements Handler {
     }
 
     @Override
-    public <T> T process(final T object, ResolvedInstantiationContext<T> context) throws ReflectiveOperationException {
+    public <T> T postProcess(final T object, ResolvedInstantiationContext<T> context) throws ReflectiveOperationException {
         final Class<?> clazz = object.getClass();
         if (!hasProfileMethod(clazz)) {
             return null;

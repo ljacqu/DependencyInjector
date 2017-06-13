@@ -26,7 +26,7 @@ public class InstantiationCache implements Handler {
     }
 
     @Override
-    public <T> T process(T object, ResolvedInstantiationContext<T> context) throws Exception {
+    public <T> T postProcess(T object, ResolvedInstantiationContext<T> context) {
         if (shouldCacheMethod(context) && getInstantiation(context) == null) {
             entries.put(context.getMappedClass().getCanonicalName(),
                 new WeakReference<>(context.getInstantiation()));
