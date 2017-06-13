@@ -3,11 +3,8 @@ package ch.jalu.injector;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
-import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
-import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
 import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
-import ch.jalu.injector.handlers.provider.ProviderHandler;
 import ch.jalu.injector.handlers.testimplementations.ImplementationClassHandler;
 import ch.jalu.injector.handlers.testimplementations.ListeningDependencyHandler;
 import ch.jalu.injector.handlers.testimplementations.ThrowingPostConstructHandler;
@@ -26,7 +23,8 @@ import ch.jalu.injector.samples.vehicles.services.SailService;
 import ch.jalu.injector.samples.vehicles.services.SailServiceProvider;
 import org.junit.Test;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.contains;
@@ -89,12 +87,12 @@ public class InjectorBuilderTest {
         SavedAnnotationsHandler savedAnnotationsHandler = new SavedAnnotationsHandler();
         ListeningDependencyHandler listeningDependencyHandler = new ListeningDependencyHandler();
 
-        PostConstructHandler postConstructHandler = new PostConstructMethodInvoker();
+        Handler postConstructHandler = new PostConstructMethodInvoker();
         // throw when Car gets instantiated
         ThrowingPostConstructHandler throwingPostConstructHandler = new ThrowingPostConstructHandler(Car.class);
 
         // Create Injector with all handlers
-        List<InstantiationProvider> instantiationProviders = InjectorBuilder.createInstantiationProviders();
+        List<Handler> instantiationProviders = InjectorBuilder.createInstantiationProviders();
         Injector injector = new InjectorBuilder()
             .addHandlers(implementationClassHandler, packageValidator, savedAnnotationsHandler,
                          listeningDependencyHandler, postConstructHandler, throwingPostConstructHandler)
@@ -104,12 +102,11 @@ public class InjectorBuilderTest {
 
         // Check presence of handlers and their order
         InjectorConfig config = ((InjectorImpl) injector).getConfig();
-        assertThat(config.getPreConstructHandlers(), contains(implementationClassHandler, packageValidator));
-        ProviderHandler providerHandler = getFirstOfType(ProviderHandler.class, instantiationProviders);
-        assertThat(config.getDependencyHandlers(),
-            contains(savedAnnotationsHandler, listeningDependencyHandler, providerHandler));
-        assertThat(config.getPostConstructHandlers(),
-            contains(implementationClassHandler, postConstructHandler, throwingPostConstructHandler));
+        List<Handler> handlers = new ArrayList<>();
+        handlers.addAll(Arrays.asList(implementationClassHandler, packageValidator, savedAnnotationsHandler,
+            listeningDependencyHandler, postConstructHandler, throwingPostConstructHandler));
+        handlers.addAll(instantiationProviders);
+        assertThat(config.getHandlers(), contains(handlers.toArray()));
 
         // Set Provider for SailService
         injector.registerProvider(SailService.class, SailServiceProvider.class);
@@ -135,29 +132,5 @@ public class InjectorBuilderTest {
         } catch (InjectorException e) {
             // noop
         }
-    }
-
-    @Test(expected = InjectorException.class)
-    public void shouldThrowExceptionForUnknownHandlerType() {
-        // given
-        Handler handler = new UnknownHandler();
-
-        // when
-        new InjectorBuilder().addHandlers(handler);
-
-        // then - expect exception
-    }
-
-    @Nullable
-    private static <T> T getFirstOfType(Class<T> clazz, Iterable<?> list) {
-        for (Object elem : list) {
-            if (clazz.isInstance(elem)) {
-                return clazz.cast(elem);
-            }
-        }
-        return null;
-    }
-
-    private static final class UnknownHandler implements Handler {
     }
 }

@@ -1,12 +1,12 @@
 package ch.jalu.injector.handlers.testimplementations;
 
 import ch.jalu.injector.context.ResolvedInstantiationContext;
-import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
+import ch.jalu.injector.handlers.Handler;
 
 /**
  * Post construct handler that throws an exception if it encounters an object of a given list of classes.
  */
-public class ThrowingPostConstructHandler extends AbstractCountingHandler implements PostConstructHandler {
+public class ThrowingPostConstructHandler extends AbstractCountingHandler implements Handler {
 
     private final Class<?>[] throwForClasses;
 

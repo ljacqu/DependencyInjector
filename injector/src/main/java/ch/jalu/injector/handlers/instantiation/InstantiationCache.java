@@ -4,7 +4,7 @@ import ch.jalu.injector.context.InstantiationContext;
 import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.context.StandardResolutionType;
 import ch.jalu.injector.context.UnresolvedInstantiationContext;
-import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
+import ch.jalu.injector.handlers.Handler;
 
 import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * cache structure instead, e.g. with Guava's CacheBuilder. As such, this handler is not
  * included by default.
  */
-public class InstantiationCache implements InstantiationProvider, PostConstructHandler {
+public class InstantiationCache implements Handler {
 
     protected Map<String, WeakReference<Instantiation>> entries = new ConcurrentHashMap<>();
 

@@ -1,6 +1,7 @@
 package ch.jalu.injector.handlers.instantiation;
 
 import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import javax.annotation.Nullable;
@@ -9,7 +10,7 @@ import javax.annotation.Nullable;
  * Instantiation provider for instantiations that happen on the class directly,
  * i.e. limited to classes which are instantiable.
  */
-public abstract class DirectInstantiationProvider implements InstantiationProvider {
+public abstract class DirectInstantiationProvider implements Handler {
 
     @Override
     public final <T> Instantiation<? extends T> get(UnresolvedInstantiationContext<T> context) {

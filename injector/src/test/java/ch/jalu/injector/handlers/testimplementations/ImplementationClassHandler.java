@@ -3,8 +3,7 @@ package ch.jalu.injector.handlers.testimplementations;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.context.UnresolvedInstantiationContext;
-import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
-import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
+import ch.jalu.injector.handlers.Handler;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +11,7 @@ import java.util.Map;
 /**
  * Pre construct handler that maps abstract classes to a previously registered implementation.
  */
-public class ImplementationClassHandler extends AbstractCountingHandler
-    implements PreConstructHandler, PostConstructHandler {
+public class ImplementationClassHandler extends AbstractCountingHandler implements Handler {
 
     private Map<Class<?>, Class<?>> classMap = new HashMap<>();
 

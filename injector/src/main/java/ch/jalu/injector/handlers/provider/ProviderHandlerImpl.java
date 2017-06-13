@@ -4,10 +4,9 @@ import ch.jalu.injector.Injector;
 import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.handlers.dependency.DependencyHandler;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
-import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.utils.ReflectionUtils;
 
 import javax.inject.Provider;
@@ -22,7 +21,7 @@ import static ch.jalu.injector.utils.InjectorUtils.checkArgument;
  * Default handler for {@link Provider} objects. Registers providers and classes and creates
  * {@link Instantiation} objects for classes it can handle.
  */
-public class ProviderHandlerImpl implements ProviderHandler, InstantiationProvider, DependencyHandler {
+public class ProviderHandlerImpl implements Handler {
 
     protected Map<Class<?>, ProviderWrappedInstantiation<?>> providers = new HashMap<>();
 

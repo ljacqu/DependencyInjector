@@ -2,7 +2,7 @@ package ch.jalu.injector.testing.runner;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.context.ResolvedInstantiationContext;
-import ch.jalu.injector.handlers.dependency.DependencyHandler;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.testing.InjectDelayed;
 import ch.jalu.injector.utils.ReflectionUtils;
@@ -17,7 +17,7 @@ import java.util.Set;
  * Resolves a dependency by retrieving the value from a corresponding @Mock field.
  * Throws an exception if a dependency is not available as {@code @Mock} field.
  */
-public class MockDependencyHandler implements DependencyHandler {
+public class MockDependencyHandler implements Handler {
 
     private final TestClass testClass;
     private final Object target;

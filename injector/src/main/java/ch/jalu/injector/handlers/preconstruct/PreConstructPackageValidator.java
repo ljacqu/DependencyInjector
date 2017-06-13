@@ -2,13 +2,14 @@ package ch.jalu.injector.handlers.preconstruct;
 
 import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.handlers.Handler;
 
 /**
  * Validates the package of a parameter type to ensure that it is part of the allowed packages.
  * This ensures that we don't try to instantiate things that are beyond our reach in case some
  * external dependency has not been registered by accident.
  */
-public class PreConstructPackageValidator implements PreConstructHandler {
+public class PreConstructPackageValidator implements Handler {
 
     private final String rootPackage;
 

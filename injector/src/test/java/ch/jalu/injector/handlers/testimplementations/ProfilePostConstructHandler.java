@@ -2,7 +2,7 @@ package ch.jalu.injector.handlers.testimplementations;
 
 import ch.jalu.injector.InjectorImpl;
 import ch.jalu.injector.context.ResolvedInstantiationContext;
-import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
+import ch.jalu.injector.handlers.Handler;
 import javassist.util.proxy.MethodFilter;
 import javassist.util.proxy.MethodHandler;
 import javassist.util.proxy.Proxy;
@@ -22,14 +22,9 @@ import java.util.List;
  * Sample post construct handler that wraps a constructed class into a proxy
  * for logging purposes when methods annotated with {@link Profile} are found.
  */
-public class ProfilePostConstructHandler implements PostConstructHandler {
+public class ProfilePostConstructHandler implements Handler {
 
-    private static final MethodFilter METHOD_FILTER = new MethodFilter() {
-        @Override
-        public boolean isHandled(Method m) {
-            return m.isAnnotationPresent(Profile.class);
-        }
-    };
+    private static final MethodFilter METHOD_FILTER = m -> m.isAnnotationPresent(Profile.class);
 
     private final InjectorImpl injector;
     private final List<String> invocations = new ArrayList<>();

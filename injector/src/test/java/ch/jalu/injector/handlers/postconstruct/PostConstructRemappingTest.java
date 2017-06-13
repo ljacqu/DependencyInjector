@@ -35,7 +35,7 @@ public class PostConstructRemappingTest {
             .addDefaultHandlers(PACKAGE)
             .create();
         ProfilePostConstructHandler profileHandler = new ProfilePostConstructHandler(injector);
-        injector.getConfig().addPostConstructHandlers(singletonList(profileHandler));
+        injector.getConfig().addHandlers(singletonList(profileHandler));
         injector.register(ProvidedClass.class, new ProvidedClass(""));
         injector.registerProvider(SailService.class, SailServiceProvider.class);
 

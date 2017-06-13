@@ -3,14 +3,9 @@ package ch.jalu.injector;
 import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.context.UnresolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
-import ch.jalu.injector.handlers.dependency.DependencyHandler;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
-import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
-import ch.jalu.injector.handlers.postconstruct.PostConstructHandler;
-import ch.jalu.injector.handlers.preconstruct.PreConstructHandler;
-import ch.jalu.injector.handlers.provider.ProviderHandler;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import javax.annotation.Nullable;
@@ -68,9 +63,9 @@ public class InjectorImpl implements Injector {
     @Override
     public void provide(Class<? extends Annotation> clazz, Object object) {
         checkNotNull(clazz, "Provided annotation may not be null");
-        for (AnnotationValueHandler annotationValueHandler : config.getAnnotationValueHandlers()) {
+        for (Handler handler : config.getHandlers()) {
             try {
-                annotationValueHandler.processProvided(clazz, object);
+                handler.processProvided(clazz, object);
             } catch (Exception e) {
                 rethrowException(e);
             }
@@ -111,7 +106,7 @@ public class InjectorImpl implements Injector {
     public <T> void registerProvider(Class<T> clazz, Provider<? extends T> provider) {
         checkNotNull(clazz, "Class may not be null");
         checkNotNull(provider, "Provider may not be null");
-        for (ProviderHandler handler : config.getProviderHandlers()) {
+        for (Handler handler : config.getHandlers()) {
             try {
                 handler.onProvider(clazz, provider);
             } catch (Exception e) {
@@ -124,7 +119,7 @@ public class InjectorImpl implements Injector {
     public <T, P extends Provider<? extends T>> void registerProvider(Class<T> clazz, Class<P> providerClass) {
         checkNotNull(clazz, "Class may not be null");
         checkNotNull(providerClass, "Provider class may not be null");
-        for (ProviderHandler handler : config.getProviderHandlers()) {
+        for (Handler handler : config.getHandlers()) {
             try {
                 handler.onProviderClass(clazz, providerClass);
             } catch (Exception e) {
@@ -213,17 +208,19 @@ public class InjectorImpl implements Injector {
     }
 
     private <T> Instantiation<? extends T> getInstantiation(UnresolvedInstantiationContext<T> context) {
-        for (InstantiationProvider provider : config.getInstantiationProviders()) {
-            Instantiation<? extends T> instantiation = provider.get(context);
+        for (Handler handler : config.getHandlers()) {
+            Instantiation<? extends T> instantiation = handler.get(context);
             if (instantiation != null) {
                 return instantiation;
             }
         }
 
         // No instantiation method was found, handle error with most appropriate message
-        if (config.getInstantiationProviders().isEmpty()) {
-            throw new InjectorException("You did not register any instantiation methods!");
-        } else if (!InjectorUtils.canInstantiate(context.getMappedClass())) {
+        // TODO #48: Need to be able to check this with the new layout
+//        if (config.getInstantiationProviders().isEmpty()) {
+//            throw new InjectorException("You did not register any instantiation methods!");
+//        } else
+        if (!InjectorUtils.canInstantiate(context.getMappedClass())) {
             throw new InjectorException("Did not find instantiation method for '" + context.getMappedClass()
                 + "'. This class cannot be instantiated directly, please check the class or your handlers.");
         }
@@ -234,14 +231,14 @@ public class InjectorImpl implements Injector {
     }
 
     /**
-     * Runs the given instantiation context through all registered {@link PreConstructHandler}s.
+     * Runs the given instantiation context through all registered handlers.
      *
      * @param unresolvedContext the instantiation context
      */
     private void processPreConstructorHandlers(UnresolvedInstantiationContext<?> unresolvedContext) {
-        for (PreConstructHandler preConstructHandler : config.getPreConstructHandlers()) {
+        for (Handler handler : config.getHandlers()) {
             try {
-                preConstructHandler.accept(unresolvedContext);
+                handler.accept(unresolvedContext);
             } catch (Exception e) {
                 rethrowException(e);
             }
@@ -250,9 +247,9 @@ public class InjectorImpl implements Injector {
 
     private <T> T runPostConstructHandlers(T instance, ResolvedInstantiationContext<T> resolvedContext) {
         T object = instance;
-        for (PostConstructHandler postConstructHandler : config.getPostConstructHandlers()) {
+        for (Handler handler : config.getHandlers()) {
             try {
-                object = firstNotNull(postConstructHandler.process(object, resolvedContext), object);
+                object = firstNotNull(handler.process(object, resolvedContext), object);
             } catch (Exception e) {
                 rethrowException(e);
             }
@@ -264,7 +261,7 @@ public class InjectorImpl implements Injector {
     private Object resolveDependency(ResolvedInstantiationContext<?> resolvedContext,
                                      DependencyDescription dependencyDescription) {
         Object o;
-        for (DependencyHandler handler : config.getDependencyHandlers()) {
+        for (Handler handler : config.getHandlers()) {
             try {
                 if ((o = handler.resolveValue(resolvedContext, dependencyDescription)) != null) {
                     return o;

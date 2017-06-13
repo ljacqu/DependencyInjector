@@ -2,7 +2,7 @@ package ch.jalu.injector.testing.runner;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
-import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.junit.runners.model.FrameworkField;
@@ -56,7 +56,7 @@ public class RunDelayedInjects extends Statement {
      * @return the injector used to set {@link ch.jalu.injector.testing.InjectDelayed} fields
      */
     protected Injector getInjector() {
-        List<InstantiationProvider> instantiationProviders = InjectorBuilder.createInstantiationProviders();
+        List<Handler> instantiationProviders = InjectorBuilder.createInstantiationProviders();
         return new InjectorBuilder()
             .addHandlers(instantiationProviders)
             .addHandlers(

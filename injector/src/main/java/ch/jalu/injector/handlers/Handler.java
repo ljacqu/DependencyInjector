@@ -1,30 +1,109 @@
 package ch.jalu.injector.handlers;
 
+import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
+
+import javax.annotation.Nullable;
+import javax.inject.Provider;
+import java.lang.annotation.Annotation;
+
 /**
  * Handlers may modify the injection process at different moments.
  * They allow you to define custom injection methods, custom validation.
- * <p>
- * The following subtypes are recognized.
- *
- * <ul>
- * <li>{@link ch.jalu.injector.handlers.preconstruct.PreConstructHandler}: Validates the request for instantiating a
- *     class and offers the possibility to override the given class with a subclass.</li>
- * <li>{@link ch.jalu.injector.handlers.instantiation.InstantiationProvider}: For the given class, returns an
- *     {@link ch.jalu.injector.handlers.instantiation.Instantiation} when possible with which the injector will
- *     create an object.</li>
- * <li>{@link ch.jalu.injector.handlers.dependency.DependencyHandler}: Offers a way to resolve a given dependency
- *     required to instantiate a class, e.g. to implement custom behavior for annotations.</li>
- * <li>{@link ch.jalu.injector.handlers.postconstruct.PostConstructHandler}: Performs an action on an object that
- *     has been created with the injector. You can support {@code @PostConstruct} methods this way or perform some
- *     form of validation.</li>
- * <li>{@link ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler}: Called when an annotation class
- *     and object pair are passed to the injector ({@link ch.jalu.injector.Injector#provide(Class, Object)}).</li>
- * <li>{@link ch.jalu.injector.handlers.provider.ProviderHandler}: Processes the provider object and classes that are
- *     supplied to the injector.</li>
- * </ul>
  *
  * Handlers are executed in the order that they are given to {@link ch.jalu.injector.InjectorBuilder}, so more important
  * handlers should come first.
  */
 public interface Handler {
+
+    /**
+     * Processes an incoming request for instantiation for validation or custom mapping.
+     *
+     * @param context the instantiation context
+     * @param <T> the class' type
+     * @throws Exception for failed validation or preconditions
+     */
+    default <T> void accept(UnresolvedInstantiationContext<T> context) throws Exception {
+    }
+
+    /**
+     * Provides an instantiation method for the given class if available.
+     *
+     * @param context the instantiation context
+     * @param <T> the class' type
+     * @return the instantiation for the class, or {@code null} if not possible
+     */
+    @Nullable
+    default <T> Instantiation<? extends T> get(UnresolvedInstantiationContext<T> context) {
+        return null;
+    }
+
+    /**
+     * Resolves the value of a dependency based on the present annotations and the declared type.
+     * Returns {@code null} if the given annotations and field type do not apply
+     * to the handler. May throw an exception if a given annotation is being used wrong.
+     * <p>
+     * Note that you are you not forced to check if the returned Object is valid for the given
+     * dependency {@code type}, unless you want to show a specific error message.
+     *
+     * @param context instantiation context
+     * @param dependencyDescription description of the dependency
+     * @return the resolved value, or null if not applicable
+     * @throws Exception for invalid usage of annotation
+     */
+    @Nullable
+    default Object resolveValue(ResolvedInstantiationContext<?> context,
+                                DependencyDescription dependencyDescription) throws Exception {
+        return null;
+    }
+
+    /**
+     * Processes the newly created object.
+     *
+     * @param object the object that was instantiated
+     * @param context the instantiation context
+     * @param <T> the object's type
+     * @return the new object to replace the instance with, null to keep the object the same
+     * @throws Exception for validation errors or similar
+     */
+    @Nullable
+    default <T> T process(T object, ResolvedInstantiationContext<T> context) throws Exception {
+        return null;
+    }
+
+    /**
+     * Processes the annotation type and the associated object.
+     *
+     * @param annotationType the annotation type
+     * @param object the object
+     * @throws Exception for failed validations
+     */
+    default void processProvided(Class<? extends Annotation> annotationType, @Nullable Object object) throws Exception {
+    }
+
+    /**
+     * Processes the given provider.
+     *
+     * @param clazz the class to associate the provider with
+     * @param provider the provider
+     * @param <T> the class' type
+     * @throws Exception for unsuccessful validation, etc.
+     */
+    default <T> void onProvider(Class<T> clazz, Provider<? extends T> provider) throws Exception {
+    }
+
+    /**
+     * Processes the given provider class.
+     *
+     * @param clazz the class to associate the provider class with
+     * @param providerClass the provider class
+     * @param <T> the class' type
+     * @param <P> the provider class' type
+     * @throws Exception for unsuccessful validation, etc.
+     */
+    default <T, P extends Provider<? extends T>> void onProviderClass(Class<T> clazz,
+                                                                      Class<P> providerClass) throws Exception {
+    }
 }

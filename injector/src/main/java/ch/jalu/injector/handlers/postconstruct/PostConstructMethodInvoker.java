@@ -2,6 +2,7 @@ package ch.jalu.injector.handlers.postconstruct;
 
 import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.utils.ReflectionUtils;
 
 import javax.annotation.Nullable;
@@ -15,7 +16,7 @@ import java.util.List;
  * Searches newly instantiated classes for {@link PostConstruct} method
  * and validates their usage before executing it.
  */
-public class PostConstructMethodInvoker implements PostConstructHandler {
+public class PostConstructMethodInvoker implements Handler {
 
     @Override
     public <T> T process(T object, ResolvedInstantiationContext<T> context) {

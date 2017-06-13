@@ -134,8 +134,8 @@ public class FactoryDependencyHandlerTest {
     }
 
     private FactoryDependencyHandler getFactoryHandler() {
-        List<DependencyHandler> dependencyHandlers = ((InjectorImpl) injector).getConfig().getDependencyHandlers();
-        DependencyHandler factoryHandler = findOrThrow(dependencyHandlers, handler -> handler instanceof FactoryDependencyHandler);
+        List<Handler> dependencyHandlers = ((InjectorImpl) injector).getConfig().getHandlers();
+        Handler factoryHandler = findOrThrow(dependencyHandlers, handler -> handler instanceof FactoryDependencyHandler);
         return (FactoryDependencyHandler) factoryHandler;
     }
 

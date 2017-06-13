@@ -1,6 +1,7 @@
 package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 
 import javax.annotation.Nullable;
@@ -10,7 +11,7 @@ import java.lang.annotation.Annotation;
  * Type safe annotation handler base, which will fire the resolve method only if
  * an annotation of the given type is present.
  */
-public abstract class TypeSafeAnnotationHandler<T extends Annotation> implements DependencyHandler {
+public abstract class TypeSafeAnnotationHandler<T extends Annotation> implements Handler {
 
     @Override
     public final Object resolveValue(ResolvedInstantiationContext<?> context,

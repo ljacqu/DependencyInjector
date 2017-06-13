@@ -1,9 +1,9 @@
 package ch.jalu.injector.samples;
 
 import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
-import ch.jalu.injector.handlers.instantiation.InstantiationProvider;
 import ch.jalu.injector.utils.ReflectionUtils;
 
 import java.lang.reflect.Method;
@@ -12,10 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An example for custom implementation of {@link InstantiationProvider} and {@link Instantiation}.
- * Allows to instantiate classes that have a static {@code create()} method.
+ * An example for custom implementation of {@link Handler#get(UnresolvedInstantiationContext)}
+ * and {@link Instantiation}. Allows to instantiate classes that have a static {@code create()} method.
  */
-public class SampleInstantiationImpl implements InstantiationProvider {
+public class SampleInstantiationImpl implements Handler {
 
     @Override
     public <T> CustomInstantiation<T> get(UnresolvedInstantiationContext<T> context) {

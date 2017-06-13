@@ -4,13 +4,14 @@ import ch.jalu.injector.Injector;
 import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.factory.Factory;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.utils.ReflectionUtils;
 
 /**
  * Dependency handler that builds {@link Factory} objects.
  */
-public class FactoryDependencyHandler implements DependencyHandler {
+public class FactoryDependencyHandler implements Handler {
 
     @Override
     public Object resolveValue(ResolvedInstantiationContext<?> context, DependencyDescription dependencyDescription) {

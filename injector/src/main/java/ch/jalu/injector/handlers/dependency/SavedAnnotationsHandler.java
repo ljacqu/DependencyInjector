@@ -2,7 +2,7 @@ package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.context.ResolvedInstantiationContext;
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.handlers.annotationvalues.AnnotationValueHandler;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.utils.InjectorUtils;
 
@@ -19,7 +19,7 @@ import java.util.Map;
  * Don't forget that annotations need to have their {@link java.lang.annotation.Retention retention}
  * set to runtime in order to be visible.
  */
-public class SavedAnnotationsHandler implements DependencyHandler, AnnotationValueHandler {
+public class SavedAnnotationsHandler implements Handler {
 
     private Map<Class<?>, Object> storedValues = new HashMap<>();
 

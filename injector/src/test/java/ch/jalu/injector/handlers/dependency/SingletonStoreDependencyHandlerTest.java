@@ -167,8 +167,8 @@ public class SingletonStoreDependencyHandlerTest {
     }
 
     private SingletonStoreDependencyHandler getSingletonStoreHandler() {
-        List<DependencyHandler> dependencyHandlers = ((InjectorImpl) injector).getConfig().getDependencyHandlers();
-        DependencyHandler singletonStoreHandler = findOrThrow(dependencyHandlers, handler -> handler instanceof SingletonStoreDependencyHandler);
+        List<Handler> dependencyHandlers = ((InjectorImpl) injector).getConfig().getHandlers();
+        Handler singletonStoreHandler = findOrThrow(dependencyHandlers, handler -> handler instanceof SingletonStoreDependencyHandler);
         return (SingletonStoreDependencyHandler) singletonStoreHandler;
     }
 

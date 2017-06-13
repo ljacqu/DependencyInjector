@@ -1,7 +1,7 @@
 package ch.jalu.injector.testing.runner;
 
 import ch.jalu.injector.context.ResolvedInstantiationContext;
-import ch.jalu.injector.handlers.dependency.DependencyHandler;
+import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.testing.InjectDelayed;
 import ch.jalu.injector.utils.ReflectionUtils;
@@ -24,7 +24,7 @@ import java.util.Set;
  * Resolves dependency by annotation: if a field is present in the test class with the same annotation as
  * on the dependency, the field will be used if the type matches.
  */
-public class AnnotationResolver implements DependencyHandler {
+public class AnnotationResolver implements Handler {
 
     private final TestClass testClass;
     private final Object target;
