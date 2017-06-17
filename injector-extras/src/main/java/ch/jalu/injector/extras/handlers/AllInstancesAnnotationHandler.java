@@ -1,7 +1,7 @@
 package ch.jalu.injector.extras.handlers;
 
 import ch.jalu.injector.Injector;
-import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.extras.AllInstances;
 import ch.jalu.injector.handlers.dependency.TypeSafeAnnotationHandler;
@@ -34,7 +34,7 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
     }
 
     @Override
-    public Object resolveValueSafely(ResolvedInstantiationContext<?> context, AllInstances annotation,
+    public Object resolveValueSafely(ResolvedContext context, AllInstances annotation,
                                      DependencyDescription dependencyDescription) {
         // The raw type, e.g. List or array
         final Class<?> rawType = dependencyDescription.getTypeAsClass();

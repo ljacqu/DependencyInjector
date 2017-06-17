@@ -1,6 +1,6 @@
 package ch.jalu.injector.samples;
 
-import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
@@ -12,14 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * An example for custom implementation of {@link Handler#get(UnresolvedInstantiationContext)}
+ * An example for custom implementation of {@link Handler#get(UnresolvedContext)}
  * and {@link Instantiation}. Allows to instantiate classes that have a static {@code create()} method.
  */
 public class SampleInstantiationImpl implements Handler {
 
     @Override
-    public <T> CustomInstantiation<T> get(UnresolvedInstantiationContext<T> context) {
-        final Class<?> clazz = context.getMappedClass();
+    public Instantiation<?> get(UnresolvedContext context) {
+        final Class<?> clazz = context.getIdentifier().getType();
         try {
             Method method = clazz.getDeclaredMethod("create");
             if (Modifier.isStatic(method.getModifiers()) && clazz.isAssignableFrom(method.getReturnType())) {

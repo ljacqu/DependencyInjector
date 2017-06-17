@@ -1,7 +1,8 @@
 package ch.jalu.injector.testing.runner;
 
 import ch.jalu.injector.Injector;
-import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.ObjectIdentifier;
+import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.ClassWithAbstractDependency;
@@ -76,8 +77,9 @@ public class MockDependencyHandlerTest {
         }
     }
 
-    private <T> ResolvedInstantiationContext<T> newContext(Class<T> contextClass) {
-        return new ResolvedInstantiationContext<>(injector, null, contextClass, contextClass, null);
+    private ResolvedContext newContext(Class<?> contextClass) {
+        ObjectIdentifier identifier = new ObjectIdentifier(contextClass);
+        return new ResolvedContext(injector, null, identifier, identifier, null);
     }
 
 }

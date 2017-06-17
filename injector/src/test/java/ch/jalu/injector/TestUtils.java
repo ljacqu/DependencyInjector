@@ -10,12 +10,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.function.Predicate;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
 
 /**
  * Utility class for testing.
@@ -44,10 +42,6 @@ public final class TestUtils {
                 description.appendValue("Annotation of type @" + type.getSimpleName());
             }
         };
-    }
-
-    public static Matcher<? super Type> isClass(Class clazz) {
-        return equalTo(clazz);
     }
 
     public static void assertIsProperUtilsClass(Class<?> clazz) {

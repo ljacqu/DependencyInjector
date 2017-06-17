@@ -4,7 +4,8 @@ import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import ch.jalu.injector.InjectorImpl;
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
-import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.ObjectIdentifier;
+import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.context.StandardResolutionType;
 import ch.jalu.injector.factory.Factory;
 import ch.jalu.injector.handlers.Handler;
@@ -98,8 +99,8 @@ public class FactoryDependencyHandlerTest {
     @Test
     public void shouldThrowForUnspecifiedGenerics() {
         // given
-        ResolvedInstantiationContext<Object> context = new ResolvedInstantiationContext<>(
-            injector, StandardResolutionType.SINGLETON, Object.class, Object.class, null);
+        ResolvedContext context = new ResolvedContext(
+            injector, StandardResolutionType.SINGLETON, newIdentifier(), newIdentifier(), null);
         DependencyDescription description = new DependencyDescription(Factory.class, null);
 
         // expect
@@ -112,8 +113,8 @@ public class FactoryDependencyHandlerTest {
     @Test
     public void shouldReturnNullForNonFactoryType() {
         // given
-        ResolvedInstantiationContext<Object> context = new ResolvedInstantiationContext<>(
-            injector, StandardResolutionType.SINGLETON, Object.class, Object.class, null);
+        ResolvedContext context = new ResolvedContext(
+            injector, StandardResolutionType.SINGLETON, newIdentifier(), newIdentifier(), null);
         DependencyDescription description = new DependencyDescription(Parent.class, null);
 
         // when
@@ -127,8 +128,8 @@ public class FactoryDependencyHandlerTest {
     private <T> Factory<T> getFactoryForClass(Class<T> clazz) {
         FactoryDependencyHandler factoryHandler = getFactoryHandler();
         return (Factory<T>) factoryHandler.resolveValue(
-            new ResolvedInstantiationContext<>(injector, StandardResolutionType.SINGLETON,
-                Object.class, Object.class, null),
+            new ResolvedContext(injector, StandardResolutionType.SINGLETON,
+                newIdentifier(), newIdentifier(), null),
             new DependencyDescription(createParameterizedType(Factory.class, clazz), null)
         );
     }
@@ -163,5 +164,9 @@ public class FactoryDependencyHandlerTest {
         handlers.removeIf(h -> h instanceof DefaultInjectionProvider);
         handlers.add(new StandardInjectionProvider());
         return handlers;
+    }
+
+    private static ObjectIdentifier newIdentifier() {
+        return new ObjectIdentifier(Object.class);
     }
 }

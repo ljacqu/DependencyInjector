@@ -3,7 +3,8 @@ package ch.jalu.injector.handlers.preconstruct;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.annotations.NoFieldScan;
-import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.context.ObjectIdentifier;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
 import ch.jalu.injector.handlers.provider.ProviderHandlerImpl;
 import org.junit.Rule;
@@ -60,7 +61,7 @@ public class PreConstructPackageValidatorTest {
         validator.preProcess(buildContext(Test.class));
     }
 
-    private static <T> UnresolvedInstantiationContext<T> buildContext(Class<T> clz) {
-        return new UnresolvedInstantiationContext<>(null, null, clz);
+    private static UnresolvedContext buildContext(Class<?> clz) {
+        return new UnresolvedContext(null, null, new ObjectIdentifier(clz));
     }
 }

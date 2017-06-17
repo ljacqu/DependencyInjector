@@ -1,6 +1,6 @@
 package ch.jalu.injector.testing.runner;
 
-import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.testing.InjectDelayed;
@@ -42,7 +42,7 @@ public class AnnotationResolver implements Handler {
     }
 
     @Override
-    public Object resolveValue(ResolvedInstantiationContext<?> context,
+    public Object resolveValue(ResolvedContext context,
                                DependencyDescription dependencyDescription) throws Exception {
         for (Annotation annotation : dependencyDescription.getAnnotations()) {
             Object o = resolveByAnnotation(annotation.annotationType(), dependencyDescription.getTypeAsClass());

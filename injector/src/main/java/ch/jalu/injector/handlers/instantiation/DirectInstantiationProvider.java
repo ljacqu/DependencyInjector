@@ -1,6 +1,6 @@
 package ch.jalu.injector.handlers.instantiation;
 
-import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.utils.InjectorUtils;
 
@@ -13,8 +13,8 @@ import javax.annotation.Nullable;
 public abstract class DirectInstantiationProvider implements Handler {
 
     @Override
-    public final <T> Instantiation<? extends T> get(UnresolvedInstantiationContext<T> context) {
-        final Class<? extends T> clazz = context.getMappedClass();
+    public final Instantiation<?> get(UnresolvedContext context) {
+        final Class<?> clazz = context.getIdentifier().getType();
         if (InjectorUtils.canInstantiate(clazz)) {
             return safeGet(clazz);
         }

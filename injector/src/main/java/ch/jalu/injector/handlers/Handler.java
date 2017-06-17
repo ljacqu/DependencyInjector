@@ -1,7 +1,7 @@
 package ch.jalu.injector.handlers;
 
-import ch.jalu.injector.context.ResolvedInstantiationContext;
-import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
 
@@ -22,21 +22,19 @@ public interface Handler {
      * Processes an incoming request for instantiation for validation or custom mapping.
      *
      * @param context the instantiation context
-     * @param <T> the class' type
      * @throws Exception for failed validation or preconditions
      */
-    default <T> void preProcess(UnresolvedInstantiationContext<T> context) throws Exception {
+    default void preProcess(UnresolvedContext context) throws Exception {
     }
 
     /**
      * Provides an instantiation method for the given class if available.
      *
      * @param context the instantiation context
-     * @param <T> the class' type
      * @return the instantiation for the class, or {@code null} if not possible
      */
     @Nullable
-    default <T> Instantiation<? extends T> get(UnresolvedInstantiationContext<T> context) {
+    default Instantiation<?> get(UnresolvedContext context) {
         return null;
     }
 
@@ -54,7 +52,7 @@ public interface Handler {
      * @throws Exception for invalid usage of annotation
      */
     @Nullable
-    default Object resolveValue(ResolvedInstantiationContext<?> context,
+    default Object resolveValue(ResolvedContext context,
                                 DependencyDescription dependencyDescription) throws Exception {
         return null;
     }
@@ -69,7 +67,7 @@ public interface Handler {
      * @throws Exception for validation errors or similar
      */
     @Nullable
-    default <T> T postProcess(T object, ResolvedInstantiationContext<T> context) throws Exception {
+    default <T> T postProcess(T object, ResolvedContext context) throws Exception {
         return null;
     }
 

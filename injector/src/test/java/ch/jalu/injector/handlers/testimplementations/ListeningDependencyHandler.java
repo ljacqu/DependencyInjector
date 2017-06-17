@@ -1,6 +1,6 @@
 package ch.jalu.injector.handlers.testimplementations;
 
-import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 
@@ -10,7 +10,7 @@ import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 public class ListeningDependencyHandler extends AbstractCountingHandler implements Handler {
 
     @Override
-    public Object resolveValue(ResolvedInstantiationContext<?> context, DependencyDescription dependencyDescription) {
+    public Object resolveValue(ResolvedContext context, DependencyDescription dependencyDescription) {
         increment();
         return null;
     }

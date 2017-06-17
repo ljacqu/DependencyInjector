@@ -1,6 +1,6 @@
 package ch.jalu.injector.handlers.dependency;
 
-import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 
@@ -14,7 +14,7 @@ import java.lang.annotation.Annotation;
 public abstract class TypeSafeAnnotationHandler<T extends Annotation> implements Handler {
 
     @Override
-    public final Object resolveValue(ResolvedInstantiationContext<?> context,
+    public final Object resolveValue(ResolvedContext context,
                                      DependencyDescription dependencyDescription) throws Exception {
         final Class<T> type = getAnnotationType();
         for (Annotation annotation : dependencyDescription.getAnnotations()) {
@@ -42,6 +42,6 @@ public abstract class TypeSafeAnnotationHandler<T extends Annotation> implements
      * @throws Exception for invalid usage of annotation
      */
     @Nullable
-    protected abstract Object resolveValueSafely(ResolvedInstantiationContext<?> context, T annotation,
+    protected abstract Object resolveValueSafely(ResolvedContext context, T annotation,
                                                  DependencyDescription dependencyDescription) throws Exception;
 }

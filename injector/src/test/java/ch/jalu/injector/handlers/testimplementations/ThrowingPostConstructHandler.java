@@ -1,6 +1,6 @@
 package ch.jalu.injector.handlers.testimplementations;
 
-import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.handlers.Handler;
 
 /**
@@ -15,7 +15,7 @@ public class ThrowingPostConstructHandler extends AbstractCountingHandler implem
     }
 
     @Override
-    public <T> T postProcess(T object, ResolvedInstantiationContext<T> context) {
+    public <T> T postProcess(T object, ResolvedContext context) {
         increment();
         for (Class<?> clazz : throwForClasses) {
             if (clazz.isInstance(object)) {

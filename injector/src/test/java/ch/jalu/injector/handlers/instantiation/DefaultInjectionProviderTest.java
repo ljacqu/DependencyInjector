@@ -1,7 +1,8 @@
 package ch.jalu.injector.handlers.instantiation;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
-import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.context.ObjectIdentifier;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.ClassWithInjectMethod;
@@ -88,8 +89,8 @@ public class DefaultInjectionProviderTest {
         provider.safeGet(ChildOfParentWithInjectMethod.class);
     }
 
-    private static <T> UnresolvedInstantiationContext<T> contextOf(Class<T> clazz) {
-        return new UnresolvedInstantiationContext<>(null, null, clazz);
+    private static UnresolvedContext contextOf(Class<?> clazz) {
+        return new UnresolvedContext(null, null, new ObjectIdentifier(clazz));
     }
 
     private static final class ChildOfParentWithInjectMethod extends ClassWithInjectMethod {

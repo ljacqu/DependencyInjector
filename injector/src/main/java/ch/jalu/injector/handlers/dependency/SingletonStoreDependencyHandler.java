@@ -1,7 +1,7 @@
 package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.Injector;
-import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.factory.SingletonStore;
 import ch.jalu.injector.handlers.Handler;
@@ -16,12 +16,12 @@ import java.util.Collection;
 public class SingletonStoreDependencyHandler implements Handler {
 
     @Override
-    public Object resolveValue(ResolvedInstantiationContext<?> context, DependencyDescription dependencyDescription) {
+    public Object resolveValue(ResolvedContext context, DependencyDescription dependencyDescription) {
         if (SingletonStore.class.equals(dependencyDescription.getTypeAsClass())) {
             Class<?> genericType = ReflectionUtils.getGenericType(dependencyDescription.getType());
             if (genericType == null) {
                 throw new InjectorException("Singleton store fields must have concrete generic type. "
-                    + "Cannot get generic type for field in '" + context.getMappedClass() + "'");
+                    + "Cannot get generic type for field in '" + context.getIdentifier().getType() + "'");
             }
 
             return new SingletonStoreImpl<>(genericType, context.getInjector());

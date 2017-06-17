@@ -1,6 +1,6 @@
 package ch.jalu.injector.handlers.preconstruct;
 
-import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
 
@@ -23,8 +23,8 @@ public class PreConstructPackageValidator implements Handler {
     }
 
     @Override
-    public <T> void preProcess(UnresolvedInstantiationContext<T> context) {
-        final Class<?> clazz = context.getMappedClass();
+    public void preProcess(UnresolvedContext context) {
+        final Class<?> clazz = context.getIdentifier().getType();
         if (clazz.getPackage() == null) {
             String detail = clazz.isPrimitive()
                 ? "Primitive types must be provided explicitly (or use an annotation)."

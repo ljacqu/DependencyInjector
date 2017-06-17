@@ -4,8 +4,8 @@ import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import ch.jalu.injector.InjectorImpl;
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
-import ch.jalu.injector.context.ResolvedInstantiationContext;
-import ch.jalu.injector.context.StandardResolutionType;
+import ch.jalu.injector.context.ObjectIdentifier;
+import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.factory.SingletonStore;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DefaultInjectionProvider;
@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static ch.jalu.injector.TestUtils.findOrThrow;
+import static ch.jalu.injector.context.StandardResolutionType.SINGLETON;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItems;
@@ -131,8 +132,7 @@ public class SingletonStoreDependencyHandlerTest {
     @Test
     public void shouldThrowForUnspecifiedGenerics() {
         // given
-        ResolvedInstantiationContext<BetaManager> context = new ResolvedInstantiationContext<>(
-            injector, StandardResolutionType.SINGLETON, BetaManager.class, BetaManager.class, null);
+        ResolvedContext context = newContext(BetaManager.class, BetaManager.class);
         DependencyDescription description = new DependencyDescription(SingletonStore.class,  null);
 
         // expect
@@ -145,8 +145,7 @@ public class SingletonStoreDependencyHandlerTest {
     @Test
     public void shouldReturnNullForOtherType() {
         // given
-        ResolvedInstantiationContext<Object> context = new ResolvedInstantiationContext<>(
-            injector, StandardResolutionType.SINGLETON, Object.class, Object.class, null);
+        ResolvedContext context = newContext(Object.class, Object.class);
         DependencyDescription description = new DependencyDescription(Parent.class, null);
 
         // when
@@ -160,8 +159,7 @@ public class SingletonStoreDependencyHandlerTest {
     private <T> SingletonStore<T> getSingletonStoreForClass(Class<T> clazz) {
         SingletonStoreDependencyHandler singletonStoreHandler = getSingletonStoreHandler();
         return (SingletonStore<T>) singletonStoreHandler.resolveValue(
-            new ResolvedInstantiationContext<>(injector, StandardResolutionType.SINGLETON,
-                Object.class, Object.class, null),
+            newContext(Object.class, Object.class),
             new DependencyDescription(createParameterizedType(SingletonStore.class, clazz), null)
         );
     }
@@ -196,5 +194,10 @@ public class SingletonStoreDependencyHandlerTest {
         handlers.removeIf(h -> h instanceof DefaultInjectionProvider);
         handlers.add(new StandardInjectionProvider());
         return handlers;
+    }
+
+    private ResolvedContext newContext(Class<?> originalClass, Class<?> currentClass) {
+        return new ResolvedContext(injector, SINGLETON, new ObjectIdentifier(originalClass),
+            new ObjectIdentifier(currentClass), null);
     }
 }

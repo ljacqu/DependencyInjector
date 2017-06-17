@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static ch.jalu.injector.TestUtils.isClass;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.emptyArray;
@@ -172,7 +171,7 @@ public class ReflectionUtilsTest {
         Class<?> result = ReflectionUtils.getCollectionType(mainType, null);
 
         // then
-        assertThat(result, isClass(Exception.class));
+        assertThat(result, equalTo(Exception.class));
     }
 
     @Test
@@ -198,7 +197,7 @@ public class ReflectionUtilsTest {
         Class<?> result = ReflectionUtils.getCollectionType(boolList.getType(), boolList.getGenericType());
 
         // then
-        assertThat(result, isClass(Boolean.class));
+        assertThat(result, equalTo(Boolean.class));
     }
 
     @Test
@@ -314,9 +313,9 @@ public class ReflectionUtilsTest {
         Class<?> methodParamType = ReflectionUtils.getGenericType(methodParam);
 
         // then
-        assertThat(fieldType, isClass(String.class));
-        assertThat(constrParamType, isClass(Integer.class));
-        assertThat(methodParamType, isClass(Type.class));
+        assertThat(fieldType, equalTo(String.class));
+        assertThat(constrParamType, equalTo(Integer.class));
+        assertThat(methodParamType, equalTo(Type.class));
     }
 
     @Test

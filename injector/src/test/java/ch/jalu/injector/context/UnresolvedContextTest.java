@@ -5,7 +5,6 @@ import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
 import org.junit.Test;
 
-import static ch.jalu.injector.TestUtils.isClass;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -13,19 +12,19 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 /**
- * Test for {@link UnresolvedInstantiationContext}.
+ * Test for {@link UnresolvedContext}.
  */
-public class UnresolvedInstantiationContextTest {
+public class UnresolvedContextTest {
 
     @Test
     public void shouldThrowForMappedClassThatIsNotChild() {
         // given
-        UnresolvedInstantiationContext<Number> context =
-            new UnresolvedInstantiationContext<>(null, null, Number.class);
+        UnresolvedContext context =
+            new UnresolvedContext(null, null, new ObjectIdentifier(Number.class));
 
         // when
         try {
-            context.setMappedClass((Class) String.class);
+            context.setIdentifier(new ObjectIdentifier(String.class));
             fail("Expected exception to be thrown");
         } catch (InjectorException e) {
             // then
@@ -39,19 +38,18 @@ public class UnresolvedInstantiationContextTest {
         // given
         Injector injector = mock(Injector.class);
         ResolutionType resolutionType = StandardResolutionType.REQUEST_SCOPED;
-        UnresolvedInstantiationContext<Number> context =
-            new UnresolvedInstantiationContext<>(injector, resolutionType, Number.class);
-        context.setMappedClass(Double.class);
+        UnresolvedContext context = new UnresolvedContext(injector, resolutionType, new ObjectIdentifier(Number.class));
+        context.setIdentifier(new ObjectIdentifier(Double.class));
         Instantiation instantiation = mock(Instantiation.class);
 
         // when
-        ResolvedInstantiationContext<Number> resolvedContext = context.buildResolvedContext(instantiation);
+        ResolvedContext resolvedContext = context.buildResolvedContext(instantiation);
 
         // then
         assertThat(resolvedContext.getInstantiation(), equalTo(instantiation));
         assertThat(resolvedContext.getInjector(), equalTo(injector));
         assertThat(resolvedContext.getResolutionType(), equalTo(resolutionType));
-        assertThat(resolvedContext.getOriginalClass(), isClass(Number.class));
-        assertThat(resolvedContext.getMappedClass(), isClass(Double.class));
+        assertThat(resolvedContext.getOriginalIdentifier().getType(), equalTo(Number.class));
+        assertThat(resolvedContext.getIdentifier().getType(), equalTo(Double.class));
     }
 }

@@ -82,11 +82,11 @@ public class InstantiationCacheTest {
         // then
         assertThat(manager1, not(sameInstance(manager2)));
         assertThat(getCacheMap(), aMapWithSize(1));
-        assertThat(getCacheMap().get(BetaManager.class.getCanonicalName()), not(nullValue()));
+        assertThat(getCacheMap().get(BetaManager.class), not(nullValue()));
         verify(defaultInjectionProvider, times(1)).safeGet(any(Class.class));
     }
 
-    private Map<String, WeakReference<Instantiation>> getCacheMap() {
+    private Map<Class, WeakReference<Instantiation>> getCacheMap() {
         try {
             Field field = InstantiationCache.class.getDeclaredField("entries");
             return (Map) ReflectionUtils.getFieldValue(field, instantiationCache);

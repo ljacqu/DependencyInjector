@@ -1,6 +1,6 @@
 package ch.jalu.injector.extras.handlers;
 
-import ch.jalu.injector.context.ResolvedInstantiationContext;
+import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.extras.AllTypes;
 import ch.jalu.injector.handlers.dependency.TypeSafeAnnotationHandler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
@@ -31,7 +31,7 @@ public class AllTypesAnnotationHandler extends TypeSafeAnnotationHandler<AllType
     }
 
     @Override
-    public Object resolveValueSafely(ResolvedInstantiationContext<?> context, AllTypes annotation,
+    public Object resolveValueSafely(ResolvedContext context, AllTypes annotation,
                                      DependencyDescription dependencyDescription) {
         InjectorUtils.checkNotNull(annotation.value(), "Annotation value may not be null");
         Set<?> subTypes = reflections.getSubTypesOf(annotation.value());

@@ -2,8 +2,9 @@ package ch.jalu.injector.handlers.provider;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
-import ch.jalu.injector.context.ResolvedInstantiationContext;
-import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.context.ObjectIdentifier;
+import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
@@ -22,7 +23,6 @@ import org.junit.Test;
 import javax.inject.Provider;
 import java.util.List;
 
-import static ch.jalu.injector.TestUtils.isClass;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
@@ -79,7 +79,7 @@ public class ProviderHandlerImplTest {
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
 
         // when
-        Instantiation<Alfa> result = providerHandler.get(newContext(Alfa.class));
+        Instantiation<Alfa> result = (Instantiation) providerHandler.get(newContext(Alfa.class));
 
         // then
         assertThat(result, nullValue());
@@ -92,7 +92,7 @@ public class ProviderHandlerImplTest {
         providerHandler.onProvider(Delta.class, new Delta2Provider(charlie));
 
         // when
-        Instantiation<Delta> instantiation = providerHandler.get(newContext(Delta.class));
+        Instantiation<Delta> instantiation = (Instantiation) providerHandler.get(newContext(Delta.class));
 
         // then
         assertThat(instantiation, not(nullValue()));
@@ -105,12 +105,12 @@ public class ProviderHandlerImplTest {
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
 
         // when
-        Instantiation<Delta> instantiation = providerHandler.get(newContext(Delta.class));
+        Instantiation<Delta> instantiation = (Instantiation) providerHandler.get(newContext(Delta.class));
 
         // then
         assertThat(instantiation, not(nullValue()));
         assertThat(instantiation.getDependencies(), hasSize(1));
-        assertThat(instantiation.getDependencies().get(0).getType(), isClass(Delta2Provider.class));
+        assertThat(instantiation.getDependencies().get(0).getType(), equalTo(Delta2Provider.class));
 
         // given (2)
         Charlie charlie = mock(Charlie.class);
@@ -128,7 +128,7 @@ public class ProviderHandlerImplTest {
     public void shouldThrowForInvalidArgument() {
         // given
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
-        Instantiation<Delta> instantiation = providerHandler.get(newContext(Delta.class));
+        Instantiation<Delta> instantiation = (Instantiation) providerHandler.get(newContext(Delta.class));
 
         // when / then
         try {
@@ -221,8 +221,8 @@ public class ProviderHandlerImplTest {
         ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
         DependencyDescription dependency = new DependencyDescription(Provider.class);
         Injector injector = mock(Injector.class);
-        ResolvedInstantiationContext context = new ResolvedInstantiationContext<>(
-            injector, null, Object.class, null, null);
+        ResolvedContext context = new ResolvedContext(
+            injector, null, null, null, null);
 
         // when / then
         try {
@@ -240,8 +240,8 @@ public class ProviderHandlerImplTest {
         ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
         DependencyDescription dependency = new DependencyDescription(Bravo.class);
         Injector injector = mock(Injector.class);
-        ResolvedInstantiationContext context = new ResolvedInstantiationContext<>(
-            injector, null, Object.class, null, null);
+        ResolvedContext context = new ResolvedContext(
+            injector, null, null, null, null);
 
         // when
         Object value = providerHandler.resolveValue(context, dependency);
@@ -251,7 +251,7 @@ public class ProviderHandlerImplTest {
         verifyZeroInteractions(injector);
     }
 
-    private static <T> UnresolvedInstantiationContext<T> newContext(Class<T> clazz) {
-        return new UnresolvedInstantiationContext<>(null, null, clazz);
+    private static UnresolvedContext newContext(Class<?> clz) {
+        return new UnresolvedContext(null, null, new ObjectIdentifier(clz));
     }
 }

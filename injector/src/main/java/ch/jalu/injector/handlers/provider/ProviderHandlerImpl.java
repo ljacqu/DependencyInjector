@@ -1,8 +1,8 @@
 package ch.jalu.injector.handlers.provider;
 
 import ch.jalu.injector.Injector;
-import ch.jalu.injector.context.ResolvedInstantiationContext;
-import ch.jalu.injector.context.UnresolvedInstantiationContext;
+import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DependencyDescription;
@@ -39,12 +39,12 @@ public class ProviderHandlerImpl implements Handler {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> Instantiation<T> get(UnresolvedInstantiationContext<T> context) {
-        return (Instantiation<T>) providers.get(context.getMappedClass());
+    public Instantiation<?> get(UnresolvedContext context) {
+        return providers.get(context.getIdentifier().getType());
     }
 
     @Override
-    public Object resolveValue(ResolvedInstantiationContext<?> context, DependencyDescription dependencyDescription) {
+    public Object resolveValue(ResolvedContext context, DependencyDescription dependencyDescription) {
         if (Provider.class.equals(dependencyDescription.getTypeAsClass())) {
             Class<?> genericType = ReflectionUtils.getGenericType(dependencyDescription.getType());
             if (genericType == null) {
