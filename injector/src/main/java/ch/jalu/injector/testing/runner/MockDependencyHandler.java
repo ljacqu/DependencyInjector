@@ -1,9 +1,11 @@
 package ch.jalu.injector.testing.runner;
 
 import ch.jalu.injector.Injector;
-import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.UnresolvedContext;
+import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.SimpleObjectResolution;
 import ch.jalu.injector.testing.InjectDelayed;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.junit.runners.model.FrameworkField;
@@ -30,18 +32,17 @@ public class MockDependencyHandler implements Handler {
     }
 
     @Override
-    public Object resolveValue(ResolvedContext context,
-                               DependencyDescription dependencyDescription) throws Exception {
+    public Instantiation<?> get(UnresolvedContext context) {
         final Injector injector = context.getInjector();
         if (!areMocksRegistered) {
             registerAllMocks(injector);
             areMocksRegistered = true;
         }
 
-        Class<?> type = dependencyDescription.getTypeAsClass();
+        Class<?> type = context.getIdentifier().getTypeAsClass();
         Object object = injector.getIfAvailable(type);
         if (object != null) {
-            return object;
+            return new SimpleObjectResolution<>(object);
         }
         if (fieldsToInject.contains(type)) {
             // The required type is present as @InjectDelayed. Return null to make the injector instantiate the type
@@ -49,7 +50,7 @@ public class MockDependencyHandler implements Handler {
         }
 
         // Throw exception: type is not present as @Mock or @InjectDelayed
-        throw new IllegalStateException("No mock found for '" + type + "'. "
+        throw new InjectorException("No mock found for '" + type + "'. "
             + "All dependencies of @InjectDelayed must be provided as @Mock or @InjectDelayed fields");
     }
 

@@ -1,11 +1,12 @@
 package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.Injector;
-import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.factory.Factory;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.SimpleObjectResolution;
 import ch.jalu.injector.utils.ReflectionUtils;
 
 /**
@@ -14,15 +15,16 @@ import ch.jalu.injector.utils.ReflectionUtils;
 public class FactoryDependencyHandler implements Handler {
 
     @Override
-    public Object resolveValue(ResolvedContext context, DependencyDescription dependencyDescription) {
-        if (Factory.class.equals(dependencyDescription.getTypeAsClass())) {
-            Class<?> genericType = ReflectionUtils.getGenericType(dependencyDescription.getType());
+    public Instantiation<?> get(UnresolvedContext context) {
+        final Class<?> clazz = context.getIdentifier().getTypeAsClass();
+        if (Factory.class.equals(clazz)) {
+            Class<?> genericType = ReflectionUtils.getGenericType(context.getIdentifier().getType());
             if (genericType == null) {
                 throw new InjectorException("Factory fields must have concrete generic type. "
-                    + "Cannot get generic type for field in '" + context.getIdentifier().getType() + "'");
+                    + "Cannot get generic type for field in '" + context.getIdentifier().getTypeAsClass() + "'");
             }
 
-            return new FactoryImpl<>(genericType, context.getInjector());
+            return new SimpleObjectResolution<>(new FactoryImpl<>(genericType, context.getInjector()));
         }
         return null;
     }

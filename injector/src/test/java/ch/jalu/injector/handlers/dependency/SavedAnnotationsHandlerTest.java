@@ -1,13 +1,16 @@
 package ch.jalu.injector.handlers.dependency;
 
+import ch.jalu.injector.context.ObjectIdentifier;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.samples.Duration;
 import ch.jalu.injector.samples.Size;
 import org.junit.Test;
 
 import java.lang.annotation.Annotation;
 
+import static ch.jalu.injector.InstantiationTestHelper.unwrapFromSimpleResolution;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -27,14 +30,15 @@ public class SavedAnnotationsHandlerTest {
         Annotation[] annotations = {
                 newSizeAnnotation("value"), newDurationAnnotation()
         };
-        DependencyDescription dependencyDescription = new DependencyDescription( null, annotations);
+        UnresolvedContext context = new UnresolvedContext(
+            null, null, new ObjectIdentifier(null, annotations));
 
         // when
         // Injector param not needed -> null
-        Object result = savedAnnotationsHandler.resolveValue(null, dependencyDescription);
+        Instantiation<?> instantiation = savedAnnotationsHandler.get(context);
 
         // then
-        assertThat(result, equalTo(object));
+        assertThat(unwrapFromSimpleResolution(instantiation), equalTo(object));
     }
 
     @Test
@@ -43,12 +47,13 @@ public class SavedAnnotationsHandlerTest {
         Annotation[] annotations = {
             newSizeAnnotation("value"), newDurationAnnotation()
         };
-        DependencyDescription dependencyDescription = new DependencyDescription(null, annotations);
+        UnresolvedContext context = new UnresolvedContext(
+            null, null, new ObjectIdentifier(null, annotations));
         // register some object under another annotation for the heck of it
         savedAnnotationsHandler.onAnnotation(Test.class, new Object());
 
         // when
-        Object result = savedAnnotationsHandler.resolveValue(null, dependencyDescription);
+        Instantiation<?> result = savedAnnotationsHandler.get(context);
 
         // then
         assertThat(result, nullValue());

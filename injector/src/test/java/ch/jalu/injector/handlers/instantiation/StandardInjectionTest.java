@@ -2,6 +2,7 @@ package ch.jalu.injector.handlers.instantiation;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.annotations.NoFieldScan;
+import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
@@ -33,7 +34,6 @@ import java.util.List;
 
 import static ch.jalu.injector.TestUtils.annotationOf;
 import static org.hamcrest.Matchers.arrayContaining;
-import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -60,14 +60,14 @@ public class StandardInjectionTest {
         Instantiation<ClassWithAnnotations> injection = provider.safeGet(ClassWithAnnotations.class);
 
         // when
-        List<DependencyDescription> dependencies = injection.getDependencies();
+        List<ObjectIdentifier> dependencies = injection.getDependencies();
 
         // then
         assertThat(dependencies, hasSize(3));
         assertDependencyEqualTo(dependencies.get(0), int.class, Size.class);
         assertDependencyEqualTo(dependencies.get(1), GammaService.class);
         assertDependencyEqualTo(dependencies.get(2), long.class, Duration.class);
-        assertThat(((Size) dependencies.get(0).getAnnotations()[0]).value(), equalTo("box"));
+        assertThat(((Size) dependencies.get(0).getAnnotations().get(0)).value(), equalTo("box"));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class StandardInjectionTest {
             provider.safeGet(FieldInjectionWithAnnotations.class);
 
         // when
-        List<DependencyDescription> dependencies = injection.getDependencies();
+        List<ObjectIdentifier> dependencies = injection.getDependencies();
 
         // then
         assertThat(dependencies, hasSize(4));
@@ -86,7 +86,7 @@ public class StandardInjectionTest {
         assertDependencyEqualTo(dependencies.get(2), long.class, Duration.class, Inject.class);
         assertDependencyEqualTo(dependencies.get(3), ClassWithAnnotations.class, Inject.class);
 
-        assertThat(((Size) dependencies.get(1).getAnnotations()[1]).value(), equalTo("chest"));
+        assertThat(((Size) dependencies.get(1).getAnnotations().get(1)).value(), equalTo("chest"));
     }
 
     @Test
@@ -143,7 +143,7 @@ public class StandardInjectionTest {
         Instantiation<InjectOnDifferentMembersClass> injection = provider.safeGet(InjectOnDifferentMembersClass.class);
 
         // when
-        List<DependencyDescription> dependencies = injection.getDependencies();
+        List<ObjectIdentifier> dependencies = injection.getDependencies();
 
         // then
         assertThat(dependencies, hasSize(3));
@@ -254,7 +254,7 @@ public class StandardInjectionTest {
             provider.safeGet(FallbackClass.class);
 
         // when
-        List<DependencyDescription> dependencies = instantiation.getDependencies();
+        List<ObjectIdentifier> dependencies = instantiation.getDependencies();
 
         // then
         assertThat(dependencies, empty());
@@ -325,13 +325,13 @@ public class StandardInjectionTest {
     }
 
     @SafeVarargs
-    private static void assertDependencyEqualTo(DependencyDescription dependency, Class<?> type,
+    private static void assertDependencyEqualTo(ObjectIdentifier dependency, Class<?> type,
                                                 Class<? extends Annotation>... annotations) {
         assertThat(dependency.getType(), equalTo(type));
-        assertThat(dependency.getAnnotations(), arrayWithSize(annotations.length));
+        assertThat(dependency.getAnnotations(), hasSize(annotations.length));
 
         for (int i = 0; i < annotations.length; ++i) {
-            assertThat(dependency.getAnnotations()[i], annotationOf(annotations[i]));
+            assertThat(dependency.getAnnotations().get(i), annotationOf(annotations[i]));
         }
     }
 

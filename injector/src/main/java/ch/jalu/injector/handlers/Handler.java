@@ -2,7 +2,6 @@ package ch.jalu.injector.handlers;
 
 import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.context.UnresolvedContext;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
 
 import javax.annotation.Nullable;
@@ -19,31 +18,15 @@ import java.lang.annotation.Annotation;
 public interface Handler {
 
     /**
-     * Provides an instantiation method for the given class if available.
+     * Resolves the context such that the object identified by the context's object identifier can be
+     * instantiated or retrieved. May throw an exception e.g. if annotations aren't used correctly.
      *
      * @param context the instantiation context
      * @return the instantiation for the class, or {@code null} if not possible
+     * @throws Exception for validation errors
      */
     @Nullable
-    default Instantiation<?> get(UnresolvedContext context) {
-        return null;
-    }
-
-    /**
-     * Resolves the value of a dependency based on the present annotations and the declared type.
-     * Returns {@code null} if the given annotations and field type do not apply
-     * to the handler. May throw an exception if a given annotation is being used wrong.
-     * <p>
-     * Note that you are you not forced to check if the returned Object is valid for the given
-     * dependency {@code type}, unless you want to show a specific error message.
-     *
-     * @param context instantiation context
-     * @param dependencyDescription description of the dependency
-     * @return the resolved value, or null if not applicable
-     * @throws Exception for invalid usage of annotation
-     */
-    @Nullable
-    default Object resolveValue(ResolvedContext context, DependencyDescription dependencyDescription) throws Exception {
+    default Instantiation<?> get(UnresolvedContext context) throws Exception {
         return null;
     }
 

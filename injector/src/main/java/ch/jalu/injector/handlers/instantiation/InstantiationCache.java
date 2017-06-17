@@ -29,7 +29,7 @@ public class InstantiationCache implements Handler {
     public <T> T postProcess(T object, ResolvedContext context) {
         if (shouldCacheMethod(context) && getInstantiation(context) == null) {
             // TODO #48: Refine this to go over the entire object identifier
-            entries.put(context.getIdentifier().getType(),
+            entries.put(context.getIdentifier().getTypeAsClass(),
                 new WeakReference<>(context.getInstantiation()));
         }
         return null;
@@ -38,7 +38,7 @@ public class InstantiationCache implements Handler {
     @Nullable
     @SuppressWarnings("unchecked")
     private <T> Instantiation<? extends T> getInstantiation(ObjectContext context) {
-        WeakReference<Instantiation> instantiation = entries.get(context.getIdentifier().getType());
+        WeakReference<Instantiation> instantiation = entries.get(context.getIdentifier().getTypeAsClass());
         return instantiation == null ? null : instantiation.get();
     }
 

@@ -14,7 +14,7 @@ public abstract class DirectInstantiationProvider implements Handler {
 
     @Override
     public final Instantiation<?> get(UnresolvedContext context) {
-        final Class<?> clazz = context.getIdentifier().getType();
+        final Class<?> clazz = context.getIdentifier().getTypeAsClass();
         if (InjectorUtils.canInstantiate(clazz)) {
             return safeGet(clazz);
         }

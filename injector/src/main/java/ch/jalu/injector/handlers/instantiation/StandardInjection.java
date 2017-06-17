@@ -1,5 +1,6 @@
 package ch.jalu.injector.handlers.instantiation;
 
+import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.utils.InjectorUtils;
 import ch.jalu.injector.utils.ReflectionUtils;
 
@@ -22,7 +23,7 @@ public class StandardInjection<T> implements Instantiation<T> {
 
     private final Constructor<T> constructor;
     private final List<Field> fields;
-    private SoftReference<List<DependencyDescription>> dependencies;
+    private SoftReference<List<ObjectIdentifier>> dependencies;
 
     /**
      * Constructs a standard injection object.
@@ -36,11 +37,11 @@ public class StandardInjection<T> implements Instantiation<T> {
     }
 
     @Override
-    public List<DependencyDescription> getDependencies() {
-        List<DependencyDescription> depList = dependencies == null ? null : dependencies.get();
+    public List<ObjectIdentifier> getDependencies() {
+        List<ObjectIdentifier> depList = dependencies == null ? null : dependencies.get();
         if (depList == null) {
-            List<DependencyDescription> constructorDeps = buildConstructorDependencies();
-            List<DependencyDescription> fieldDeps = buildFieldDependencies();
+            List<ObjectIdentifier> constructorDeps = buildConstructorDependencies();
+            List<ObjectIdentifier> fieldDeps = buildFieldDependencies();
 
             depList = new ArrayList<>(constructorDeps.size() + fieldDeps.size());
             depList.addAll(constructorDeps);
@@ -69,20 +70,25 @@ public class StandardInjection<T> implements Instantiation<T> {
         return instance;
     }
 
-    private List<DependencyDescription> buildConstructorDependencies() {
+    @Override
+    public boolean saveIfSingleton() {
+        return true;
+    }
+
+    private List<ObjectIdentifier> buildConstructorDependencies() {
         final Type[] parameters = constructor.getGenericParameterTypes();
         final Annotation[][] annotations = constructor.getParameterAnnotations();
 
-        List<DependencyDescription> dependencies = new ArrayList<>(parameters.length);
+        List<ObjectIdentifier> dependencies = new ArrayList<>(parameters.length);
         for (int i = 0; i < parameters.length; ++i) {
-            dependencies.add(new DependencyDescription(parameters[i], annotations[i]));
+            dependencies.add(new ObjectIdentifier(parameters[i], annotations[i]));
         }
         return dependencies;
     }
 
-    private List<DependencyDescription> buildFieldDependencies() {
+    private List<ObjectIdentifier> buildFieldDependencies() {
         return fields.stream()
-            .map(f -> new DependencyDescription(f.getGenericType(), f.getAnnotations()))
+            .map(f -> new ObjectIdentifier(f.getGenericType(), f.getAnnotations()))
             .collect(Collectors.toList());
     }
 }

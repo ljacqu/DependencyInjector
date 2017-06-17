@@ -1,14 +1,14 @@
 package ch.jalu.injector.samples;
 
+import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.utils.ReflectionUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,7 +19,7 @@ public class SampleInstantiationImpl implements Handler {
 
     @Override
     public Instantiation<?> get(UnresolvedContext context) {
-        final Class<?> clazz = context.getIdentifier().getType();
+        final Class<?> clazz = context.getIdentifier().getTypeAsClass();
         try {
             Method method = clazz.getDeclaredMethod("create");
             if (Modifier.isStatic(method.getModifiers()) && clazz.isAssignableFrom(method.getReturnType())) {
@@ -41,8 +41,8 @@ public class SampleInstantiationImpl implements Handler {
         }
 
         @Override
-        public List<DependencyDescription> getDependencies() {
-            return new ArrayList<>();
+        public List<ObjectIdentifier> getDependencies() {
+            return Collections.emptyList();
         }
 
         @Override

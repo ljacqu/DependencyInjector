@@ -49,7 +49,7 @@ public class UnresolvedContextTest {
         assertThat(resolvedContext.getInstantiation(), equalTo(instantiation));
         assertThat(resolvedContext.getInjector(), equalTo(injector));
         assertThat(resolvedContext.getResolutionType(), equalTo(resolutionType));
-        assertThat(resolvedContext.getOriginalIdentifier().getType(), equalTo(Number.class));
-        assertThat(resolvedContext.getIdentifier().getType(), equalTo(Double.class));
+        assertThat(resolvedContext.getOriginalIdentifier().getTypeAsClass(), equalTo(Number.class));
+        assertThat(resolvedContext.getIdentifier().getTypeAsClass(), equalTo(Double.class));
     }
 }

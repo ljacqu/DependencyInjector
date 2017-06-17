@@ -1,9 +1,10 @@
 package ch.jalu.injector.extras.handlers;
 
-import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.extras.AllTypes;
 import ch.jalu.injector.handlers.dependency.TypeSafeAnnotationHandler;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.SimpleObjectResolution;
 import ch.jalu.injector.utils.InjectorUtils;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.reflections.Reflections;
@@ -31,12 +32,11 @@ public class AllTypesAnnotationHandler extends TypeSafeAnnotationHandler<AllType
     }
 
     @Override
-    public Object resolveValueSafely(ResolvedContext context, AllTypes annotation,
-                                     DependencyDescription dependencyDescription) {
+    public Instantiation<?> resolveValueSafely(UnresolvedContext context, AllTypes annotation) {
         InjectorUtils.checkNotNull(annotation.value(), "Annotation value may not be null");
         Set<?> subTypes = reflections.getSubTypesOf(annotation.value());
 
-        Class<?> rawType = dependencyDescription.getTypeAsClass();
-        return ReflectionUtils.toSuitableCollectionType(rawType, subTypes);
+        Class<?> rawType = context.getIdentifier().getTypeAsClass();
+        return new SimpleObjectResolution<>(ReflectionUtils.toSuitableCollectionType(rawType, subTypes));
     }
 }

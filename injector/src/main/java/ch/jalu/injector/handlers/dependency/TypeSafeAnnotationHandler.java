@@ -1,8 +1,8 @@
 package ch.jalu.injector.handlers.dependency;
 
-import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 
 import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
@@ -14,12 +14,11 @@ import java.lang.annotation.Annotation;
 public abstract class TypeSafeAnnotationHandler<T extends Annotation> implements Handler {
 
     @Override
-    public final Object resolveValue(ResolvedContext context,
-                                     DependencyDescription dependencyDescription) throws Exception {
+    public final Instantiation<?> get(UnresolvedContext context) throws Exception {
         final Class<T> type = getAnnotationType();
-        for (Annotation annotation : dependencyDescription.getAnnotations()) {
+        for (Annotation annotation : context.getIdentifier().getAnnotations()) {
             if (type.isInstance(annotation)) {
-                return resolveValueSafely(context, type.cast(annotation), dependencyDescription);
+                return resolveValueSafely(context, type.cast(annotation));
             }
         }
         return null;
@@ -37,11 +36,9 @@ public abstract class TypeSafeAnnotationHandler<T extends Annotation> implements
      *
      * @param context the instantiation context
      * @param annotation the matched annotation
-     * @param dependencyDescription the entire dependency description
      * @return the resolved value, or null if none applicable
      * @throws Exception for invalid usage of annotation
      */
     @Nullable
-    protected abstract Object resolveValueSafely(ResolvedContext context, T annotation,
-                                                 DependencyDescription dependencyDescription) throws Exception;
+    protected abstract Instantiation<?> resolveValueSafely(UnresolvedContext context, T annotation) throws Exception;
 }

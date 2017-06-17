@@ -1,17 +1,20 @@
 package ch.jalu.injector.extras.handlers;
 
-import ch.jalu.injector.Injector;
-import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.ObjectIdentifier;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.extras.AllInstances;
 import ch.jalu.injector.handlers.dependency.TypeSafeAnnotationHandler;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.utils.InjectorUtils;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.reflections.Reflections;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Handler for {@link AllInstances}. Finds all subtypes of the given dependency,
@@ -34,30 +37,47 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
     }
 
     @Override
-    public Object resolveValueSafely(ResolvedContext context, AllInstances annotation,
-                                     DependencyDescription dependencyDescription) {
+    public Instantiation<?> resolveValueSafely(UnresolvedContext context, AllInstances annotation) {
         // The raw type, e.g. List or array
-        final Class<?> rawType = dependencyDescription.getTypeAsClass();
+        final Class<?> rawType = context.getIdentifier().getTypeAsClass();
         // The type of the collection, e.g. String for List<String> or String[]
-        final Class genericType = ReflectionUtils.getCollectionType(rawType, dependencyDescription.getType());
+        final Class genericType = ReflectionUtils.getCollectionType(rawType, context.getIdentifier().getType());
 
         if (genericType == null) {
             throw new InjectorException("Unsupported dependency of type '" + rawType
                 + "' annotated with @AllInstances. (Or did you forget the generic type?)");
         }
 
-        // TODO: Implement detection of cyclic dependencies
         @SuppressWarnings("unchecked")
         Set<Class<?>> subTypes = reflections.getSubTypesOf(genericType);
-        Set<Object> instances = new HashSet<>(subTypes.size());
-
-        final Injector injector = context.getInjector();
-        for (Class<?> type : subTypes) {
-            if (InjectorUtils.canInstantiate(type)) {
-                instances.add(injector.getSingleton(type));
-            }
-        }
-        return ReflectionUtils.toSuitableCollectionType(rawType, instances);
+        subTypes.removeIf(type -> !InjectorUtils.canInstantiate(type));
+        return new AllInstancesInstantiation(rawType, subTypes);
     }
 
+    private static final class AllInstancesInstantiation implements Instantiation<Object> {
+
+        private final Class<?> rawCollectionType;
+        private final Set<Class<?>> subtypes;
+
+        AllInstancesInstantiation(Class<?> rawCollectionType, Set<Class<?>> subtypes) {
+            this.rawCollectionType = rawCollectionType;
+            this.subtypes = subtypes;
+        }
+
+        @Override
+        public List<ObjectIdentifier> getDependencies() {
+            return subtypes.stream().map(type -> new ObjectIdentifier(type)).collect(Collectors.toList());
+        }
+
+        @Override
+        public Object instantiateWith(Object... values) {
+            Set<Object> objects = new HashSet<>(Arrays.asList(values));
+            return ReflectionUtils.toSuitableCollectionType(rawCollectionType, objects);
+        }
+
+        @Override
+        public boolean saveIfSingleton() {
+            return true;
+        }
+    }
 }

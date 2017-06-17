@@ -120,7 +120,7 @@ public class InjectorBuilderTest {
         // ShoppingCart depends on BetaManager (2)
         // BetaManager -> ProvidedClass, AlphaService, GammaService (3)
         // GammaService -> AlphaService (1)
-        assertThat(listeningDependencyHandler.getCounter(), equalTo(6));
+        assertThat(listeningDependencyHandler.getCounter(), equalTo(4));
         assertThat(throwingPostConstructHandler.getCounter(), equalTo(4)); // ShoppingCart, Alpha/Beta/Gamma
 
         // Check correct behavior of ThrowingPostHandler

@@ -1,14 +1,15 @@
 package ch.jalu.injector.handlers.provider;
 
-import ch.jalu.injector.Injector;
-import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.SimpleObjectResolution;
+import ch.jalu.injector.utils.InjectorUtils;
 import ch.jalu.injector.utils.ReflectionUtils;
 
+import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,127 +24,120 @@ import static ch.jalu.injector.utils.InjectorUtils.checkArgument;
  */
 public class ProviderHandlerImpl implements Handler {
 
-    protected Map<Class<?>, ProviderWrappedInstantiation<?>> providers = new HashMap<>();
+    protected Map<Class<?>, ProviderBasedInstantiation<?>> providers = new HashMap<>();
 
     @Override
     public <T> void onProvider(Class<T> clazz, Provider<? extends T> provider) {
         checkArgument(!providers.containsKey(clazz), "Provider already registered for " + clazz);
-        providers.put(clazz, new ProviderInstantiation<>(provider));
+        providers.put(clazz, new InstantiationByProvider<>(provider));
     }
 
     @Override
     public <T, P extends Provider<? extends T>> void onProviderClass(Class<T> clazz, Class<P> providerClass) {
         checkArgument(!providers.containsKey(clazz), "Provider already registered for " + clazz);
-        providers.put(clazz, new UninitializedProviderInstantiation<>(clazz, providerClass));
+        providers.put(clazz, new InstantiationByProviderClass<>(providerClass));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Instantiation<?> get(UnresolvedContext context) {
-        return providers.get(context.getIdentifier().getType());
-    }
-
-    @Override
-    public Object resolveValue(ResolvedContext context, DependencyDescription dependencyDescription) {
-        if (Provider.class.equals(dependencyDescription.getTypeAsClass())) {
-            Class<?> genericType = ReflectionUtils.getGenericType(dependencyDescription.getType());
-            if (genericType == null) {
-                throw new InjectorException("Injection of a provider was requested but no generic type was given");
-            }
-
-            Injector injector = context.getInjector();
-            ProviderWrappedInstantiation<?> instantiation = providers.get(genericType);
-            if (instantiation != null) {
-                return instantiation.getProvider(injector);
-            }
-            return constructStandardProvider(genericType, injector);
+        if (Provider.class.equals(context.getIdentifier().getTypeAsClass())) {
+            return handleProviderRequest(context);
         }
-        return null;
+        return providers.get(context.getIdentifier().getTypeAsClass());
     }
 
-    private static <T> Provider<T> constructStandardProvider(Class<T> genericType, Injector injector) {
-        return () -> injector.newInstance(genericType);
+    @Nullable
+    private Instantiation<?> handleProviderRequest(UnresolvedContext context) {
+        Class<?> genericType = ReflectionUtils.getGenericType(context.getIdentifier().getType());
+        if (genericType == null) {
+            throw new InjectorException("Injection of a provider was requested but no generic type was given");
+        }
+        ProviderBasedInstantiation<?> givenInstantiation = providers.get(genericType);
+        if (givenInstantiation == null) {
+            Provider<?> defaultProvider = () -> context.getInjector().newInstance(genericType);
+            return new SimpleObjectResolution<>(defaultProvider);
+        }
+        return givenInstantiation.createProviderInstantiation();
     }
 
-    private <T> void saveConstructedProvider(Class<T> clazz, Provider<? extends T> provider) {
-        providers.put(clazz, new ProviderInstantiation<>(provider));
-    }
+    private interface ProviderBasedInstantiation<T> extends Instantiation<T> {
 
-    private interface ProviderWrappedInstantiation<T> extends Instantiation<T> {
-
-        Provider<? extends T> getProvider(Injector injector);
+        Instantiation<Provider<? extends T>> createProviderInstantiation();
 
     }
 
-    /**
-     * Simple instantiation that creates an object with the known provider.
-     *
-     * @param <T> the type of the class to create
-     */
-    private static final class ProviderInstantiation<T> implements ProviderWrappedInstantiation<T> {
-
+    private static final class InstantiationByProvider<T> implements ProviderBasedInstantiation<T> {
         private final Provider<? extends T> provider;
 
-        ProviderInstantiation(Provider<? extends T> provider) {
+        InstantiationByProvider(Provider<? extends T> provider) {
             this.provider = provider;
         }
 
         @Override
-        public List<DependencyDescription> getDependencies() {
+        public List<ObjectIdentifier> getDependencies() {
             return Collections.emptyList();
         }
 
         @Override
         public T instantiateWith(Object... values) {
+            InjectorUtils.checkArgument(values.length == 0, "No dependencies expected");
             return provider.get();
         }
 
         @Override
-        public Provider<? extends T> getProvider(Injector injector) {
-            return provider;
-        }
-    }
-
-    /**
-     * Instantiation that internally creates the required provider first. This is triggered by
-     * declaring the provider class as a dependency, making the injector create the provider
-     * class first.
-     *
-     * @param <T> the type of the class to create
-     */
-    private final class UninitializedProviderInstantiation<T> implements ProviderWrappedInstantiation<T> {
-
-        private final Class<T> clazz;
-        private final Class<? extends Provider<? extends T>> providerClass;
-
-        UninitializedProviderInstantiation(Class<T> clazz, Class<? extends Provider<? extends T>> providerClass) {
-            this.providerClass = providerClass;
-            this.clazz = clazz;
+        public boolean saveIfSingleton() {
+            return true;
         }
 
         @Override
-        public List<DependencyDescription> getDependencies() {
-            return Collections.singletonList(new DependencyDescription(providerClass));
+        public Instantiation<Provider<? extends T>> createProviderInstantiation() {
+            return new SimpleObjectResolution<>(provider);
+        }
+    }
+
+    private static final class InstantiationByProviderClass<T> implements ProviderBasedInstantiation<T> {
+        private final Class<? extends Provider<? extends T>> providerClass;
+
+        InstantiationByProviderClass(Class<? extends Provider<? extends T>> providerClass) {
+            this.providerClass = providerClass;
+        }
+
+        @Override
+        public List<ObjectIdentifier> getDependencies() {
+            return Collections.singletonList(new ObjectIdentifier(providerClass));
         }
 
         @Override
         public T instantiateWith(Object... values) {
-            if (values.length == 1 && values[0] instanceof Provider<?>) {
-                @SuppressWarnings("unchecked")
-                Provider<? extends T> provider = (Provider<? extends T>) values[0];
-                T object = provider.get();
-                // The injector passed us the provider, so save it in the map for future uses
-                saveConstructedProvider(clazz, provider);
-                return object;
-            }
-            throw new InjectorException("Provider is required as argument");
+            InjectorUtils.checkArgument(values.length == 1 && providerClass.isInstance(values[0]),
+                "Expected one dependency of type " + providerClass);
+            return ((Provider<? extends T>) values[0]).get();
         }
 
         @Override
-        public Provider<? extends T> getProvider(Injector injector) {
-            Provider<? extends T> provider = injector.getSingleton(providerClass);
-            saveConstructedProvider(clazz, provider);
-            return provider;
+        public boolean saveIfSingleton() {
+            return true;
+        }
+
+        @Override
+        public Instantiation<Provider<? extends T>> createProviderInstantiation() {
+            // Workaround: return an Instantiation object that takes the actual class as dependency and simply returns
+            // it as the result. This way whatever concrete class is mapped to function as Provider<T> is created as if
+            // we did injector.getSingleton(providerClass) and it gets registered as such.
+
+            return new Instantiation<Provider<? extends T>>() {
+                @Override
+                public List<ObjectIdentifier> getDependencies() {
+                    return Collections.singletonList(new ObjectIdentifier(providerClass));
+                }
+
+                @Override
+                public Provider<? extends T> instantiateWith(Object... values) {
+                    InjectorUtils.checkArgument(values.length == 1 && providerClass.isInstance(values[0]),
+                        "Expected one dependency of type " + providerClass);
+                    return (Provider<? extends T>) values[0];
+                }
+            };
         }
     }
 }

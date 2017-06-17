@@ -26,11 +26,11 @@ public class UnresolvedContext extends ObjectContext {
      * @param identifier class to use (child class of requested class)
      */
     public void setIdentifier(ObjectIdentifier identifier) {
-        if (originalIdentifier.getType().isAssignableFrom(identifier.getType())) {
+        if (originalIdentifier.getTypeAsClass().isAssignableFrom(identifier.getTypeAsClass())) {
             this.identifier = identifier;
         } else {
-            throw new InjectorException("New mapped class '" + identifier.getType()
-                + "' is not a child of original class '" + originalIdentifier.getType() + "'");
+            throw new InjectorException("New mapped class '" + identifier.getTypeAsClass()
+                + "' is not a child of original class '" + originalIdentifier.getTypeAsClass() + "'");
         }
     }
 

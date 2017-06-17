@@ -3,10 +3,8 @@ package ch.jalu.injector.handlers.provider;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import ch.jalu.injector.context.ObjectIdentifier;
-import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.handlers.provider.impl.Alfa;
 import ch.jalu.injector.handlers.provider.impl.Bravo;
@@ -17,7 +15,6 @@ import ch.jalu.injector.handlers.provider.impl.Delta1;
 import ch.jalu.injector.handlers.provider.impl.Delta1Provider;
 import ch.jalu.injector.handlers.provider.impl.Delta2;
 import ch.jalu.injector.handlers.provider.impl.Delta2Provider;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import javax.inject.Provider;
@@ -79,7 +76,7 @@ public class ProviderHandlerImplTest {
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
 
         // when
-        Instantiation<Alfa> result = (Instantiation) providerHandler.get(newContext(Alfa.class));
+        Instantiation<?> result = providerHandler.get(newContext(Alfa.class));
 
         // then
         assertThat(result, nullValue());
@@ -92,7 +89,7 @@ public class ProviderHandlerImplTest {
         providerHandler.onProvider(Delta.class, new Delta2Provider(charlie));
 
         // when
-        Instantiation<Delta> instantiation = (Instantiation) providerHandler.get(newContext(Delta.class));
+        Instantiation<?> instantiation = providerHandler.get(newContext(Delta.class));
 
         // then
         assertThat(instantiation, not(nullValue()));
@@ -105,7 +102,7 @@ public class ProviderHandlerImplTest {
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
 
         // when
-        Instantiation<Delta> instantiation = (Instantiation) providerHandler.get(newContext(Delta.class));
+        Instantiation<?> instantiation = providerHandler.get(newContext(Delta.class));
 
         // then
         assertThat(instantiation, not(nullValue()));
@@ -117,18 +114,17 @@ public class ProviderHandlerImplTest {
         Delta2Provider provider = new Delta2Provider(charlie);
 
         // when (2)
-        Delta delta = instantiation.instantiateWith(provider);
+        Delta delta = (Delta) instantiation.instantiateWith(provider);
 
         // then (2)
         assertThat(delta, instanceOf(Delta2.class));
-        assertThat(providerHandler.get(newContext(Delta.class)).getDependencies(), empty());
     }
 
     @Test
     public void shouldThrowForInvalidArgument() {
         // given
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
-        Instantiation<Delta> instantiation = (Instantiation) providerHandler.get(newContext(Delta.class));
+        Instantiation<?> instantiation = providerHandler.get(newContext(Delta.class));
 
         // when / then
         try {
@@ -187,7 +183,7 @@ public class ProviderHandlerImplTest {
         ClassWithInjectedProviders cwip = injector.getSingleton(ClassWithInjectedProviders.class);
 
         // then
-        assertThat(cwip.getDeltaProvider(), Matchers.<Object>sameInstance(delta2Provider));
+        assertThat(cwip.getDeltaProvider(), sameInstance(delta2Provider));
         List<Charlie> charlies = cwip.charlieList();
         assertThat(charlies, hasSize(3));
         assertThat(charlies, contains(not(nullValue()), not(nullValue()), not(nullValue())));
@@ -208,7 +204,7 @@ public class ProviderHandlerImplTest {
         ClassWithInjectedProviders cwip = injector.getSingleton(ClassWithInjectedProviders.class);
 
         // then
-        assertThat(cwip.getDeltaProvider(), Matchers.<Object>sameInstance(injector.getSingleton(Delta1Provider.class)));
+        assertThat(cwip.getDeltaProvider(), sameInstance(injector.getSingleton(Delta1Provider.class)));
         List<Charlie> charlies = cwip.charlieList();
         assertThat(charlies, hasSize(3));
         assertThat(charlies, contains(not(nullValue()), not(nullValue()), not(nullValue())));
@@ -216,17 +212,16 @@ public class ProviderHandlerImplTest {
     }
 
     @Test
-    public void shouldThrowForMissingGeneric() {
+    public void shouldThrowForMissingGenericInfo() {
         // given
         ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
-        DependencyDescription dependency = new DependencyDescription(Provider.class);
         Injector injector = mock(Injector.class);
-        ResolvedContext context = new ResolvedContext(
-            injector, null, null, null, null);
+        UnresolvedContext context = new UnresolvedContext(
+            injector, null, new ObjectIdentifier(Provider.class));
 
         // when / then
         try {
-            providerHandler.resolveValue(context, dependency);
+            providerHandler.get(context);
             fail("Expected exception to be thrown");
         } catch (InjectorException e) {
             assertThat(e.getMessage(), equalTo("Injection of a provider was requested but no generic type was given"));
@@ -238,13 +233,12 @@ public class ProviderHandlerImplTest {
     public void shouldIgnoreNonProviderDependency() {
         // given
         ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
-        DependencyDescription dependency = new DependencyDescription(Bravo.class);
         Injector injector = mock(Injector.class);
-        ResolvedContext context = new ResolvedContext(
-            injector, null, null, null, null);
+        UnresolvedContext context = new UnresolvedContext(
+            injector, null, new ObjectIdentifier(Bravo.class));
 
         // when
-        Object value = providerHandler.resolveValue(context, dependency);
+        Instantiation<?> value = providerHandler.get(context);
 
         // then
         assertThat(value, nullValue());

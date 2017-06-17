@@ -2,14 +2,13 @@ package ch.jalu.injector;
 
 import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.StandardResolutionType;
 import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
 import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.utils.InjectorUtils;
 
-import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -48,11 +47,6 @@ public class InjectorImpl implements Injector {
     }
 
     @Override
-    public <T> T getSingleton(Class<T> clazz) {
-        return get(clazz, new HashSet<>());
-    }
-
-    @Override
     public <T> void register(Class<? super T> clazz, T object) {
         if (objects.containsKey(clazz)) {
             throw new InjectorException("There is already an object present for " + clazz);
@@ -74,8 +68,15 @@ public class InjectorImpl implements Injector {
     }
 
     @Override
+    public <T> T getSingleton(Class<T> clazz) {
+        return (T) resolveObject(
+            new UnresolvedContext(this, SINGLETON, new ObjectIdentifier(clazz)),
+            new HashSet<>());
+    }
+
+    @Override
     public <T> T newInstance(Class<T> clazz) {
-        return (T) instantiate(
+        return (T) resolveObject(
             new UnresolvedContext(this, REQUEST_SCOPED, new ObjectIdentifier(clazz)),
             new HashSet<>());
     }
@@ -87,7 +88,7 @@ public class InjectorImpl implements Injector {
 
     @Override
     public <T> T createIfHasDependencies(Class<T> clazz) {
-        return (T) instantiate(
+        return (T) resolveObject(
             new UnresolvedContext(this, REQUEST_SCOPED_IF_HAS_DEPENDENCIES, new ObjectIdentifier(clazz)),
             new HashSet<>());
     }
@@ -133,88 +134,55 @@ public class InjectorImpl implements Injector {
         return config;
     }
 
-    /**
-     * Returns an instance of the given class by retrieving it or by instantiating it if not yet present.
-     *
-     * @param clazz the class to retrieve the singleton instance for
-     * @param traversedClasses the list of traversed classes
-     * @param <T> the class' type
-     * @return instance or associated value (for annotations)
-     */
-    private <T> T get(Class<T> clazz, Set<Class<?>> traversedClasses) {
-        if (objects.containsKey(clazz)) {
-            return clazz.cast(objects.get(clazz));
-        }
-
-        UnresolvedContext context = new UnresolvedContext(this, SINGLETON, new ObjectIdentifier(clazz));
-        // Add the clazz to the list of traversed classes in a new Set, so each path we take has its own Set.
-        T object = (T) instantiate(context, new HashSet<>(traversedClasses));
-        register(clazz, object);
-        return object;
-    }
-
-    /**
-     * Instantiates the given class by locating its @Inject elements and retrieving
-     * or instantiating the required instances.
-     *
-     * @param context the instantiation context
-     * @param traversedClasses collection of classes already traversed
-     * @return the instantiated object, or {@code null} if dependency lookup returned {@code null}
-     */
-    @Nullable
-    private Object instantiate(UnresolvedContext context, Set<Class<?>> traversedClasses) {
-        Instantiation<?> instantiation = getInstantiation(context);
-        traversedClasses.add(context.getIdentifier().getType());
-        validateInjectionHasNoCircularDependencies(instantiation.getDependencies(), traversedClasses);
-
-        ResolvedContext resolvedContext = context.buildResolvedContext(instantiation);
-        Object[] dependencies = resolveDependencies(resolvedContext, traversedClasses);
-        if (dependencies == null) {
-            return null;
-        }
-        Object object = instantiation.instantiateWith(dependencies);
-        return runPostConstructHandlers(object, resolvedContext);
-    }
-
-    /**
-     * Resolves the dependencies for the given class instantiation, i.e. returns a collection that satisfy
-     * the class' dependencies by retrieving elements or instantiating them where necessary.
-     *
-     * @param resolvedContext the initialization context
-     * @param traversedClasses collection of traversed classes
-     * @return array with the parameters to use in the constructor, {@code null} if a dependency is not available
-     *         and {@link ch.jalu.injector.context.StandardResolutionType#REQUEST_SCOPED_IF_HAS_DEPENDENCIES} is the
-     *         resolution type
-     */
-    @Nullable
-    private Object[] resolveDependencies(ResolvedContext resolvedContext,
-                                         Set<Class<?>> traversedClasses) {
-        List<? extends DependencyDescription> dependencies = resolvedContext.getInstantiation().getDependencies();
-        Object[] values = new Object[dependencies.size()];
-        for (int i = 0; i < dependencies.size(); ++i) {
-            DependencyDescription dependency = dependencies.get(i);
-            Object object = resolveDependency(resolvedContext, dependency);
-            if (object == null) {
-                if (REQUEST_SCOPED_IF_HAS_DEPENDENCIES == resolvedContext.getResolutionType()
-                    && objects.get(dependency.getTypeAsClass()) == null) {
-                    return null;
-                }
-                object = get(dependency.getTypeAsClass(), traversedClasses);
+    private Object resolveObject(UnresolvedContext context, Set<Class<?>> traversedClasses) {
+        // TODO #49: Convert singleton store to a Handler impl.
+        if (context.getResolutionType() == StandardResolutionType.SINGLETON) {
+            Object knownSingleton = objects.get(context.getIdentifier().getTypeAsClass());
+            if (knownSingleton != null) {
+                return knownSingleton;
             }
-            values[i] = object;
         }
-        return values;
+
+        Instantiation<?> instantiation = getInstantiation(context);
+
+        traversedClasses.add(context.getIdentifier().getTypeAsClass());
+        validateInjectionHasNoCircularDependencies(instantiation, traversedClasses);
+
+        for (ObjectIdentifier identifier : instantiation.getDependencies()) {
+            if (traversedClasses.contains(identifier.getTypeAsClass())) {
+                throw new InjectorException("Found cyclic dependency - already traversed '"
+                    + identifier.getTypeAsClass() + "' (full traversal list: " + traversedClasses + ")");
+            }
+        }
+
+        List<ObjectIdentifier> dependencies = instantiation.getDependencies();
+        List<Object> resolvedDependencies = new ArrayList<>(dependencies.size());
+        for (ObjectIdentifier id : dependencies) {
+            UnresolvedContext ctx = new UnresolvedContext(this, StandardResolutionType.SINGLETON, id);
+            resolvedDependencies.add(resolveObject(ctx, new HashSet<>(traversedClasses)));
+        }
+        Object obj = instantiation.instantiateWith(resolvedDependencies.toArray());
+        obj = runPostConstructHandlers(obj, context.buildResolvedContext(instantiation));
+
+        if (context.getResolutionType() == StandardResolutionType.SINGLETON && instantiation.saveIfSingleton()) {
+            register((Class) context.getOriginalIdentifier().getTypeAsClass(), obj);
+        }
+        return obj;
     }
 
     private Instantiation<?> getInstantiation(UnresolvedContext context) {
-        for (Handler handler : config.getHandlers()) {
-            Instantiation<?> instantiation = handler.get(context);
-            if (instantiation != null) {
-                return instantiation;
+        try {
+            for (Handler handler : config.getHandlers()) {
+                Instantiation<?> instantiation = handler.get(context);
+                if (instantiation != null) {
+                    return instantiation;
+                }
             }
+        } catch (Exception e) {
+            rethrowException(e);
         }
 
-        final Class<?> clazz = context.getIdentifier().getType();
+        final Class<?> clazz = context.getIdentifier().getTypeAsClass();
         if (!InjectorUtils.canInstantiate(clazz)) {
             String hint = clazz.isPrimitive()
                 ? "Primitive types must be provided by default. "
@@ -225,7 +193,7 @@ public class InjectorImpl implements Injector {
                     + " %sThis class cannot be instantiated; please check the class or your handlers.",
                     clazz, hint));
         }
-        throw new InjectorException("Did not find instantiation method for '" + context.getIdentifier().getType()
+        throw new InjectorException("Did not find instantiation method for '" + context.getIdentifier().getTypeAsClass()
             + "'. Make sure your class conforms to one of the registered instantiations. If default: "
             + "make sure you have a constructor with @Inject or fields with @Inject. Fields with @Inject "
             + "require the default constructor");
@@ -243,36 +211,19 @@ public class InjectorImpl implements Injector {
         return object;
     }
 
-    @Nullable
-    private Object resolveDependency(ResolvedContext resolvedContext,
-                                     DependencyDescription dependencyDescription) {
-        Object o;
-        for (Handler handler : config.getHandlers()) {
-            try {
-                if ((o = handler.resolveValue(resolvedContext, dependencyDescription)) != null) {
-                    return o;
-                }
-            } catch (Exception e) {
-                rethrowException(e);
-            }
-        }
-        return null;
-    }
-
     /**
      * Validates that none of the dependencies' types are present in the given collection
      * of traversed classes. This prevents circular dependencies.
      *
-     * @param dependencies the dependencies of the class
+     * @param instantiation the instantiation method to get the dependencies from
      * @param traversedClasses the collection of traversed classes
      */
-    private static void validateInjectionHasNoCircularDependencies(List<? extends DependencyDescription> dependencies,
+    private static void validateInjectionHasNoCircularDependencies(Instantiation<?> instantiation,
                                                                    Set<Class<?>> traversedClasses) {
-        for (DependencyDescription dependency : dependencies) {
-            Class<?> clazz = dependency.getTypeAsClass();
-            if (traversedClasses.contains(clazz)) {
-                throw new InjectorException("Found cyclic dependency - already traversed '" + clazz
-                    + "' (full traversal list: " + traversedClasses + ")");
+        for (ObjectIdentifier identifier : instantiation.getDependencies()) {
+            if (traversedClasses.contains(identifier.getTypeAsClass())) {
+                throw new InjectorException("Found cyclic dependency - already traversed '"
+                    + identifier.getTypeAsClass() + "' (full traversal list: " + traversedClasses + ")");
             }
         }
     }

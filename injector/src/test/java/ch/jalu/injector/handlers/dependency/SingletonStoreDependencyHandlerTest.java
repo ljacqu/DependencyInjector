@@ -5,11 +5,11 @@ import ch.jalu.injector.InjectorBuilder;
 import ch.jalu.injector.InjectorImpl;
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.context.ObjectIdentifier;
-import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.factory.SingletonStore;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DefaultInjectionProvider;
-import ch.jalu.injector.handlers.instantiation.DependencyDescription;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 import ch.jalu.injector.handlers.instantiation.StandardInjectionProvider;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.ProvidedClass;
@@ -17,6 +17,7 @@ import ch.jalu.injector.samples.inheritance.Child;
 import ch.jalu.injector.samples.inheritance.ChildWithNoInjection;
 import ch.jalu.injector.samples.inheritance.Grandparent;
 import ch.jalu.injector.samples.inheritance.Parent;
+import ch.jalu.injector.utils.InjectorUtils;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
@@ -132,24 +133,22 @@ public class SingletonStoreDependencyHandlerTest {
     @Test
     public void shouldThrowForUnspecifiedGenerics() {
         // given
-        ResolvedContext context = newContext(BetaManager.class, BetaManager.class);
-        DependencyDescription description = new DependencyDescription(SingletonStore.class,  null);
+        UnresolvedContext context = newContext(SingletonStore.class);
 
         // expect
         exceptionCatcher.expect("Singleton store fields must have concrete generic type.");
 
         // when
-        getSingletonStoreHandler().resolveValue(context, description);
+        getSingletonStoreHandler().get(context);
     }
 
     @Test
     public void shouldReturnNullForOtherType() {
         // given
-        ResolvedContext context = newContext(Object.class, Object.class);
-        DependencyDescription description = new DependencyDescription(Parent.class, null);
+        UnresolvedContext context = newContext(Parent.class);
 
         // when
-        Object result = getSingletonStoreHandler().resolveValue(context, description);
+        Instantiation<?> result = getSingletonStoreHandler().get(context);
 
         // then
         assertThat(result, nullValue());
@@ -158,10 +157,11 @@ public class SingletonStoreDependencyHandlerTest {
     @SuppressWarnings("unchecked")
     private <T> SingletonStore<T> getSingletonStoreForClass(Class<T> clazz) {
         SingletonStoreDependencyHandler singletonStoreHandler = getSingletonStoreHandler();
-        return (SingletonStore<T>) singletonStoreHandler.resolveValue(
-            newContext(Object.class, Object.class),
-            new DependencyDescription(createParameterizedType(SingletonStore.class, clazz), null)
-        );
+        Instantiation<?> instantiation = singletonStoreHandler.get(
+            newContext(createParameterizedType(SingletonStore.class, clazz)));
+        InjectorUtils.checkArgument(instantiation.getDependencies().isEmpty(),
+            "Expected to receive an instantiation method with no required dependencies");
+        return (SingletonStore<T>) instantiation.instantiateWith();
     }
 
     private SingletonStoreDependencyHandler getSingletonStoreHandler() {
@@ -196,8 +196,7 @@ public class SingletonStoreDependencyHandlerTest {
         return handlers;
     }
 
-    private ResolvedContext newContext(Class<?> originalClass, Class<?> currentClass) {
-        return new ResolvedContext(injector, SINGLETON, new ObjectIdentifier(originalClass),
-            new ObjectIdentifier(currentClass), null);
+    private UnresolvedContext newContext(Type clazz) {
+        return new UnresolvedContext(injector, SINGLETON, new ObjectIdentifier(clazz));
     }
 }

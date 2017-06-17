@@ -58,11 +58,11 @@ public class RunDelayedInjects extends Statement {
     protected Injector getInjector() {
         List<Handler> instantiationProviders = InjectorBuilder.createInstantiationProviders("");
         return new InjectorBuilder()
-            .addHandlers(instantiationProviders)
             .addHandlers(
                 new AnnotationResolver(testClass, target),
                 new MockDependencyHandler(testClass, target),
                 new PostConstructMethodInvoker())
+            .addHandlers(instantiationProviders)
             .create();
     }
 }
