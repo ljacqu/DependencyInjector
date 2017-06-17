@@ -75,7 +75,7 @@ public class StandardInjectionProvider extends DirectInstantiationProvider {
 
         if (matchingConstructor == null) {
             // Compatibility: If a class has at least one field with @Inject, take a non-public no-args constructor
-            return (Constructor<T>) getNoArgsConstructorIfHasInjectField(clazz);
+            return getNoArgsConstructorIfHasInjectField(clazz);
         }
         return (Constructor<T>) matchingConstructor;
     }
@@ -88,12 +88,12 @@ public class StandardInjectionProvider extends DirectInstantiationProvider {
     }
 
     @Nullable
-    private static Constructor<?> getNoArgsConstructorIfHasInjectField(Class<?> clazz) {
+    private static <T> Constructor<T> getNoArgsConstructorIfHasInjectField(Class<T> clazz) {
         try {
             Constructor<?> constructor = clazz.getDeclaredConstructor();
             for (Field field : ReflectionUtils.safeGetDeclaredFields(clazz)) {
                 if (field.isAnnotationPresent(Inject.class)) {
-                    return constructor;
+                    return (Constructor<T>) constructor;
                 }
             }
         } catch (NoSuchMethodException e) {

@@ -163,7 +163,6 @@ public class InjectorImpl implements Injector {
      */
     @Nullable
     private Object instantiate(UnresolvedContext context, Set<Class<?>> traversedClasses) {
-        processPreConstructorHandlers(context);
         Instantiation<?> instantiation = getInstantiation(context);
         traversedClasses.add(context.getIdentifier().getType());
         validateInjectionHasNoCircularDependencies(instantiation.getDependencies(), traversedClasses);
@@ -215,34 +214,21 @@ public class InjectorImpl implements Injector {
             }
         }
 
-        // No instantiation method was found, handle error with most appropriate message
-        // TODO #48: Need to be able to check this with the new layout
-//        if (config.getInstantiationProviders().isEmpty()) {
-//            throw new InjectorException("You did not register any instantiation methods!");
-//        } else
-        if (!InjectorUtils.canInstantiate(context.getIdentifier().getType())) {
-            throw new InjectorException("Did not find instantiation method for '" + context.getIdentifier().getType()
-                + "'. This class cannot be instantiated directly, please check the class or your handlers.");
+        final Class<?> clazz = context.getIdentifier().getType();
+        if (!InjectorUtils.canInstantiate(clazz)) {
+            String hint = clazz.isPrimitive()
+                ? "Primitive types must be provided by default. "
+                : clazz.isArray()
+                    ? "By default, arrays cannot be injected. "
+                    : "";
+            throw new InjectorException(String.format("Did not find instantiation method for '%s'. "
+                    + " %sThis class cannot be instantiated; please check the class or your handlers.",
+                    clazz, hint));
         }
         throw new InjectorException("Did not find instantiation method for '" + context.getIdentifier().getType()
             + "'. Make sure your class conforms to one of the registered instantiations. If default: "
             + "make sure you have a constructor with @Inject or fields with @Inject. Fields with @Inject "
             + "require the default constructor");
-    }
-
-    /**
-     * Runs the given instantiation context through all registered handlers.
-     *
-     * @param unresolvedContext the instantiation context
-     */
-    private void processPreConstructorHandlers(UnresolvedContext unresolvedContext) {
-        for (Handler handler : config.getHandlers()) {
-            try {
-                handler.preProcess(unresolvedContext);
-            } catch (Exception e) {
-                rethrowException(e);
-            }
-        }
     }
 
     private <T> T runPostConstructHandlers(T instance, ResolvedContext resolvedContext) {

@@ -56,7 +56,7 @@ public class RunDelayedInjects extends Statement {
      * @return the injector used to set {@link ch.jalu.injector.testing.InjectDelayed} fields
      */
     protected Injector getInjector() {
-        List<Handler> instantiationProviders = InjectorBuilder.createInstantiationProviders();
+        List<Handler> instantiationProviders = InjectorBuilder.createInstantiationProviders("");
         return new InjectorBuilder()
             .addHandlers(instantiationProviders)
             .addHandlers(

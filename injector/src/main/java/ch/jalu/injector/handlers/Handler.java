@@ -19,15 +19,6 @@ import java.lang.annotation.Annotation;
 public interface Handler {
 
     /**
-     * Processes an incoming request for instantiation for validation or custom mapping.
-     *
-     * @param context the instantiation context
-     * @throws Exception for failed validation or preconditions
-     */
-    default void preProcess(UnresolvedContext context) throws Exception {
-    }
-
-    /**
      * Provides an instantiation method for the given class if available.
      *
      * @param context the instantiation context
@@ -52,8 +43,7 @@ public interface Handler {
      * @throws Exception for invalid usage of annotation
      */
     @Nullable
-    default Object resolveValue(ResolvedContext context,
-                                DependencyDescription dependencyDescription) throws Exception {
+    default Object resolveValue(ResolvedContext context, DependencyDescription dependencyDescription) throws Exception {
         return null;
     }
 

@@ -4,7 +4,6 @@ import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
-import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
 import ch.jalu.injector.handlers.testimplementations.ImplementationClassHandler;
 import ch.jalu.injector.handlers.testimplementations.ListeningDependencyHandler;
 import ch.jalu.injector.handlers.testimplementations.ThrowingPostConstructHandler;
@@ -82,7 +81,6 @@ public class InjectorBuilderTest {
         implementationClassHandler.register(Vehicle.class, UnidentifiableVehicle.class);
         implementationClassHandler.register(UnidentifiableVehicle.class, ShoppingCart.class);
         implementationClassHandler.register(VehicleWithHorn.class, Ship.class);
-        PreConstructPackageValidator packageValidator = new PreConstructPackageValidator("ch.jalu");
 
         SavedAnnotationsHandler savedAnnotationsHandler = new SavedAnnotationsHandler();
         ListeningDependencyHandler listeningDependencyHandler = new ListeningDependencyHandler();
@@ -92,9 +90,9 @@ public class InjectorBuilderTest {
         ThrowingPostConstructHandler throwingPostConstructHandler = new ThrowingPostConstructHandler(Car.class);
 
         // Create Injector with all handlers
-        List<Handler> instantiationProviders = InjectorBuilder.createInstantiationProviders();
+        List<Handler> instantiationProviders = InjectorBuilder.createInstantiationProviders("ch.jalu");
         Injector injector = new InjectorBuilder()
-            .addHandlers(implementationClassHandler, packageValidator, savedAnnotationsHandler,
+            .addHandlers(implementationClassHandler, savedAnnotationsHandler,
                          listeningDependencyHandler, postConstructHandler, throwingPostConstructHandler)
             .addHandlers(instantiationProviders)
             .create();
@@ -103,7 +101,7 @@ public class InjectorBuilderTest {
         // Check presence of handlers and their order
         InjectorConfig config = ((InjectorImpl) injector).getConfig();
         List<Handler> handlers = new ArrayList<>();
-        handlers.addAll(Arrays.asList(implementationClassHandler, packageValidator, savedAnnotationsHandler,
+        handlers.addAll(Arrays.asList(implementationClassHandler, savedAnnotationsHandler,
             listeningDependencyHandler, postConstructHandler, throwingPostConstructHandler));
         handlers.addAll(instantiationProviders);
         assertThat(config.getHandlers(), contains(handlers.toArray()));

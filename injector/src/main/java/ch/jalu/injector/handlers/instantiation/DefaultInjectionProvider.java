@@ -14,14 +14,28 @@ import java.util.List;
  * <ul>
  *  <li>An exception is thrown if a class with an {@code @Inject} constructor also has fields with {@code @Inject}.
  *      In parent classes, {@code @Inject} fields are accepted.</li>
- *  <li></li>
+ *  <li>{@code @Inject} fields may not be static.</li>
+ *  <li>This handler also checks that the class to instantiate is in the allowed root package.</li>
  * </ul>
  */
 public class DefaultInjectionProvider extends StandardInjectionProvider {
 
+    private final String rootPackage;
+
+    public DefaultInjectionProvider(String rootPackage) {
+        this.rootPackage = rootPackage;
+    }
+
+    @Override
+    public <T> Instantiation<T> safeGet(Class<T> clazz) {
+        verifyIsClassPackageAllowed(clazz);
+        return super.safeGet(clazz);
+    }
+
     @Override
     protected void validateInjection(Class<?> clazz, Constructor<?> constructor, List<Field> fields) {
         super.validateInjection(clazz, constructor, fields);
+        verifyIsClassPackageAllowed(clazz);
 
         final boolean hasConstructionInjection = constructor.isAnnotationPresent(Inject.class);
         for (Field field : fields) {
@@ -34,6 +48,14 @@ public class DefaultInjectionProvider extends StandardInjectionProvider {
                 throw new InjectorException("@Inject may not be placed on static fields "
                     + "(found violation: '" + field + "')");
             }
+        }
+    }
+
+    protected void verifyIsClassPackageAllowed(Class<?> clazz) {
+        String packageName = clazz.getPackage().getName();
+        if (!packageName.startsWith(rootPackage)) {
+            throw new InjectorException("Class '" + clazz + "' with package '" + packageName + "' is outside of the "
+                + "allowed packages. It must be provided explicitly or the package must be passed to the constructor.");
         }
     }
 }

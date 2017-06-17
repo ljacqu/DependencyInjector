@@ -5,6 +5,7 @@ import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.context.ResolvedContext;
 import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.handlers.Handler;
+import ch.jalu.injector.handlers.instantiation.Instantiation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,12 +29,13 @@ public class ImplementationClassHandler extends AbstractCountingHandler implemen
     }
 
     @Override
-    public void preProcess(UnresolvedContext context) {
+    public Instantiation<?> get(UnresolvedContext context) {
         increment();
         Class<?> implClass = getImplClass(context.getIdentifier().getType());
         if (implClass != null) {
             context.setIdentifier(new ObjectIdentifier(implClass));
         }
+        return null;
     }
 
     @SuppressWarnings("unchecked")

@@ -26,7 +26,7 @@ import static org.junit.Assert.assertThat;
  */
 public class DefaultInjectionProviderTest {
 
-    private DefaultInjectionProvider provider = new DefaultInjectionProvider();
+    private DefaultInjectionProvider provider = new DefaultInjectionProvider("ch.jalu");
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -87,6 +87,15 @@ public class DefaultInjectionProviderTest {
 
         // when
         provider.safeGet(ChildOfParentWithInjectMethod.class);
+    }
+
+    @Test
+    public void shouldRejectClassWithInvalidPackage() {
+        // expect
+        exceptionCatcher.expect("outside of the allowed packages");
+
+        // when
+        provider.get(contextOf(Object.class));
     }
 
     private static UnresolvedContext contextOf(Class<?> clazz) {

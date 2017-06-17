@@ -2,7 +2,8 @@ package ch.jalu.injector;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
+import ch.jalu.injector.handlers.instantiation.DefaultInjectionProvider;
+import ch.jalu.injector.handlers.instantiation.StandardInjectionProvider;
 import ch.jalu.injector.handlers.provider.impl.Delta;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
@@ -273,7 +274,8 @@ public class InjectorImplTest {
         // given
         List<Handler> handlers = new ArrayList<>(config.getHandlers());
         // hack: the inline class is not within the allowed packages, so clear the package validator for this test
-        handlers.removeIf(handler -> handler instanceof PreConstructPackageValidator);
+        handlers.removeIf(handler -> handler instanceof DefaultInjectionProvider);
+        handlers.add(new StandardInjectionProvider());
         handlers.add(new SampleInstantiationImpl());
         config.getHandlers().clear();
         config.getHandlers().addAll(handlers);

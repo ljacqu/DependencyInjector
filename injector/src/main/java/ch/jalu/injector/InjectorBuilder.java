@@ -6,7 +6,6 @@ import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
 import ch.jalu.injector.handlers.dependency.SingletonStoreDependencyHandler;
 import ch.jalu.injector.handlers.instantiation.DefaultInjectionProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
-import ch.jalu.injector.handlers.preconstruct.PreConstructPackageValidator;
 import ch.jalu.injector.handlers.provider.ProviderHandlerImpl;
 import ch.jalu.injector.utils.InjectorUtils;
 
@@ -24,8 +23,6 @@ public class InjectorBuilder {
 
     /**
      * Creates a new builder.
-     *
-     * @since 0.1
      */
     public InjectorBuilder() {
         config = new InjectorConfig();
@@ -37,13 +34,10 @@ public class InjectorBuilder {
      * @param rootPackage the root package of the project (to limit injection and scanning to)
      * @return all default handlers
      * @see #addDefaultHandlers(String)
-     * @since 0.1
      */
     public static List<Handler> createDefaultHandlers(String rootPackage) {
         InjectorUtils.checkNotNull(rootPackage, "root package may not be null");
         return new ArrayList<>(Arrays.asList(
-            // PreConstruct
-            new PreConstructPackageValidator(rootPackage),
             // (Annotation, Object) handler
             new SavedAnnotationsHandler(),
             // Provider / Factory / SingletonStore
@@ -51,7 +45,7 @@ public class InjectorBuilder {
             new FactoryDependencyHandler(),
             new SingletonStoreDependencyHandler(),
             // Instantiation provider
-            new DefaultInjectionProvider(),
+            new DefaultInjectionProvider(rootPackage),
             // PostConstruct
             new PostConstructMethodInvoker()));
     }
@@ -62,13 +56,13 @@ public class InjectorBuilder {
      * <p>
      * Use {@link #createDefaultHandlers(String)} or {@link #addDefaultHandlers(String)} otherwise.
      *
+     * @param rootPackage the root package of the project
      * @return default instantiation providers
-     * @since 0.1
      */
-    public static List<Handler> createInstantiationProviders() {
+    public static List<Handler> createInstantiationProviders(String rootPackage) {
         return new ArrayList<>(Arrays.asList(
             new ProviderHandlerImpl(),
-            new DefaultInjectionProvider()));
+            new DefaultInjectionProvider(rootPackage)));
     }
 
     /**
@@ -80,7 +74,6 @@ public class InjectorBuilder {
      *
      * @param rootPackage the root package of the project
      * @return the builder
-     * @since 0.1
      */
     public InjectorBuilder addDefaultHandlers(String rootPackage) {
         return addHandlers(createDefaultHandlers(rootPackage));
@@ -92,7 +85,6 @@ public class InjectorBuilder {
      *
      * @param handlers the handlers to add to the injector
      * @return the builder
-     * @since 0.1
      */
     public InjectorBuilder addHandlers(Handler... handlers) {
         return addHandlers(Arrays.asList(handlers));
@@ -104,7 +96,6 @@ public class InjectorBuilder {
      *
      * @param handlers the handlers to add to the injector
      * @return the builder
-     * @since 0.1
      */
     public InjectorBuilder addHandlers(Collection<? extends Handler> handlers) {
         config.addHandlers(handlers);
@@ -115,7 +106,6 @@ public class InjectorBuilder {
      * Creates an injector with the configurations set to the builder.
      *
      * @return the injector
-     * @since 0.1
      */
     public Injector create() {
         return new InjectorImpl(config);
