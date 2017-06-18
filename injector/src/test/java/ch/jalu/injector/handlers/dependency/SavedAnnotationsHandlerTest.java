@@ -1,16 +1,16 @@
 package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.context.ObjectIdentifier;
-import ch.jalu.injector.context.UnresolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.Resolution;
 import ch.jalu.injector.samples.Duration;
 import ch.jalu.injector.samples.Size;
 import org.junit.Test;
 
 import java.lang.annotation.Annotation;
 
-import static ch.jalu.injector.InstantiationTestHelper.unwrapFromSimpleResolution;
+import static ch.jalu.injector.ResolutionTestHelper.unwrapFromSimpleResolution;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -30,12 +30,12 @@ public class SavedAnnotationsHandlerTest {
         Annotation[] annotations = {
                 newSizeAnnotation("value"), newDurationAnnotation()
         };
-        UnresolvedContext context = new UnresolvedContext(
-            null, null, new ObjectIdentifier(null, annotations));
+        ResolutionContext context = new ResolutionContext(
+            null, new ObjectIdentifier(null, null, annotations));
 
         // when
         // Injector param not needed -> null
-        Instantiation<?> instantiation = savedAnnotationsHandler.get(context);
+        Resolution<?> instantiation = savedAnnotationsHandler.resolve(context);
 
         // then
         assertThat(unwrapFromSimpleResolution(instantiation), equalTo(object));
@@ -47,13 +47,13 @@ public class SavedAnnotationsHandlerTest {
         Annotation[] annotations = {
             newSizeAnnotation("value"), newDurationAnnotation()
         };
-        UnresolvedContext context = new UnresolvedContext(
-            null, null, new ObjectIdentifier(null, annotations));
+        ResolutionContext context = new ResolutionContext(
+            null, new ObjectIdentifier(null, null, annotations));
         // register some object under another annotation for the heck of it
         savedAnnotationsHandler.onAnnotation(Test.class, new Object());
 
         // when
-        Instantiation<?> result = savedAnnotationsHandler.get(context);
+        Resolution<?> result = savedAnnotationsHandler.resolve(context);
 
         // then
         assertThat(result, nullValue());

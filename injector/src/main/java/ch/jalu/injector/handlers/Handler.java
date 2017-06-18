@@ -1,8 +1,7 @@
 package ch.jalu.injector.handlers;
 
-import ch.jalu.injector.context.ResolvedContext;
-import ch.jalu.injector.context.UnresolvedContext;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.context.ResolutionContext;
+import ch.jalu.injector.handlers.instantiation.Resolution;
 
 import javax.annotation.Nullable;
 import javax.inject.Provider;
@@ -19,14 +18,17 @@ public interface Handler {
 
     /**
      * Resolves the context such that the object identified by the context's object identifier can be
-     * instantiated or retrieved. May throw an exception e.g. if annotations aren't used correctly.
+     * instantiated or retrieved. May throw an exception if something is invalid, such as when the requested
+     * object is not possible to resolve (e.g. wrong combination of annotations, unmet conditions).
+     * <p>
+     * The returned {@link Resolution} must correspond to the type represented by the context's object identifier.
      *
-     * @param context the instantiation context
+     * @param context the resolution context
      * @return the instantiation for the class, or {@code null} if not possible
      * @throws Exception for validation errors
      */
     @Nullable
-    default Instantiation<?> get(UnresolvedContext context) throws Exception {
+    default Resolution<?> resolve(ResolutionContext context) throws Exception {
         return null;
     }
 
@@ -34,13 +36,14 @@ public interface Handler {
      * Processes the newly created object.
      *
      * @param object the object that was instantiated
-     * @param context the instantiation context
+     * @param context the resolution context
+     * @param resolution the resolution that was used to create the object
      * @param <T> the object's type
      * @return the new object to replace the instance with, null to keep the object the same
      * @throws Exception for validation errors or similar
      */
     @Nullable
-    default <T> T postProcess(T object, ResolvedContext context) throws Exception {
+    default <T> T postProcess(T object, ResolutionContext context, Resolution<?> resolution) throws Exception {
         return null;
     }
 

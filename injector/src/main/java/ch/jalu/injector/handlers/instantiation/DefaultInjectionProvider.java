@@ -27,7 +27,7 @@ public class DefaultInjectionProvider extends StandardInjectionProvider {
     }
 
     @Override
-    public <T> Instantiation<T> safeGet(Class<T> clazz) {
+    public <T> Resolution<T> safeGet(Class<T> clazz) {
         verifyIsClassPackageAllowed(clazz);
         return super.safeGet(clazz);
     }

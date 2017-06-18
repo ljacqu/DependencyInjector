@@ -57,7 +57,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldReturnDependencies() {
         // given
-        Instantiation<ClassWithAnnotations> injection = provider.safeGet(ClassWithAnnotations.class);
+        Resolution<ClassWithAnnotations> injection = provider.safeGet(ClassWithAnnotations.class);
 
         // when
         List<ObjectIdentifier> dependencies = injection.getDependencies();
@@ -73,7 +73,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldReturnDependenciesForFieldInjection() {
         // given
-        Instantiation<FieldInjectionWithAnnotations> injection =
+        Resolution<FieldInjectionWithAnnotations> injection =
             provider.safeGet(FieldInjectionWithAnnotations.class);
 
         // when
@@ -94,7 +94,7 @@ public class StandardInjectionTest {
         // given
         GammaService gammaService = new GammaService(
             AlphaService.newInstance(new ProvidedClass("")));
-        Instantiation<ClassWithAnnotations> injection = provider.safeGet(ClassWithAnnotations.class);
+        Resolution<ClassWithAnnotations> injection = provider.safeGet(ClassWithAnnotations.class);
 
         // when
         ClassWithAnnotations instance = injection.instantiateWith(-112, gammaService, 19L);
@@ -109,7 +109,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldInstantiateClassWithConstructorInjection() {
         // given
-        Instantiation<GammaService> instantiation = provider.safeGet(GammaService.class);
+        Resolution<GammaService> instantiation = provider.safeGet(GammaService.class);
 
         // when
         GammaService gammaService = instantiation.instantiateWith(AlphaService.newInstance(new ProvidedClass("")));
@@ -121,7 +121,7 @@ public class StandardInjectionTest {
     @Test(expected = InjectorException.class)
     public void shouldThrowForNullValue() {
         // given
-        Instantiation<ClassWithAnnotations> injection = provider.safeGet(ClassWithAnnotations.class);
+        Resolution<ClassWithAnnotations> injection = provider.safeGet(ClassWithAnnotations.class);
 
         // when / then
         injection.instantiateWith(-112, null, 12L);
@@ -131,7 +131,7 @@ public class StandardInjectionTest {
     public void shouldThrowUponInstantiationError() {
         // given
         AlphaService alphaService = AlphaService.newInstance(new ProvidedClass(""));
-        Instantiation<InvalidClass> injection = provider.safeGet(InvalidClass.class);
+        Resolution<InvalidClass> injection = provider.safeGet(InvalidClass.class);
 
         // when
         injection.instantiateWith(alphaService, 5);
@@ -140,7 +140,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldSupportMixedInjectionTypes() {
         // given
-        Instantiation<InjectOnDifferentMembersClass> injection = provider.safeGet(InjectOnDifferentMembersClass.class);
+        Resolution<InjectOnDifferentMembersClass> injection = provider.safeGet(InjectOnDifferentMembersClass.class);
 
         // when
         List<ObjectIdentifier> dependencies = injection.getDependencies();
@@ -155,7 +155,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldInstantiateClass() {
         // given
-        Instantiation<BetaManager> injection = provider.safeGet(BetaManager.class);
+        Resolution<BetaManager> injection = provider.safeGet(BetaManager.class);
         ProvidedClass providedClass = new ProvidedClass("");
         AlphaService alphaService = AlphaService.newInstance(providedClass);
         GammaService gammaService = new GammaService(alphaService);
@@ -171,7 +171,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldThrowForNoSuitableConstructor() {
         // given / when
-        Instantiation<BadFieldInjection> injection = provider.safeGet(BadFieldInjection.class);
+        Resolution<BadFieldInjection> injection = provider.safeGet(BadFieldInjection.class);
 
         // then
         assertThat(injection, nullValue());
@@ -180,7 +180,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldForwardExceptionDuringInstantiation() {
         // given
-        Instantiation<ThrowingConstructor> injection = provider.safeGet(ThrowingConstructor.class);
+        Resolution<ThrowingConstructor> injection = provider.safeGet(ThrowingConstructor.class);
 
         // when / then
         try {
@@ -198,7 +198,7 @@ public class StandardInjectionTest {
         ProvidedClass providedClass = new ProvidedClass("");
         AlphaService alphaService = AlphaService.newInstance(providedClass);
         GammaService gammaService = new GammaService(alphaService);
-        Instantiation<BetaManager> injection = provider.safeGet(BetaManager.class);
+        Resolution<BetaManager> injection = provider.safeGet(BetaManager.class);
 
         // when / then
         // Correct order is provided, gamma, alpha
@@ -208,7 +208,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldSupportInjectionOnStaticFields() {
         // given
-        Instantiation<StaticFieldInjection> injection = provider.safeGet(StaticFieldInjection.class);
+        Resolution<StaticFieldInjection> injection = provider.safeGet(StaticFieldInjection.class);
 
         // when / then
         assertThat(injection.getDependencies(), hasSize(2));
@@ -219,7 +219,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldAllowPrivateDefaultConstructorForPrivateInnerClass() {
         // given / when
-        Instantiation<InnerClassWithPrivateConstructor> injection = provider.safeGet(InnerClassWithPrivateConstructor.class);
+        Resolution<InnerClassWithPrivateConstructor> injection = provider.safeGet(InnerClassWithPrivateConstructor.class);
 
         // then
         assertThat(injection, not(nullValue()));
@@ -229,7 +229,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldNotFindFieldDependencies() {
         // given / when
-        Instantiation<NoFieldScanClass> injection = provider.safeGet(NoFieldScanClass.class);
+        Resolution<NoFieldScanClass> injection = provider.safeGet(NoFieldScanClass.class);
 
         // then
         assertThat(injection.getDependencies(), empty());
@@ -238,7 +238,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldInstantiateClassWithNoInjectAnnotation() {
         // given
-        Instantiation<FallbackClass> instantiation = provider.safeGet(FallbackClass.class);
+        Resolution<FallbackClass> instantiation = provider.safeGet(FallbackClass.class);
 
         // when
         FallbackClass result = instantiation.instantiateWith();
@@ -250,7 +250,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldHaveEmptyDependenciesAndAnnotations() {
         // given
-        Instantiation<FallbackClass> instantiation =
+        Resolution<FallbackClass> instantiation =
             provider.safeGet(FallbackClass.class);
 
         // when
@@ -263,7 +263,7 @@ public class StandardInjectionTest {
     @Test(expected = InjectorException.class)
     public void shouldThrowIfArgumentsAreSupplied() {
         // given
-        Instantiation<FallbackClass> instantiation =
+        Resolution<FallbackClass> instantiation =
             provider.safeGet(FallbackClass.class);
 
         // when / then
@@ -279,7 +279,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldInstantiateNoDependencyClass() {
         // given
-        Instantiation<ClassWithPostConstruct> instantiation = provider.safeGet(ClassWithPostConstruct.class);
+        Resolution<ClassWithPostConstruct> instantiation = provider.safeGet(ClassWithPostConstruct.class);
 
         // when
         ClassWithPostConstruct instance = instantiation.instantiateWith();
@@ -291,7 +291,7 @@ public class StandardInjectionTest {
     @Test
     public void shouldHandleInheritance() {
         // given / when
-        Instantiation<Child> instantiation = provider.safeGet(Child.class);
+        Resolution<Child> instantiation = provider.safeGet(Child.class);
 
         // then
         assertThat(instantiation.getDependencies(), hasSize(5));

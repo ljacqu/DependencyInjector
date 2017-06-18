@@ -2,10 +2,9 @@ package ch.jalu.injector.handlers.testimplementations;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.context.ObjectIdentifier;
-import ch.jalu.injector.context.ResolvedContext;
-import ch.jalu.injector.context.UnresolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.Resolution;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,11 +28,11 @@ public class ImplementationClassHandler extends AbstractCountingHandler implemen
     }
 
     @Override
-    public Instantiation<?> get(UnresolvedContext context) {
-        increment();
+    public Resolution<?> resolve(ResolutionContext context) {
+        increment(context);
         Class<?> implClass = getImplClass(context.getIdentifier().getTypeAsClass());
         if (implClass != null) {
-            context.setIdentifier(new ObjectIdentifier(implClass));
+            context.setIdentifier(new ObjectIdentifier(context.getIdentifier().getResolutionType(), implClass));
         }
         return null;
     }
@@ -48,7 +47,7 @@ public class ImplementationClassHandler extends AbstractCountingHandler implemen
     }
 
     @Override
-    public <T> T postProcess(T object, ResolvedContext context) {
+    public <T> T postProcess(T object, ResolutionContext context, Resolution<?> resolution) {
         // Injector doesn't register the object with the mapped class by default. In this test case, this is desirable.
         final Injector injector = context.getInjector();
         final Class<?> mappedClass = context.getIdentifier().getTypeAsClass();

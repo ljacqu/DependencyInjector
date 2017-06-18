@@ -1,7 +1,7 @@
 package ch.jalu.injector.context;
 
 /**
- * The context in which a class should be resolved.
+ * The context (scope) in which a class should be resolved.
  */
 public enum StandardResolutionType implements ResolutionType {
 

@@ -1,9 +1,9 @@
 package ch.jalu.injector.samples;
 
 import ch.jalu.injector.context.ObjectIdentifier;
-import ch.jalu.injector.context.UnresolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.Resolution;
 import ch.jalu.injector.utils.ReflectionUtils;
 
 import java.lang.reflect.Method;
@@ -12,13 +12,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * An example for custom implementation of {@link Handler#get(UnresolvedContext)}
- * and {@link Instantiation}. Allows to instantiate classes that have a static {@code create()} method.
+ * An example for custom implementation of {@link Handler#resolve(ResolutionContext)}
+ * and {@link Resolution}. Allows to instantiate classes that have a static {@code create()} method.
  */
 public class SampleInstantiationImpl implements Handler {
 
     @Override
-    public Instantiation<?> get(UnresolvedContext context) {
+    public Resolution<?> resolve(ResolutionContext context) {
         final Class<?> clazz = context.getIdentifier().getTypeAsClass();
         try {
             Method method = clazz.getDeclaredMethod("create");
@@ -32,7 +32,7 @@ public class SampleInstantiationImpl implements Handler {
         return null;
     }
 
-    private static final class CustomInstantiation<T> implements Instantiation<T> {
+    private static final class CustomInstantiation<T> implements Resolution<T> {
 
         private final Method method;
 

@@ -31,7 +31,7 @@ public class PostConstructMethodInvokerTest {
         PostConstructTestClass testClass = new PostConstructTestClass(123, new ProvidedClass(""));
 
         // when
-        postConstructInvoker.postProcess(testClass, null);
+        postConstructInvoker.postProcess(testClass, null, null);
 
         // then
         assertThat(testClass.wasPostConstructCalled(), equalTo(true));
@@ -46,7 +46,7 @@ public class PostConstructMethodInvokerTest {
         exceptionCatcher.expect("@PostConstruct method may not be static or have any parameters");
 
         // when
-        postConstructInvoker.postProcess(withParams, null);
+        postConstructInvoker.postProcess(withParams, null, null);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class PostConstructMethodInvokerTest {
         exceptionCatcher.expect("@PostConstruct method may not be static or have any parameters");
 
         // when
-        postConstructInvoker.postProcess(classWithStaticMethod, null);
+        postConstructInvoker.postProcess(classWithStaticMethod, null, null);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class PostConstructMethodInvokerTest {
         exceptionCatcher.expect("Could not invoke method");
 
         // when
-        postConstructInvoker.postProcess(throwsException, null);
+        postConstructInvoker.postProcess(throwsException, null, null);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class PostConstructMethodInvokerTest {
         exceptionCatcher.expect("Multiple methods with @PostConstruct");
 
         // when
-        postConstructInvoker.postProcess(multiplePostConstructs, null);
+        postConstructInvoker.postProcess(multiplePostConstructs, null, null);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class PostConstructMethodInvokerTest {
         exceptionCatcher.expect("@PostConstruct method must have return type void");
 
         // when
-        postConstructInvoker.postProcess(notVoidReturnType, null);
+        postConstructInvoker.postProcess(notVoidReturnType, null, null);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class PostConstructMethodInvokerTest {
         ChildClass childClass = new ChildClass();
 
         // when
-        postConstructInvoker.postProcess(childClass, null);
+        postConstructInvoker.postProcess(childClass, null, null);
 
         // then
         assertThat(childClass.wasChildPostConstCalled, equalTo(true));

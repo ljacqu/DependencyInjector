@@ -1,11 +1,12 @@
 package ch.jalu.injector.extras.handlers;
 
 import ch.jalu.injector.context.ObjectIdentifier;
-import ch.jalu.injector.context.UnresolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
+import ch.jalu.injector.context.ResolutionType;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.extras.AllInstances;
 import ch.jalu.injector.handlers.dependency.TypeSafeAnnotationHandler;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.Resolution;
 import ch.jalu.injector.utils.InjectorUtils;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.reflections.Reflections;
@@ -37,7 +38,7 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
     }
 
     @Override
-    public Instantiation<?> resolveValueSafely(UnresolvedContext context, AllInstances annotation) {
+    public Resolution<?> resolveValueSafely(ResolutionContext context, AllInstances annotation) {
         // The raw type, e.g. List or array
         final Class<?> rawType = context.getIdentifier().getTypeAsClass();
         // The type of the collection, e.g. String for List<String> or String[]
@@ -50,33 +51,38 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
 
         @SuppressWarnings("unchecked")
         Set<Class<?>> subTypes = reflections.getSubTypesOf(genericType);
-        subTypes.removeIf(type -> !InjectorUtils.canInstantiate(type));
-        return new AllInstancesInstantiation(rawType, subTypes);
+        ResolutionType resolutionType = context.getIdentifier().getResolutionType();
+        List<ObjectIdentifier> dependencies = subTypes.stream()
+            .filter(InjectorUtils::canInstantiate)
+            .map(clazz -> new ObjectIdentifier(resolutionType, clazz))
+            .collect(Collectors.toList());
+        return new AllInstancesInstantiation(rawType, dependencies);
     }
 
-    private static final class AllInstancesInstantiation implements Instantiation<Object> {
+    private static final class AllInstancesInstantiation implements Resolution<Object> {
 
         private final Class<?> rawCollectionType;
-        private final Set<Class<?>> subtypes;
+        private final List<ObjectIdentifier> dependencies;
 
-        AllInstancesInstantiation(Class<?> rawCollectionType, Set<Class<?>> subtypes) {
+        AllInstancesInstantiation(Class<?> rawCollectionType, List<ObjectIdentifier> dependencies) {
             this.rawCollectionType = rawCollectionType;
-            this.subtypes = subtypes;
+            this.dependencies = dependencies;
         }
 
         @Override
         public List<ObjectIdentifier> getDependencies() {
-            return subtypes.stream().map(type -> new ObjectIdentifier(type)).collect(Collectors.toList());
+            return dependencies;
         }
 
         @Override
         public Object instantiateWith(Object... values) {
+            // TODO: Revise signature -> creating a Set that will potentially be converted back to an array...
             Set<Object> objects = new HashSet<>(Arrays.asList(values));
             return ReflectionUtils.toSuitableCollectionType(rawCollectionType, objects);
         }
 
         @Override
-        public boolean saveIfSingleton() {
+        public boolean isNewlyCreated() {
             return true;
         }
     }

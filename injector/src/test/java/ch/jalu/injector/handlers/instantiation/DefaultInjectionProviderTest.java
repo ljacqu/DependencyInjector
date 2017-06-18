@@ -2,7 +2,7 @@ package ch.jalu.injector.handlers.instantiation;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.context.ObjectIdentifier;
-import ch.jalu.injector.context.UnresolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.ClassWithInjectMethod;
@@ -35,7 +35,7 @@ public class DefaultInjectionProviderTest {
     @Test
     public void shouldProvideInstantiation() {
         // given / when
-        Instantiation<BetaManager> injection = provider.safeGet(BetaManager.class);
+        Resolution<BetaManager> injection = provider.safeGet(BetaManager.class);
 
         // then
         assertThat(injection, not(nullValue()));
@@ -45,7 +45,7 @@ public class DefaultInjectionProviderTest {
     @Test
     public void shouldProvideInstantiationForClassWithInheritance() {
         // given / when
-        Instantiation<Child> injection = provider.safeGet(Child.class);
+        Resolution<Child> injection = provider.safeGet(Child.class);
 
         // then
         assertThat(injection, not(nullValue()));
@@ -58,7 +58,7 @@ public class DefaultInjectionProviderTest {
         exceptionCatcher.expect("@Inject may not be placed on static fields");
 
         // when
-        provider.get(contextOf(StaticFieldInjection.class));
+        provider.resolve(contextOf(StaticFieldInjection.class));
     }
 
     @Test
@@ -67,13 +67,13 @@ public class DefaultInjectionProviderTest {
         exceptionCatcher.expect("may not have @Inject constructor and @Inject fields");
 
         // when
-        provider.get(contextOf(InjectOnDifferentMembersClass.class));
+        provider.resolve(contextOf(InjectOnDifferentMembersClass.class));
     }
 
     @Test
     public void shouldInjectClass() {
         // given / when
-        Instantiation<ChildWithNoInjection> injection = provider.safeGet(ChildWithNoInjection.class);
+        Resolution<ChildWithNoInjection> injection = provider.safeGet(ChildWithNoInjection.class);
 
         // then
         assertThat(injection, not(nullValue()));
@@ -95,11 +95,11 @@ public class DefaultInjectionProviderTest {
         exceptionCatcher.expect("outside of the allowed packages");
 
         // when
-        provider.get(contextOf(Object.class));
+        provider.resolve(contextOf(Object.class));
     }
 
-    private static UnresolvedContext contextOf(Class<?> clazz) {
-        return new UnresolvedContext(null, null, new ObjectIdentifier(clazz));
+    private static ResolutionContext contextOf(Class<?> clazz) {
+        return new ResolutionContext(null, new ObjectIdentifier(null, clazz));
     }
 
     private static final class ChildOfParentWithInjectMethod extends ClassWithInjectMethod {

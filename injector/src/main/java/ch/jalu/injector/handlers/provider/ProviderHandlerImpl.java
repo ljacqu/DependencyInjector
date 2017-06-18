@@ -1,11 +1,11 @@
 package ch.jalu.injector.handlers.provider;
 
 import ch.jalu.injector.context.ObjectIdentifier;
-import ch.jalu.injector.context.UnresolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
-import ch.jalu.injector.handlers.instantiation.SimpleObjectResolution;
+import ch.jalu.injector.handlers.instantiation.Resolution;
+import ch.jalu.injector.handlers.instantiation.SimpleResolution;
 import ch.jalu.injector.utils.InjectorUtils;
 import ch.jalu.injector.utils.ReflectionUtils;
 
@@ -16,11 +16,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static ch.jalu.injector.context.StandardResolutionType.SINGLETON;
 import static ch.jalu.injector.utils.InjectorUtils.checkArgument;
 
 /**
  * Default handler for {@link Provider} objects. Registers providers and classes and creates
- * {@link Instantiation} objects for classes it can handle.
+ * {@link Resolution} objects for classes it can handle.
  */
 public class ProviderHandlerImpl implements Handler {
 
@@ -39,7 +40,7 @@ public class ProviderHandlerImpl implements Handler {
     }
 
     @Override
-    public Instantiation<?> get(UnresolvedContext context) {
+    public Resolution<?> resolve(ResolutionContext context) {
         if (Provider.class.equals(context.getIdentifier().getTypeAsClass())) {
             return handleProviderRequest(context);
         }
@@ -47,7 +48,7 @@ public class ProviderHandlerImpl implements Handler {
     }
 
     @Nullable
-    private Instantiation<?> handleProviderRequest(UnresolvedContext context) {
+    private Resolution<?> handleProviderRequest(ResolutionContext context) {
         Class<?> genericType = ReflectionUtils.getGenericType(context.getIdentifier().getType());
         if (genericType == null) {
             throw new InjectorException("Injection of a provider was requested but no generic type was given");
@@ -55,17 +56,27 @@ public class ProviderHandlerImpl implements Handler {
         ProviderBasedInstantiation<?> givenInstantiation = providers.get(genericType);
         if (givenInstantiation == null) {
             Provider<?> defaultProvider = () -> context.getInjector().newInstance(genericType);
-            return new SimpleObjectResolution<>(defaultProvider);
+            return new SimpleResolution<>(defaultProvider);
         }
-        return givenInstantiation.createProviderInstantiation();
+        return givenInstantiation.createProviderResolution();
     }
 
-    private interface ProviderBasedInstantiation<T> extends Instantiation<T> {
+    /**
+     * Resolution that instantiates an object with a predefined Provider.
+     *
+     * @param <T> the object type
+     */
+    private interface ProviderBasedInstantiation<T> extends Resolution<T> {
 
-        Instantiation<Provider<? extends T>> createProviderInstantiation();
+        Resolution<Provider<? extends T>> createProviderResolution();
 
     }
 
+    /**
+     * Resolution of an object via a known provider.
+     *
+     * @param <T> the object type
+     */
     private static final class InstantiationByProvider<T> implements ProviderBasedInstantiation<T> {
         private final Provider<? extends T> provider;
 
@@ -85,16 +96,21 @@ public class ProviderHandlerImpl implements Handler {
         }
 
         @Override
-        public boolean saveIfSingleton() {
+        public boolean isNewlyCreated() {
             return true;
         }
 
         @Override
-        public Instantiation<Provider<? extends T>> createProviderInstantiation() {
-            return new SimpleObjectResolution<>(provider);
+        public Resolution<Provider<? extends T>> createProviderResolution() {
+            return new SimpleResolution<>(provider);
         }
     }
 
+    /**
+     * Resolution of an object with a known provider class.
+     *
+     * @param <T> the object type
+     */
     private static final class InstantiationByProviderClass<T> implements ProviderBasedInstantiation<T> {
         private final Class<? extends Provider<? extends T>> providerClass;
 
@@ -104,7 +120,7 @@ public class ProviderHandlerImpl implements Handler {
 
         @Override
         public List<ObjectIdentifier> getDependencies() {
-            return Collections.singletonList(new ObjectIdentifier(providerClass));
+            return Collections.singletonList(new ObjectIdentifier(SINGLETON, providerClass));
         }
 
         @Override
@@ -115,20 +131,20 @@ public class ProviderHandlerImpl implements Handler {
         }
 
         @Override
-        public boolean saveIfSingleton() {
+        public boolean isNewlyCreated() {
             return true;
         }
 
         @Override
-        public Instantiation<Provider<? extends T>> createProviderInstantiation() {
+        public Resolution<Provider<? extends T>> createProviderResolution() {
             // Workaround: return an Instantiation object that takes the actual class as dependency and simply returns
             // it as the result. This way whatever concrete class is mapped to function as Provider<T> is created as if
             // we did injector.getSingleton(providerClass) and it gets registered as such.
 
-            return new Instantiation<Provider<? extends T>>() {
+            return new Resolution<Provider<? extends T>>() {
                 @Override
                 public List<ObjectIdentifier> getDependencies() {
-                    return Collections.singletonList(new ObjectIdentifier(providerClass));
+                    return Collections.singletonList(new ObjectIdentifier(SINGLETON, providerClass));
                 }
 
                 @Override

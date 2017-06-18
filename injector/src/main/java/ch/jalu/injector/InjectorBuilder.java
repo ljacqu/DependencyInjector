@@ -51,7 +51,7 @@ public class InjectorBuilder {
     }
 
     /**
-     * Creates all default handlers implementing {@link Handler#get}. Useful if you want to create your own
+     * Creates all default handlers implementing {@link Handler#resolve}. Useful if you want to create your own
      * preconstruct (etc.) handlers but want to use the default instantiation providers.
      * <p>
      * Use {@link #createDefaultHandlers(String)} or {@link #addDefaultHandlers(String)} otherwise.

@@ -14,12 +14,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ch.jalu.injector.context.StandardResolutionType.SINGLETON;
+
 /**
  * The injector's default instantiation method; injects constructor and fields.
  *
  * @see StandardInjectionProvider
  */
-public class StandardInjection<T> implements Instantiation<T> {
+public class StandardInjection<T> implements Resolution<T> {
 
     private final Constructor<T> constructor;
     private final List<Field> fields;
@@ -71,7 +73,7 @@ public class StandardInjection<T> implements Instantiation<T> {
     }
 
     @Override
-    public boolean saveIfSingleton() {
+    public boolean isNewlyCreated() {
         return true;
     }
 
@@ -81,14 +83,14 @@ public class StandardInjection<T> implements Instantiation<T> {
 
         List<ObjectIdentifier> dependencies = new ArrayList<>(parameters.length);
         for (int i = 0; i < parameters.length; ++i) {
-            dependencies.add(new ObjectIdentifier(parameters[i], annotations[i]));
+            dependencies.add(new ObjectIdentifier(SINGLETON, parameters[i], annotations[i]));
         }
         return dependencies;
     }
 
     private List<ObjectIdentifier> buildFieldDependencies() {
         return fields.stream()
-            .map(f -> new ObjectIdentifier(f.getGenericType(), f.getAnnotations()))
+            .map(f -> new ObjectIdentifier(SINGLETON, f.getGenericType(), f.getAnnotations()))
             .collect(Collectors.toList());
     }
 }

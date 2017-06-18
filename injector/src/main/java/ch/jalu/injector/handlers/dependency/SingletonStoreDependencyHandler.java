@@ -1,12 +1,12 @@
 package ch.jalu.injector.handlers.dependency;
 
 import ch.jalu.injector.Injector;
-import ch.jalu.injector.context.UnresolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.factory.SingletonStore;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
-import ch.jalu.injector.handlers.instantiation.SimpleObjectResolution;
+import ch.jalu.injector.handlers.instantiation.Resolution;
+import ch.jalu.injector.handlers.instantiation.SimpleResolution;
 import ch.jalu.injector.utils.ReflectionUtils;
 
 import java.util.Collection;
@@ -17,7 +17,7 @@ import java.util.Collection;
 public class SingletonStoreDependencyHandler implements Handler {
 
     @Override
-    public Instantiation<?> get(UnresolvedContext context) {
+    public Resolution<?> resolve(ResolutionContext context) {
         if (SingletonStore.class.equals(context.getIdentifier().getTypeAsClass())) {
             Class<?> genericType = ReflectionUtils.getGenericType(context.getIdentifier().getType());
             if (genericType == null) {
@@ -25,7 +25,7 @@ public class SingletonStoreDependencyHandler implements Handler {
                     + "Cannot get generic type for field in '" + context.getIdentifier().getTypeAsClass() + "'");
             }
 
-            return new SimpleObjectResolution<>(new SingletonStoreImpl<>(genericType, context.getInjector()));
+            return new SimpleResolution<>(new SingletonStoreImpl<>(genericType, context.getInjector()));
         }
         return null;
     }

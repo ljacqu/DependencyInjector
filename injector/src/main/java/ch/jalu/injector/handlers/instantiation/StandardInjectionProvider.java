@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Provider of {@link Instantiation} objects that roughly follows the documentation as given in {@link Inject}.
+ * Provider of {@link Resolution} objects that roughly follows the documentation as given in {@link Inject}.
  * The following is a summary of the instantiation's behavior and its deviations.
  * <p>
  * If available, the constructor with @{@link Inject} is used. Multiple {@code &#64;Inject} constructors results in
@@ -33,7 +33,7 @@ import java.util.List;
 public class StandardInjectionProvider extends DirectInstantiationProvider {
 
     @Override
-    public <T> Instantiation<T> safeGet(Class<T> clazz) {
+    public <T> Resolution<T> safeGet(Class<T> clazz) {
         Constructor<T> constructor = getInjectionConstructor(clazz);
         if (constructor == null) {
             return null;

@@ -1,11 +1,11 @@
 package ch.jalu.injector.testing.runner;
 
 import ch.jalu.injector.Injector;
-import ch.jalu.injector.context.UnresolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
-import ch.jalu.injector.handlers.instantiation.SimpleObjectResolution;
+import ch.jalu.injector.handlers.instantiation.Resolution;
+import ch.jalu.injector.handlers.instantiation.SimpleResolution;
 import ch.jalu.injector.testing.InjectDelayed;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.junit.runners.model.FrameworkField;
@@ -32,7 +32,7 @@ public class MockDependencyHandler implements Handler {
     }
 
     @Override
-    public Instantiation<?> get(UnresolvedContext context) {
+    public Resolution<?> resolve(ResolutionContext context) {
         final Injector injector = context.getInjector();
         if (!areMocksRegistered) {
             registerAllMocks(injector);
@@ -42,7 +42,7 @@ public class MockDependencyHandler implements Handler {
         Class<?> type = context.getIdentifier().getTypeAsClass();
         Object object = injector.getIfAvailable(type);
         if (object != null) {
-            return new SimpleObjectResolution<>(object);
+            return new SimpleResolution<>(object);
         }
         if (fieldsToInject.contains(type)) {
             // The required type is present as @InjectDelayed. Return null to make the injector instantiate the type

@@ -5,12 +5,11 @@ import ch.jalu.injector.InjectorBuilder;
 import ch.jalu.injector.InjectorImpl;
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.context.ObjectIdentifier;
-import ch.jalu.injector.context.StandardResolutionType;
-import ch.jalu.injector.context.UnresolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.factory.Factory;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DefaultInjectionProvider;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.Resolution;
 import ch.jalu.injector.handlers.instantiation.StandardInjectionProvider;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.ProvidedClass;
@@ -30,6 +29,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import static ch.jalu.injector.TestUtils.findOrThrow;
+import static ch.jalu.injector.context.StandardResolutionType.SINGLETON;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
@@ -100,24 +100,24 @@ public class FactoryDependencyHandlerTest {
     @Test
     public void shouldThrowForUnspecifiedGenerics() {
         // given
-        UnresolvedContext context = new UnresolvedContext(
-            injector, StandardResolutionType.SINGLETON, newIdentifier(Factory.class));
+        ResolutionContext context = new ResolutionContext(
+            injector, newIdentifier(Factory.class));
 
         // expect
         exceptionCatcher.expect("Factory fields must have concrete generic type.");
 
         // when
-        getFactoryHandler().get(context);
+        getFactoryHandler().resolve(context);
     }
 
     @Test
     public void shouldReturnNullForNonFactoryType() {
         // given
-        UnresolvedContext context = new UnresolvedContext(
-            injector, StandardResolutionType.SINGLETON, newIdentifier(Parent.class));
+        ResolutionContext context = new ResolutionContext(
+            injector, newIdentifier(Parent.class));
 
         // when
-        Instantiation<?> result = getFactoryHandler().get(context);
+        Resolution<?> result = getFactoryHandler().resolve(context);
 
         // then
         assertThat(result, nullValue());
@@ -126,8 +126,8 @@ public class FactoryDependencyHandlerTest {
     @SuppressWarnings("unchecked")
     private <T> Factory<T> getFactoryForClass(Class<T> clazz) {
         FactoryDependencyHandler factoryHandler = getFactoryHandler();
-        Instantiation<?> instantiation = factoryHandler.get(new UnresolvedContext(
-            injector, StandardResolutionType.SINGLETON, newIdentifier(createParameterizedType(Factory.class, clazz))));
+        Resolution<?> instantiation = factoryHandler.resolve(new ResolutionContext(
+            injector, newIdentifier(createParameterizedType(Factory.class, clazz))));
         InjectorUtils.checkArgument(instantiation.getDependencies().isEmpty(),
             "Expected to receive an instantiation method with no required dependencies");
         return (Factory<T>) instantiation.instantiateWith();
@@ -166,6 +166,6 @@ public class FactoryDependencyHandlerTest {
     }
 
     private static ObjectIdentifier newIdentifier(Type type) {
-        return new ObjectIdentifier(type);
+        return new ObjectIdentifier(SINGLETON, type);
     }
 }

@@ -1,8 +1,9 @@
 package ch.jalu.injector.handlers.postconstruct;
 
-import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
+import ch.jalu.injector.handlers.instantiation.Resolution;
 import ch.jalu.injector.utils.ReflectionUtils;
 
 import javax.annotation.Nullable;
@@ -19,7 +20,7 @@ import java.util.List;
 public class PostConstructMethodInvoker implements Handler {
 
     @Override
-    public <T> T postProcess(T object, ResolvedContext context) {
+    public <T> T postProcess(T object, ResolutionContext context, Resolution<?> resolution) {
         Class<?> clazz = object.getClass();
         List<Method> postConstructMethods = getPostConstructMethods(clazz);
         for (int i = postConstructMethods.size() - 1; i >= 0; --i) {

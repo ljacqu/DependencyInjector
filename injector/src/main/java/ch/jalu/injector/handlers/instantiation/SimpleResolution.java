@@ -6,13 +6,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Simple object resolution: wraps an already existing object that should be used as an {@link Instantiation}.
+ * Simple object resolution: wraps an already existing object that should be used as an {@link Resolution}.
  */
-public class SimpleObjectResolution<T> implements Instantiation<T> {
+public class SimpleResolution<T> implements Resolution<T> {
 
     private final T object;
 
-    public SimpleObjectResolution(T object) {
+    public SimpleResolution(T object) {
         this.object = object;
     }
 

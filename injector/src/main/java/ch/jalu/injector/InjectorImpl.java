@@ -1,14 +1,15 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.context.ObjectIdentifier;
-import ch.jalu.injector.context.ResolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
+import ch.jalu.injector.context.ResolutionType;
 import ch.jalu.injector.context.StandardResolutionType;
-import ch.jalu.injector.context.UnresolvedContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
+import ch.jalu.injector.handlers.instantiation.Resolution;
 import ch.jalu.injector.utils.InjectorUtils;
 
+import javax.annotation.Nullable;
 import javax.inject.Provider;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -69,16 +70,12 @@ public class InjectorImpl implements Injector {
 
     @Override
     public <T> T getSingleton(Class<T> clazz) {
-        return (T) resolveObject(
-            new UnresolvedContext(this, SINGLETON, new ObjectIdentifier(clazz)),
-            new HashSet<>());
+        return resolve(SINGLETON, clazz);
     }
 
     @Override
     public <T> T newInstance(Class<T> clazz) {
-        return (T) resolveObject(
-            new UnresolvedContext(this, REQUEST_SCOPED, new ObjectIdentifier(clazz)),
-            new HashSet<>());
+        return resolve(REQUEST_SCOPED, clazz);
     }
 
     @Override
@@ -88,9 +85,7 @@ public class InjectorImpl implements Injector {
 
     @Override
     public <T> T createIfHasDependencies(Class<T> clazz) {
-        return (T) resolveObject(
-            new UnresolvedContext(this, REQUEST_SCOPED_IF_HAS_DEPENDENCIES, new ObjectIdentifier(clazz)),
-            new HashSet<>());
+        return resolve(REQUEST_SCOPED_IF_HAS_DEPENDENCIES, clazz);
     }
 
     @Override
@@ -134,48 +129,57 @@ public class InjectorImpl implements Injector {
         return config;
     }
 
-    private Object resolveObject(UnresolvedContext context, Set<Class<?>> traversedClasses) {
+    @SuppressWarnings("unchecked")
+    private <T> T resolve(ResolutionType resolutionType, Class<?> clazz) {
+        return (T) resolveObject(
+            new ResolutionContext(this, new ObjectIdentifier(resolutionType, clazz)),
+            new HashSet<>());
+    }
+
+    @Nullable
+    private Object resolveObject(ResolutionContext context, Set<Class<?>> traversedClasses) {
         // TODO #49: Convert singleton store to a Handler impl.
-        if (context.getResolutionType() == StandardResolutionType.SINGLETON) {
+        if (context.getIdentifier().getResolutionType() == StandardResolutionType.SINGLETON) {
             Object knownSingleton = objects.get(context.getIdentifier().getTypeAsClass());
             if (knownSingleton != null) {
                 return knownSingleton;
             }
         }
 
-        Instantiation<?> instantiation = getInstantiation(context);
+        Resolution<?> resolution = findResolutionOrFail(context);
 
         traversedClasses.add(context.getIdentifier().getTypeAsClass());
-        validateInjectionHasNoCircularDependencies(instantiation, traversedClasses);
+        validateInjectionHasNoCircularDependencies(resolution, traversedClasses);
 
-        for (ObjectIdentifier identifier : instantiation.getDependencies()) {
+        for (ObjectIdentifier identifier : resolution.getDependencies()) {
             if (traversedClasses.contains(identifier.getTypeAsClass())) {
                 throw new InjectorException("Found cyclic dependency - already traversed '"
                     + identifier.getTypeAsClass() + "' (full traversal list: " + traversedClasses + ")");
             }
         }
 
-        List<ObjectIdentifier> dependencies = instantiation.getDependencies();
-        List<Object> resolvedDependencies = new ArrayList<>(dependencies.size());
-        for (ObjectIdentifier id : dependencies) {
-            UnresolvedContext ctx = new UnresolvedContext(this, StandardResolutionType.SINGLETON, id);
-            resolvedDependencies.add(resolveObject(ctx, new HashSet<>(traversedClasses)));
-        }
-        Object obj = instantiation.instantiateWith(resolvedDependencies.toArray());
-        obj = runPostConstructHandlers(obj, context.buildResolvedContext(instantiation));
+        List<ObjectIdentifier> dependencies = resolution.getDependencies();
+        Object[] resolvedDependencies = dependencies.stream()
+            .map(identifier -> new ResolutionContext(this, identifier))
+            .map(dependencyContext -> resolveObject(dependencyContext, new HashSet<>(traversedClasses)))
+            .toArray();
+        Object object = resolution.instantiateWith(resolvedDependencies);
 
-        if (context.getResolutionType() == StandardResolutionType.SINGLETON && instantiation.saveIfSingleton()) {
-            register((Class) context.getOriginalIdentifier().getTypeAsClass(), obj);
+        if (resolution.isNewlyCreated()) {
+            object = runPostConstructHandlers(object, context, resolution);
+            if (context.getIdentifier().getResolutionType() == StandardResolutionType.SINGLETON) {
+                register((Class) context.getOriginalIdentifier().getTypeAsClass(), object);
+            }
         }
-        return obj;
+        return object;
     }
 
-    private Instantiation<?> getInstantiation(UnresolvedContext context) {
+    private Resolution<?> findResolutionOrFail(ResolutionContext context) {
         try {
             for (Handler handler : config.getHandlers()) {
-                Instantiation<?> instantiation = handler.get(context);
-                if (instantiation != null) {
-                    return instantiation;
+                Resolution<?> resolution = handler.resolve(context);
+                if (resolution != null) {
+                    return resolution;
                 }
             }
         } catch (Exception e) {
@@ -199,11 +203,11 @@ public class InjectorImpl implements Injector {
             + "require the default constructor");
     }
 
-    private <T> T runPostConstructHandlers(T instance, ResolvedContext resolvedContext) {
+    private <T> T runPostConstructHandlers(T instance, ResolutionContext context, Resolution<?> resolution) {
         T object = instance;
         for (Handler handler : config.getHandlers()) {
             try {
-                object = firstNotNull(handler.postProcess(object, resolvedContext), object);
+                object = firstNotNull(handler.postProcess(object, context, resolution), object);
             } catch (Exception e) {
                 rethrowException(e);
             }
@@ -215,12 +219,12 @@ public class InjectorImpl implements Injector {
      * Validates that none of the dependencies' types are present in the given collection
      * of traversed classes. This prevents circular dependencies.
      *
-     * @param instantiation the instantiation method to get the dependencies from
+     * @param resolution the resolution method to get the dependencies from
      * @param traversedClasses the collection of traversed classes
      */
-    private static void validateInjectionHasNoCircularDependencies(Instantiation<?> instantiation,
+    private static void validateInjectionHasNoCircularDependencies(Resolution<?> resolution,
                                                                    Set<Class<?>> traversedClasses) {
-        for (ObjectIdentifier identifier : instantiation.getDependencies()) {
+        for (ObjectIdentifier identifier : resolution.getDependencies()) {
             if (traversedClasses.contains(identifier.getTypeAsClass())) {
                 throw new InjectorException("Found cyclic dependency - already traversed '"
                     + identifier.getTypeAsClass() + "' (full traversal list: " + traversedClasses + ")");

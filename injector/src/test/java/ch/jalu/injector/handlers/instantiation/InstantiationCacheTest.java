@@ -86,7 +86,7 @@ public class InstantiationCacheTest {
         verify(defaultInjectionProvider, times(1)).safeGet(any(Class.class));
     }
 
-    private Map<Class, WeakReference<Instantiation>> getCacheMap() {
+    private Map<Class, WeakReference<Resolution>> getCacheMap() {
         try {
             Field field = InstantiationCache.class.getDeclaredField("entries");
             return (Map) ReflectionUtils.getFieldValue(field, instantiationCache);

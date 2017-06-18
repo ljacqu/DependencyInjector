@@ -13,18 +13,44 @@ import java.util.List;
  */
 public class ObjectIdentifier {
 
+    private final ResolutionType resolutionType;
     private final Type type;
     private final List<Annotation> annotations;
 
-    public ObjectIdentifier(Type type, Annotation... annotations) {
+    public ObjectIdentifier(ResolutionType resolutionType, Type type, Annotation... annotations) {
+        this.resolutionType = resolutionType;
         this.type = type;
         this.annotations = Arrays.asList(annotations);
     }
 
+    public ResolutionType getResolutionType() {
+        return resolutionType;
+    }
+
+    /**
+     * Returns the type of the requested object. In general this is the type as returned by
+     * {@link java.lang.reflect.Field#getGenericType()} or similar: it is a {@code Type}, which may be a
+     * {@link Class} for simple types or types where no generic information is provided, or it may be a
+     * {@link ParameterizedType} for types with generic information.
+     *
+     * Other extensions of Type are not supported by default.
+     * <p>
+     * Use {@link #getTypeAsClass()} to get the type as a Class safely.
+     * See {@link ch.jalu.injector.utils.ReflectionUtils} for performing further operations on the type.
+     *
+     * @return the type
+     */
     public Type getType() {
         return type;
     }
 
+    /**
+     * Returns the type of the requested object as a Class. If the {@link #getType type} is a type with
+     * generic information, the returned class is the raw type without the generic information
+     * (e.g. {@code List} if the type represents {@code List<String>}).
+     *
+     * @return the type as class
+     */
     public Class<?> getTypeAsClass() {
         if (type instanceof Class<?>) {
             return (Class<?>) type;

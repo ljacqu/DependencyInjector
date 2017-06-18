@@ -1,9 +1,9 @@
 package ch.jalu.injector.testing.runner;
 
-import ch.jalu.injector.context.UnresolvedContext;
+import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.handlers.Handler;
-import ch.jalu.injector.handlers.instantiation.Instantiation;
-import ch.jalu.injector.handlers.instantiation.SimpleObjectResolution;
+import ch.jalu.injector.handlers.instantiation.Resolution;
+import ch.jalu.injector.handlers.instantiation.SimpleResolution;
 import ch.jalu.injector.testing.InjectDelayed;
 import ch.jalu.injector.utils.ReflectionUtils;
 import org.junit.runners.model.FrameworkField;
@@ -43,12 +43,12 @@ public class AnnotationResolver implements Handler {
     }
 
     @Override
-    public Instantiation<?> get(UnresolvedContext context) {
+    public Resolution<?> resolve(ResolutionContext context) {
         final Class<?> clazz = context.getIdentifier().getTypeAsClass();
         for (Annotation annotation : context.getIdentifier().getAnnotations()) {
             Object o = resolveByAnnotation(annotation.annotationType(), clazz);
             if (o != null) {
-                return new SimpleObjectResolution<>(o);
+                return new SimpleResolution<>(o);
             }
         }
         return null;
