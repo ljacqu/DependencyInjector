@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * array of {@code Class} type. The handler for this annotation must be provided explicitly; it is not part of the
  * {@link ch.jalu.injector.InjectorBuilder#createDefaultHandlers(String) default handlers}.
  *
- * @see ch.jalu.injector.handlers.dependency.AllTypesAnnotationHandler
+ * @see ch.jalu.injector.extras.handlers.AllTypesAnnotationHandler
  */
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)

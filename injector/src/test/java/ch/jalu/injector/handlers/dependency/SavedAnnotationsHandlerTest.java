@@ -10,7 +10,9 @@ import org.junit.Test;
 
 import java.lang.annotation.Annotation;
 
-import static ch.jalu.injector.ResolutionTestHelper.unwrapFromSimpleResolution;
+import static ch.jalu.injector.InjectorTestHelper.newDurationAnnotation;
+import static ch.jalu.injector.InjectorTestHelper.newSizeAnnotation;
+import static ch.jalu.injector.InjectorTestHelper.unwrapFromSimpleResolution;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -77,28 +79,4 @@ public class SavedAnnotationsHandlerTest {
 
         // then - exception
     }
-
-    private static Size newSizeAnnotation(final String value) {
-        return new Size() {
-            @Override
-            public Class<Size> annotationType() {
-                return Size.class;
-            }
-
-            @Override
-            public String value() {
-                return value;
-            }
-        };
-    }
-
-    private static Duration newDurationAnnotation() {
-        return new Duration() {
-            @Override
-            public Class<Duration> annotationType() {
-                return Duration.class;
-            }
-        };
-    }
-
 }

@@ -4,6 +4,7 @@ import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.annotations.NoFieldScan;
 import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.exceptions.InjectorException;
+import ch.jalu.injector.exceptions.InjectorReflectionException;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
 import ch.jalu.injector.samples.BetaManager;
@@ -183,7 +184,7 @@ public class StandardInjectionTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InjectorReflectionException.class)
     public void shouldThrowForInvalidFieldValue() {
         // given
         ProvidedClass providedClass = new ProvidedClass("");

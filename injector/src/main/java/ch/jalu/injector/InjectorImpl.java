@@ -240,7 +240,7 @@ public class InjectorImpl implements Injector {
                 : clazz.isArray()
                     ? "By default, arrays cannot be injected. "
                     : "";
-            throw new InjectorException(String.format("Did not find instantiation method for '%s'. "
+            throw new InjectorException(String.format("Did not find instantiation method for '%s'."
                     + " %sThis class cannot be instantiated; please check the class or your handlers.",
                     clazz, hint));
         }

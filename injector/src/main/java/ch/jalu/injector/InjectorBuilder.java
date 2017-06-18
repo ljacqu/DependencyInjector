@@ -7,7 +7,7 @@ import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
 import ch.jalu.injector.handlers.dependency.SingletonStoreDependencyHandler;
 import ch.jalu.injector.handlers.instantiation.DefaultInjectionProvider;
 import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
-import ch.jalu.injector.handlers.provider.ProviderHandlerImpl;
+import ch.jalu.injector.handlers.instantiation.ProviderHandler;
 import ch.jalu.injector.utils.InjectorUtils;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class InjectorBuilder {
             // (Annotation, Object) handler
             new SavedAnnotationsHandler(),
             // Provider / Factory / SingletonStore
-            new ProviderHandlerImpl(),
+            new ProviderHandler(),
             new FactoryDependencyHandler(),
             new SingletonStoreDependencyHandler(),
             // Instantiation provider
@@ -62,8 +62,11 @@ public class InjectorBuilder {
      * @return default instantiation providers
      */
     public static List<Handler> createInstantiationProviders(String rootPackage) {
+        InjectorUtils.checkNotNull(rootPackage, "root package may not be null");
         return new ArrayList<>(Arrays.asList(
-            new ProviderHandlerImpl(),
+            new ProviderHandler(),
+            new FactoryDependencyHandler(),
+            new SingletonStoreDependencyHandler(),
             new DefaultInjectionProvider(rootPackage)));
     }
 

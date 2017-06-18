@@ -16,16 +16,16 @@ import java.util.List;
  * Provider of {@link Resolution} objects that roughly follows the documentation as given in {@link Inject}.
  * The following is a summary of the instantiation's behavior and its deviations.
  * <p>
- * If available, the constructor with @{@link Inject} is used. Multiple {@code &#64;Inject} constructors results in
+ * If available, the constructor with @{@link Inject} is used. Multiple {@code @Inject} constructors results in
  * an exception being thrown. Otherwise, if there is only one constructor, of public visibility taking no arguments,
  * it is taken. For private classes (inner classes), a sole no-args constructor is also considered.
- * Finally, the no-args constructor of any visibility is taken if it belongs to a class that has {@code &#64;Inject}
+ * Finally, the no-args constructor of any visibility is taken if it belongs to a class that has {@code @Inject}
  * fields. In this case, the no-args constructor is not required to be the only constructor of the class.
  * <p>
- * Fields with {@code &#64;Inject} are injected. They may be static (not recommended). If a final field is annotated
- * with {@code &#64;Inject}, an exception is thrown.
+ * Fields with {@code @Inject} are injected. They may be static (not recommended). If a final field is annotated
+ * with {@code @Inject}, an exception is thrown.
  * <p>
- * Method injection is not supported. Consequently, if a method with {@code &#64;Inject} is found on the class or
+ * Method injection is not supported. Consequently, if a method with {@code @Inject} is found on the class or
  * any of its parents, an exception is thrown.
  * <p>
  * {@link ch.jalu.injector.annotations.NoMethodScan} and {@link ch.jalu.injector.annotations.NoFieldScan} are respected.
@@ -50,7 +50,7 @@ public class StandardInjectionProvider extends DirectInstantiationProvider {
 
     /**
      * Returns the constructor to be used for injection. Throws an exception if there
-     * are multiple {@code &#64;Inject} constructors.
+     * are multiple {@code @Inject} constructors.
      *
      * @param clazz the class to process
      * @param <T> the class' type

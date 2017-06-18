@@ -1,10 +1,16 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
+import ch.jalu.injector.context.ResolutionContext;
+import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
+import ch.jalu.injector.handlers.dependency.providers.Delta;
+import ch.jalu.injector.handlers.dependency.providers.Delta1Provider;
 import ch.jalu.injector.handlers.instantiation.DefaultInjectionProvider;
+import ch.jalu.injector.handlers.instantiation.Resolution;
+import ch.jalu.injector.handlers.instantiation.SimpleResolution;
 import ch.jalu.injector.handlers.instantiation.StandardInjectionProvider;
-import ch.jalu.injector.handlers.provider.impl.Delta;
+import ch.jalu.injector.handlers.postconstruct.PostConstructMethodInvoker;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BadFieldInjection;
 import ch.jalu.injector.samples.BetaManager;
@@ -26,6 +32,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import javax.inject.Provider;
 import java.lang.annotation.Annotation;
@@ -34,16 +42,25 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -429,6 +446,116 @@ public class InjectorImplTest {
         assertThat(child.getParentBetaManager(), not(nullValue()));
         assertThat(child.getParentBetaManager(), sameInstance(child.getBetaManager()));
         assertThat(child.getAlphaService(), not(nullValue()));
+    }
+
+    @Test
+    public void shouldRunPostConstructHandlersOnNewlyCreatedObjects() {
+        // given
+        injector.provide(Duration.class, 3);
+        injector.provide(Size.class, 3);
+        config.getHandlers().removeIf(h -> h instanceof PostConstructMethodInvoker);
+        PostConstructMethodInvoker postConstructInvoker = Mockito.spy(new PostConstructMethodInvoker());
+        config.getHandlers().add(postConstructInvoker);
+
+        // when
+        injector.getSingleton(Child.class); // Child, GammaService, BetaManager, AlphaService
+        injector.getSingleton(FieldInjectionWithAnnotations.class); // this class + ClassWithAnnotations
+        injector.getSingleton(GammaService.class);
+
+        // then
+        ArgumentCaptor<Object> argCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(postConstructInvoker, times(6)).postProcess(argCaptor.capture(), any(ResolutionContext.class), any(Resolution.class));
+        assertThat(argCaptor.getAllValues(), containsInAnyOrder(
+            instanceOf(GammaService.class), instanceOf(BetaManager.class), instanceOf(AlphaService.class), instanceOf(Child.class),
+            instanceOf(FieldInjectionWithAnnotations.class), instanceOf(ClassWithAnnotations.class)));
+    }
+
+    @Test
+    public void shouldRunPostConstructOnNewInstances() {
+        // given
+        config.getHandlers().removeIf(h -> h instanceof PostConstructMethodInvoker);
+        PostConstructMethodInvoker postConstructInvoker = Mockito.spy(new PostConstructMethodInvoker());
+        config.getHandlers().add(postConstructInvoker);
+
+        // when
+        AlphaService s1 = injector.getSingleton(AlphaService.class); // singleton first time: counts
+        AlphaService s2 = injector.getSingleton(AlphaService.class);
+        AlphaService i1 = injector.newInstance(AlphaService.class);  // new instance: counts
+        AlphaService s3 = injector.getSingleton(AlphaService.class);
+        AlphaService i2 = injector.newInstance(AlphaService.class);  // new instance: counts
+        AlphaService i3 = injector.newInstance(AlphaService.class);  // new instance: counts
+        AlphaService i4 = injector.createIfHasDependencies(AlphaService.class); // counts
+        AlphaService s4 = injector.getIfAvailable(AlphaService.class);
+        Collection<AlphaService> singletons = injector.retrieveAllOfType(AlphaService.class);
+
+        // then
+        verify(postConstructInvoker, times(5)).postProcess(any(Object.class), any(ResolutionContext.class), any(Resolution.class));
+        assertAreAllSameInstance(s1, s2, s3, s4);
+        assertAreAllDifferentInstances(s1, i1, i2, i3, i4);
+        assertThat(singletons, contains(sameInstance(s1)));
+    }
+
+    @Test
+    public void shouldForwardExceptionFromProviderHandler() throws Exception {
+        // given
+        Handler handler = mock(Handler.class);
+        doThrow(IllegalStateException.class).when(handler).onProvider(any(Class.class), any(Provider.class));
+        config.getHandlers().add(handler);
+
+        try {
+            // when
+            injector.registerProvider(Delta.class, new Delta1Provider());
+            fail("Expected exception");
+        } catch (InjectorException e) {
+            // then
+            assertThat(e.getMessage(), containsString("An error occurred"));
+            assertThat(e.getCause(), instanceOf(IllegalStateException.class));
+        }
+    }
+
+    @Test
+    public void shouldForwardExceptionFromProviderClassHandler() throws Exception {
+        // given
+        Handler handler = mock(Handler.class);
+        doThrow(UnsupportedOperationException.class).when(handler).onProviderClass(any(Class.class), any(Class.class));
+        config.getHandlers().add(handler);
+
+        try {
+            // when
+            injector.registerProvider(Delta.class, Delta1Provider.class);
+            fail("Expected exception");
+        } catch (InjectorException e) {
+            // then
+            assertThat(e.getMessage(), containsString("An error occurred"));
+            assertThat(e.getCause(), instanceOf(UnsupportedOperationException.class));
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void shouldThrowForNullReturnedAsDependency() throws Exception {
+        // given
+        Handler handler = mock(Handler.class);
+        given(handler.resolve(any(ResolutionContext.class))).willAnswer(
+            invocation -> ((ResolutionContext) invocation.getArgument(0)).getIdentifier().getTypeAsClass() == AlphaService.class
+                ? new SimpleResolution<>(null)
+                : null
+        );
+        config.getHandlers().add(1, handler);
+
+        // expect
+        exceptionCatcher.expect("Found null returned as dependency");
+
+        // when
+        injector.getSingleton(Child.class);
+    }
+
+    private static void assertAreAllSameInstance(Object... objects) {
+        assertThat(Stream.of(objects).map(System::identityHashCode).distinct().count(), equalTo(1L));
+    }
+
+    private static void assertAreAllDifferentInstances(Object... objects) {
+        assertThat(Stream.of(objects).map(System::identityHashCode).distinct().count(), equalTo((long) objects.length));
     }
 
     /**

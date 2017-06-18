@@ -26,11 +26,11 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 
+import static ch.jalu.injector.TestUtils.createParameterizedType;
 import static ch.jalu.injector.TestUtils.findOrThrow;
 import static ch.jalu.injector.context.StandardResolutionType.SINGLETON;
 import static org.hamcrest.Matchers.contains;
@@ -168,25 +168,6 @@ public class SingletonStoreDependencyHandlerTest {
         List<Handler> dependencyHandlers = ((InjectorImpl) injector).getConfig().getHandlers();
         Handler singletonStoreHandler = findOrThrow(dependencyHandlers, handler -> handler instanceof SingletonStoreDependencyHandler);
         return (SingletonStoreDependencyHandler) singletonStoreHandler;
-    }
-
-    private static ParameterizedType createParameterizedType(Type rawType, Type... actualTypeArguments) {
-        return new ParameterizedType() {
-            @Override
-            public Type[] getActualTypeArguments() {
-                return actualTypeArguments;
-            }
-
-            @Override
-            public Type getRawType() {
-                return rawType;
-            }
-
-            @Override
-            public Type getOwnerType() {
-                throw new UnsupportedOperationException();
-            }
-        };
     }
 
     private static List<Handler> createHandlers() {

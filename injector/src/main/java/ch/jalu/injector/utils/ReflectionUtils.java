@@ -36,7 +36,7 @@ public final class ReflectionUtils {
         field.setAccessible(true);
         try {
             return field.get(instance);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new InjectorReflectionException(
                 "Could not get value of field '" + field.getName() + "' for " + instance, e);
         }
@@ -53,7 +53,7 @@ public final class ReflectionUtils {
         field.setAccessible(true);
         try {
             field.set(instance, value);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new InjectorReflectionException(
                 "Could not set field '" + field.getName() + "' for " + instance, e);
         }

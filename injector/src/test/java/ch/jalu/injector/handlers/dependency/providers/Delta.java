@@ -1,4 +1,4 @@
-package ch.jalu.injector.handlers.provider.impl;
+package ch.jalu.injector.handlers.dependency.providers;
 
 /**
  * Delta interface.

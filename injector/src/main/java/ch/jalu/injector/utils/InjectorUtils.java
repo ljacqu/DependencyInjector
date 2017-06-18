@@ -64,6 +64,7 @@ public final class InjectorUtils {
     }
 
     public static boolean canInstantiate(Class<?> clazz) {
-        return !clazz.isEnum() && !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers());
+        return !clazz.isEnum() && !clazz.isInterface() && !clazz.isArray()
+            && !Modifier.isAbstract(clazz.getModifiers());
     }
 }

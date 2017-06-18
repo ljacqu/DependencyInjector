@@ -157,8 +157,28 @@ public class InjectorUtilsTest {
         assertThat(InjectorUtils.canInstantiate(SampleEnum.class), equalTo(false));
         // abstract
         assertThat(InjectorUtils.canInstantiate(TypeSafeAnnotationHandler.class), equalTo(false));
+        // array
+        assertThat(InjectorUtils.canInstantiate(Object[].class), equalTo(false));
         // instantiable:
         assertThat(InjectorUtils.canInstantiate(InjectorUtils.class), equalTo(true));
+    }
+
+    @Test
+    public void shouldFindNullInArray() {
+        // given
+        String[] arr1 = {"a", "b", "c", "d", "e"};
+        Double[] arr2 = {2.0, 3.1, 4.4, null, 6.7};
+        Character[] arr3 = {null, 'a', 'b', 'c'};
+
+        // when
+        boolean result1 = InjectorUtils.containsNullValue(arr1);
+        boolean result2 = InjectorUtils.containsNullValue(arr2);
+        boolean result3 = InjectorUtils.containsNullValue(arr3);
+
+        // then
+        assertThat(result1, equalTo(false));
+        assertThat(result2, equalTo(true));
+        assertThat(result3, equalTo(true));
     }
 
     @Test

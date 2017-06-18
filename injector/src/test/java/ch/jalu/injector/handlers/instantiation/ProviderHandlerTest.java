@@ -1,20 +1,19 @@
-package ch.jalu.injector.handlers.provider;
+package ch.jalu.injector.handlers.instantiation;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.exceptions.InjectorException;
-import ch.jalu.injector.handlers.instantiation.Resolution;
-import ch.jalu.injector.handlers.provider.impl.Alfa;
-import ch.jalu.injector.handlers.provider.impl.Bravo;
-import ch.jalu.injector.handlers.provider.impl.Charlie;
-import ch.jalu.injector.handlers.provider.impl.ClassWithInjectedProviders;
-import ch.jalu.injector.handlers.provider.impl.Delta;
-import ch.jalu.injector.handlers.provider.impl.Delta1;
-import ch.jalu.injector.handlers.provider.impl.Delta1Provider;
-import ch.jalu.injector.handlers.provider.impl.Delta2;
-import ch.jalu.injector.handlers.provider.impl.Delta2Provider;
+import ch.jalu.injector.handlers.dependency.providers.Alfa;
+import ch.jalu.injector.handlers.dependency.providers.Bravo;
+import ch.jalu.injector.handlers.dependency.providers.Charlie;
+import ch.jalu.injector.handlers.dependency.providers.ClassWithInjectedProviders;
+import ch.jalu.injector.handlers.dependency.providers.Delta;
+import ch.jalu.injector.handlers.dependency.providers.Delta1;
+import ch.jalu.injector.handlers.dependency.providers.Delta1Provider;
+import ch.jalu.injector.handlers.dependency.providers.Delta2;
+import ch.jalu.injector.handlers.dependency.providers.Delta2Provider;
 import org.junit.Test;
 
 import javax.inject.Provider;
@@ -34,11 +33,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
- * Test for {@link ProviderHandlerImpl}.
+ * Test for {@link ProviderHandler}.
  */
-public class ProviderHandlerImplTest {
+public class ProviderHandlerTest {
 
-    private ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
+    private ProviderHandler providerHandler = new ProviderHandler();
 
     @Test
     public void shouldThrowForAlreadyRegisteredProvider() {
@@ -214,7 +213,7 @@ public class ProviderHandlerImplTest {
     @Test
     public void shouldThrowForMissingGenericInfo() {
         // given
-        ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
+        ProviderHandler providerHandler = new ProviderHandler();
         Injector injector = mock(Injector.class);
         ResolutionContext context = new ResolutionContext(
             injector, new ObjectIdentifier(null, Provider.class));
@@ -232,7 +231,7 @@ public class ProviderHandlerImplTest {
     @Test
     public void shouldIgnoreNonProviderDependency() {
         // given
-        ProviderHandlerImpl providerHandler = new ProviderHandlerImpl();
+        ProviderHandler providerHandler = new ProviderHandler();
         Injector injector = mock(Injector.class);
         ResolutionContext context = new ResolutionContext(
             injector, new ObjectIdentifier(null, Bravo.class));

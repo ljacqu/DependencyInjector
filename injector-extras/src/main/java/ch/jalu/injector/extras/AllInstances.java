@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
  * for this annotation must be provided explicitly; it is not part of the
  * {@link ch.jalu.injector.InjectorBuilder#createDefaultHandlers(String) default handlers}.
  *
- * @see ch.jalu.injector.handlers.dependency.AllInstancesAnnotationHandler
+ * @see ch.jalu.injector.extras.handlers.AllInstancesAnnotationHandler
  */
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)

@@ -5,7 +5,7 @@ package ch.jalu.injector.exceptions;
  */
 public class InjectorReflectionException extends InjectorException {
 
-    public InjectorReflectionException(String message, ReflectiveOperationException cause) {
+    public InjectorReflectionException(String message, Exception cause) {
         super(message, cause);
     }
 }

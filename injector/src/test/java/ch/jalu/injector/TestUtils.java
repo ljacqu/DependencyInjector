@@ -10,6 +10,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.function.Predicate;
 
@@ -81,6 +83,25 @@ public final class TestUtils {
     public static <T> T findOrThrow(Collection<T> coll, Predicate<? super T> predicate) {
         return coll.stream().filter(predicate).findFirst()
             .orElseThrow(() -> new IllegalStateException("Could not find any matching item"));
+    }
+
+    public static ParameterizedType createParameterizedType(Type rawType, Type... actualTypeArguments) {
+        return new ParameterizedType() {
+            @Override
+            public Type[] getActualTypeArguments() {
+                return actualTypeArguments;
+            }
+
+            @Override
+            public Type getRawType() {
+                return rawType;
+            }
+
+            @Override
+            public Type getOwnerType() {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     public static final class ExceptionCatcher {

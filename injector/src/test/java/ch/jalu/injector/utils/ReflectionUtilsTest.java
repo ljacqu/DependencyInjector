@@ -50,7 +50,7 @@ public class ReflectionUtilsTest {
         assertThat(result, equalTo(str));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InjectorReflectionException.class)
     public void shouldForwardException() throws NoSuchFieldException {
         // given
         ReflectionsTestClass testClass = new ReflectionsTestClass("abc", 123);
@@ -98,6 +98,15 @@ public class ReflectionUtilsTest {
 
         // then
         assertThat(ReflectionsTestClass.changeStaticObject(null), equalTo(o));
+    }
+
+    @Test(expected = InjectorReflectionException.class)
+    public void shouldForwardExceptionWhenSettingField() {
+        // given
+        Field field = getField("integer");
+
+        // when
+        ReflectionUtils.setField(field, new Object(), 3);
     }
 
     @Test
