@@ -14,5 +14,6 @@ engines:
 ratings:
   paths:
   # Check only production files
-  - 'src/main/java/**'
+  - 'injector/src/main/java/**'
+  - 'injector-extras/src/main/java/**'
 
