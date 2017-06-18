@@ -23,6 +23,9 @@ public class ObjectIdentifier {
         this.annotations = Arrays.asList(annotations);
     }
 
+    /**
+     * @return the resolution type (scope) requested for the object
+     */
     public ResolutionType getResolutionType() {
         return resolutionType;
     }
@@ -68,5 +71,10 @@ public class ObjectIdentifier {
 
     public List<Annotation> getAnnotations() {
         return annotations;
+    }
+
+    @Override
+    public String toString() {
+        return "ObjId[type=" + type + ", annotations=" + annotations + "]";
     }
 }

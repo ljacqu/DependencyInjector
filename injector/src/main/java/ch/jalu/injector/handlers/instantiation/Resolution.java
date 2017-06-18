@@ -32,13 +32,13 @@ public interface Resolution<T> {
     T instantiateWith(Object... values);
 
     /**
-     * Returns whether this resolution will return a newly created object or not.
+     * Returns whether this resolution will instantiate an object or not.
      * Certain resolutions simply need to retrieve an existing object; this method
-     * returns {@code true} in other cases when the requested object has to be instantiated.
+     * returns {@code true} when the requested object has to be instantiated.
      *
      * @return true if a newly created object will be returned, false if the object already exists
      */
-    default boolean isNewlyCreated() {
+    default boolean isInstantiation() {
         return false;
     }
 }

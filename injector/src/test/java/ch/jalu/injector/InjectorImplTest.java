@@ -23,7 +23,6 @@ import ch.jalu.injector.samples.Size;
 import ch.jalu.injector.samples.StaticFieldInjection;
 import ch.jalu.injector.samples.inheritance.Child;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -288,20 +287,6 @@ public class InjectorImplTest {
     }
 
     @Test
-    @Ignore
-    public void shouldThrowIfNoInstantiationMethodsAreAvailable() {
-        // given
-        List<Handler> handlers = null; // TODO #48: fix getAllHandlersExceptInstantiationProviders();
-        Injector injector = new InjectorBuilder().addHandlers(handlers).create();
-
-        // expect
-        exceptionCatcher.expect("You did not register any instantiation methods");
-
-        // when
-        injector.getSingleton(CustomInstantiationExample.class);
-    }
-
-    @Test
     public void shouldForwardToAnnotationValueHandlers() throws Exception {
         // given
         Handler annoValHandler1 = mock(Handler.class);
@@ -395,7 +380,6 @@ public class InjectorImplTest {
     }
 
     @Test
-    @Ignore // TODO #48: Fix createIfHasDependencies feature
     public void shouldNotInstantiateForMissingDependencies() {
         // given / when
         GammaService gammaService = injector.createIfHasDependencies(GammaService.class);
@@ -420,7 +404,6 @@ public class InjectorImplTest {
     }
 
     @Test
-    @Ignore // TODO #48: Fix createIfHasDependencies feature
     public void shouldReturnNullForMissingDependency() {
         // given
         injector.provide(Size.class, 2809375);

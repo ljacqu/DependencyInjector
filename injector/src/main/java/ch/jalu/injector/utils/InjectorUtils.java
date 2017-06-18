@@ -31,6 +31,21 @@ public final class InjectorUtils {
         }
     }
 
+    /**
+     * Returns whether the given array contains a null value or not.
+     *
+     * @param arr the array to process
+     * @return true if at least one entry is null, false otherwise
+     */
+    public static boolean containsNullValue(Object... arr) {
+        for (Object o : arr) {
+            if (o == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void checkArgument(boolean expression, String errorMessage) {
         if (!expression) {
             throw new InjectorException(errorMessage);

@@ -119,15 +119,6 @@ public class StandardInjectionTest {
     }
 
     @Test(expected = InjectorException.class)
-    public void shouldThrowForNullValue() {
-        // given
-        Resolution<ClassWithAnnotations> injection = provider.safeGet(ClassWithAnnotations.class);
-
-        // when / then
-        injection.instantiateWith(-112, null, 12L);
-    }
-
-    @Test(expected = InjectorException.class)
     public void shouldThrowUponInstantiationError() {
         // given
         AlphaService alphaService = AlphaService.newInstance(new ProvidedClass(""));

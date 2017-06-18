@@ -1,6 +1,7 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.handlers.Handler;
+import ch.jalu.injector.handlers.dependency.CyclicDependenciesDetector;
 import ch.jalu.injector.handlers.dependency.FactoryDependencyHandler;
 import ch.jalu.injector.handlers.dependency.SavedAnnotationsHandler;
 import ch.jalu.injector.handlers.dependency.SingletonStoreDependencyHandler;
@@ -45,6 +46,7 @@ public class InjectorBuilder {
             new FactoryDependencyHandler(),
             new SingletonStoreDependencyHandler(),
             // Instantiation provider
+            new CyclicDependenciesDetector(),
             new DefaultInjectionProvider(rootPackage),
             // PostConstruct
             new PostConstructMethodInvoker()));

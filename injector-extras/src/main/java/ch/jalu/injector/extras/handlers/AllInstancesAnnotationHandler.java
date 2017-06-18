@@ -82,7 +82,7 @@ public class AllInstancesAnnotationHandler extends TypeSafeAnnotationHandler<All
         }
 
         @Override
-        public boolean isNewlyCreated() {
+        public boolean isInstantiation() {
             return true;
         }
     }

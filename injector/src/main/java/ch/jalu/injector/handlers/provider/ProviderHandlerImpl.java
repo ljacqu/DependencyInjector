@@ -96,7 +96,7 @@ public class ProviderHandlerImpl implements Handler {
         }
 
         @Override
-        public boolean isNewlyCreated() {
+        public boolean isInstantiation() {
             return true;
         }
 
@@ -124,6 +124,7 @@ public class ProviderHandlerImpl implements Handler {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public T instantiateWith(Object... values) {
             InjectorUtils.checkArgument(values.length == 1 && providerClass.isInstance(values[0]),
                 "Expected one dependency of type " + providerClass);
@@ -131,7 +132,7 @@ public class ProviderHandlerImpl implements Handler {
         }
 
         @Override
-        public boolean isNewlyCreated() {
+        public boolean isInstantiation() {
             return true;
         }
 
@@ -148,6 +149,7 @@ public class ProviderHandlerImpl implements Handler {
                 }
 
                 @Override
+                @SuppressWarnings("unchecked")
                 public Provider<? extends T> instantiateWith(Object... values) {
                     InjectorUtils.checkArgument(values.length == 1 && providerClass.isInstance(values[0]),
                         "Expected one dependency of type " + providerClass);

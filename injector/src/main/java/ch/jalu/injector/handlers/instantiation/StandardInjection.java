@@ -56,7 +56,6 @@ public class StandardInjection<T> implements Resolution<T> {
     @Override
     public T instantiateWith(Object... values) {
         // Check no null values & correct size
-        InjectorUtils.checkNoNullValues(values);
         InjectorUtils.checkArgument(values.length == constructor.getParameterTypes().length + fields.size(),
             "Number of values does not correspond to the expected number");
 
@@ -73,7 +72,7 @@ public class StandardInjection<T> implements Resolution<T> {
     }
 
     @Override
-    public boolean isNewlyCreated() {
+    public boolean isInstantiation() {
         return true;
     }
 
