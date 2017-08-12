@@ -79,7 +79,7 @@ public class MyApp {
 ... That's all! No need to deal with creating any other classes, but you still have a setup that allows you to easily
 unit test or switch a component.
 
---> Full, runnable example can be found [here](https://github.com/ljacqu/DependencyInjector/tree/master/src/test/java/ch/jalu/injector/demo).
+--> Full, runnable example can be found [here](https://github.com/ljacqu/DependencyInjector/tree/master/injector/src/test/java/ch/jalu/injector/demo).
 
 ### Handlers
 You may implement your own logic to instantiate a class and to resolve dependencies. This allows you for example to 
