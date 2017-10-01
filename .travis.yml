@@ -1,7 +1,9 @@
 sudo: false
 
 language: java
-jdk: oraclejdk7
+jdk:
+  - oraclejdk8
+  - oraclejdk9
 
 # Scopes:
 #  - test
