@@ -4,7 +4,7 @@
     <groupId>ch.jalu</groupId>
     <artifactId>injector-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.5-SNAPSHOT</version>
+    <version>1.0</version>
     <modules>
         <module>injector</module>
         <module>injector-extras</module>
@@ -35,7 +35,7 @@
         <connection>scm:git:git@github.com:ljacqu/DependencyInjector.git</connection>
         <developerConnection>scm:git:git@github.com:ljacqu/DependencyInjector.git</developerConnection>
         <url>git@github.com:ljacqu/DependencyInjector.git</url>
-        <tag>HEAD</tag>
+        <tag>injector-1.0</tag>
     </scm>
 
     <distributionManagement>
