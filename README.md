@@ -9,7 +9,7 @@ Simple but customizable dependency injector for Java 1.8 and above.
 
 
 ### Why use it
-- Very lightweight (only requires `javax.inject` dependency)
+- Very lightweight (only has `javax.inject` and `javax.annotation-api` as dependency)
 - Allows gradual transition to injection for existing projects
 - You can implement your own injection methods and behaviors
 - Support for projects with optional dependencies
@@ -21,7 +21,7 @@ Using Maven, you can get the injector by adding this to your pom.xml:
 <dependency>
     <groupId>ch.jalu</groupId>
     <artifactId>injector</artifactId>
-    <version>0.4</version>
+    <version>1.0</version>
 </dependency>
 ```
 
@@ -82,18 +82,6 @@ unit test or switch a component.
 --> Full, runnable example can be found [here](https://github.com/ljacqu/DependencyInjector/tree/master/injector/src/test/java/ch/jalu/injector/demo).
 
 ### Handlers
-You may implement your own logic to instantiate a class and to resolve dependencies. This allows you for example to 
-implement specific behavior for custom annotations. There are six types of handlers:
-
- - PreConstructHandler: Validates the request for instantiating a class and offers the possibility to override 
-                        the given class with a subclass.
- - InstantiationProvider: May return an Instantiation object for the given class with which the injector will 
-                          create an object.
- - DependencyHandler: Offers a way to resolve a given dependency required to instantiate a class, e.g. to implement 
-                      custom behavior for annotations.
- - PostConstructHandler: Allows you to perform an action on an object that has been created with the injector. 
-                         You can support @PostConstruct methods this way or perform some form of validation.
- - AnnotationValueHandler: Called when an annotation and an object are passed to `Injector#register(Class, Object)`.
- - ProviderHandler: Called when a `Provider` or class of `Provider` is supplied for a given class.
-
-Read more about them on the Wiki: [Handlers explained](https://github.com/ljacqu/DependencyInjector/wiki/Handlers)
+You may implement your own logic to instantiate classes and resolve dependencies. This allows you, for example, to
+implement specific behavior for custom annotations.
+Read more on the Wiki: [Handlers explained](https://github.com/ljacqu/DependencyInjector/wiki/Handlers)

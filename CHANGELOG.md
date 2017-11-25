@@ -1,3 +1,19 @@
+#### 1.0
+- Major changes to the internal model the injector uses
+  - Merge all subtypes of Handler into one class (`Handler`) so that it can be easily understood and extended
+  - Rename `Instantiation` to `Resolution`
+  - Dependencies are now defined with an `ObjectIdentifier` instance, which in the future should allow for more
+    features and customizations (especially in regards of supporting more annotations and generics)
+- Create injectable types `Factory<T>` and `SingletonStore<T>` to easily handle instances of a given type
+- Separate injector project into two modules: injector (core), and injector-extras for additional handlers
+
+[:green_book: All issues in 1.0](https://github.com/ljacqu/DependencyInjector/milestone/4?closed=1)
+
+#### 0.4.1
+- Fix Java 9 compatibility by adding dependency to `javax.annotation-api` (`@PostConstruct` annotation
+  not shipped with the JDK 9)
+
+[:green_book: All issues in 0.4.1](https://github.com/ljacqu/DependencyInjector/milestone/7?closed=1)
 
 #### 0.4
 - Default behavior conforms more to `@Inject` Javadoc
