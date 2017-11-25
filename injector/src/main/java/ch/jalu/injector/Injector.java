@@ -8,14 +8,15 @@ import java.util.Collection;
 /**
  * Dependency injector.
  * <p>
- * Allows you to retrieve singletons and new instances. By default, it supports field and constructor injection
+ * Allows you to retrieve singletons and create new instances. By default, it supports field and constructor injection
  * and executes methods annotated with {@code @PostConstruct}. You can obtain an injector and customize its behavior
  * with the {@link InjectorBuilder}.
  */
 public interface Injector {
 
     /**
-     * Registers an object as instance of the given class.
+     * Registers an object as the singleton of the given class. Throws an exception if a singleton is already
+     * available for the class.
      *
      * @param clazz the class to register the object for
      * @param object the object
@@ -25,7 +26,7 @@ public interface Injector {
     <T> void register(Class<? super T> clazz, T object);
 
     /**
-     * Registers a provider for the given object.
+     * Registers a provider for the given class. The provider is used whenever the class needs to be instantiated.
      *
      * @param clazz the class to register the provider for
      * @param provider the provider
@@ -48,7 +49,8 @@ public interface Injector {
 
     /**
      * Processes an annotation with an associated object. The actual behavior of this method depends on the
-     * configured annotation handlers which are added to the injector.
+     * configured handlers of the injector. By default it register the given object for the annotation such
+     * that it may be later injected with the annotation as identifier.
      *
      * @param annotation the annotation
      * @param object the object
@@ -78,12 +80,12 @@ public interface Injector {
     <T> T newInstance(Class<T> clazz);
 
     /**
-     * Returns an instance of the given class if available. This simply returns the instance if present and
-     * otherwise {@code null}. Calling this method will not instantiate anything.
+     * Returns the singleton of the given class if available. This simply returns the instance if present, and
+     * otherwise {@code null}. Calling this method will never create any new objects.
      *
      * @param clazz the class to retrieve the instance for
      * @param <T> the class' type
-     * @return instance or null if none available
+     * @return instance or null if not available
      * @since 0.1
      */
     @Nullable
