@@ -2,7 +2,6 @@
 [![Build Status](https://travis-ci.org/ljacqu/DependencyInjector.svg?branch=master)](https://travis-ci.org/ljacqu/DependencyInjector)
 [![Coverage Status](https://coveralls.io/repos/github/ljacqu/DependencyInjector/badge.svg?branch=master)](https://coveralls.io/github/ljacqu/DependencyInjector?branch=master)
 [![Javadocs](http://www.javadoc.io/badge/ch.jalu/injector.svg)](http://www.javadoc.io/doc/ch.jalu/injector)
-[![Dependency Status](https://www.versioneye.com/user/projects/5768397dfdabcd004d3fcbd1/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5768397dfdabcd004d3fcbd1)
 [![Code Climate](https://codeclimate.com/github/ljacqu/DependencyInjector/badges/gpa.svg)](https://codeclimate.com/github/ljacqu/DependencyInjector)
 
 Simple but customizable dependency injector for Java 1.8 and above.
