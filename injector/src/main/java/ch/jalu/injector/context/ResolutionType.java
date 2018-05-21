@@ -1,9 +1,9 @@
 package ch.jalu.injector.context;
 
 /**
- * Resolution type: defines what scope / context an object should be retrieved or instantiated.
+ * Resolution type: defines in what scope / context an object should be retrieved or instantiated.
  *
- * @see StandardResolutionType for standard types supported by the injector
+ * @see StandardResolutionType for standard types the injector supports by default
  */
 public interface ResolutionType {
 }
