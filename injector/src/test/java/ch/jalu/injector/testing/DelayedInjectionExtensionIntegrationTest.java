@@ -4,9 +4,9 @@ import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.ClassWithAbstractDependency;
 import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.ProvidedClass;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
@@ -21,10 +21,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Some sample tests with {@link DelayedInjectionRunner} as test runner.
+ * Some sample tests with {@link DelayedInjectionExtension} test extension for JUnit 5.
  */
-@RunWith(DelayedInjectionRunner.class)
-public class DelayedInjectionRunnerIntegrationTest {
+@ExtendWith(DelayedInjectionExtension.class)
+public class DelayedInjectionExtensionIntegrationTest {
 
     private List<String> executionOrder = new ArrayList<>();
 
@@ -56,13 +56,13 @@ public class DelayedInjectionRunnerIntegrationTest {
         executionOrder.add("BeforeInjecting");
     }
 
-    @Before
+    @BeforeEach
     public void runBeforeMethod() {
         if (alphaService == null || abstractDependency == null || sampleInjectClass == null) {
             throw new IllegalStateException("Found null field annotated with @InjectDelayed or @Mock. "
                 + "This should not be the case in the @Before method.");
         }
-        executionOrder.add("Before");
+        executionOrder.add("BeforeEach");
     }
 
     @Test
@@ -76,7 +76,7 @@ public class DelayedInjectionRunnerIntegrationTest {
 
         // Otherwise not much to check, having landed here means the test was run successfully.
         // @BeforeInjecting and @Before methods check that they were run under the expected conditions.
-        assertThat(executionOrder, contains("BeforeInjecting", "Before"));
+        assertThat(executionOrder, contains("BeforeInjecting", "BeforeEach"));
     }
 
 }
