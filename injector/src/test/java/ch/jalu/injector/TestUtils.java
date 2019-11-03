@@ -7,9 +7,6 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.rules.ExpectedException;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -44,40 +41,6 @@ public final class TestUtils {
                 description.appendValue("Annotation of type @" + type.getSimpleName());
             }
         };
-    }
-
-    public static void assertIsProperUtilsClass(Class<?> clazz) {
-        if (!Modifier.isFinal(clazz.getModifiers())) {
-            throw new IllegalStateException("Class '" + clazz.getSimpleName() + "' should be declared final "
-                + "if it is a utility class");
-        }
-        validateHasOnlyPrivateEmptyConstructor(clazz);
-    }
-
-    /**
-     * Check that a class only has a hidden, zero-argument constructor, preventing the
-     * instantiation of such classes (utility classes).
-     *
-     * @param clazz The class to validate
-     */
-    private static void validateHasOnlyPrivateEmptyConstructor(Class<?> clazz) {
-        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-        if (constructors.length > 1) {
-            throw new IllegalStateException("Class " + clazz.getSimpleName() + " has more than one constructor");
-        } else if (constructors[0].getParameterTypes().length != 0) {
-            throw new IllegalStateException("Constructor of " + clazz + " does not have empty parameter list");
-        } else if (!Modifier.isPrivate(constructors[0].getModifiers())) {
-            throw new IllegalStateException("Constructor of " + clazz + " is not private");
-        }
-
-        // Ugly hack to get coverage on the private constructors
-        // http://stackoverflow.com/questions/14077842/how-to-test-a-private-constructor-in-java-application
-        try {
-            constructors[0].setAccessible(true);
-            constructors[0].newInstance();
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new UnsupportedOperationException(e);
-        }
     }
 
     public static <T> T findOrThrow(Collection<T> coll, Predicate<? super T> predicate) {

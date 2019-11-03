@@ -1,6 +1,5 @@
 package ch.jalu.injector.utils;
 
-import ch.jalu.injector.TestUtils;
 import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.dependency.TypeSafeAnnotationHandler;
@@ -181,13 +180,7 @@ public class InjectorUtilsTest {
         assertThat(result3, equalTo(true));
     }
 
-    @Test
-    public void shouldBeWellFormedUtilsClass() {
-        TestUtils.assertIsProperUtilsClass(InjectorUtils.class);
-    }
-
     private enum SampleEnum {
 
     }
-
 }

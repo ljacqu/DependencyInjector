@@ -1,6 +1,5 @@
 package ch.jalu.injector.utils;
 
-import ch.jalu.injector.TestUtils;
 import ch.jalu.injector.annotations.NoFieldScan;
 import ch.jalu.injector.annotations.NoMethodScan;
 import ch.jalu.injector.exceptions.InjectorException;
@@ -286,11 +285,6 @@ public class ReflectionUtilsTest {
 
         // when
         ReflectionUtils.toSuitableCollectionType(rawType, set);
-    }
-
-    @Test
-    public void shouldBeWellFormedUtilsClass() {
-        TestUtils.assertIsProperUtilsClass(ReflectionUtils.class);
     }
 
     @Test
