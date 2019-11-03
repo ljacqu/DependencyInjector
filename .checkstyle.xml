@@ -28,7 +28,8 @@
             <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
         </module>
         <module name="TodoComment">
-            <property name="format" value="TODO|FIXME"/>
+            <!-- Allow comments which have an issue number as they are accounted for in the issue tracker -->
+            <property name="format" value="TODO(?! #\d+:)|FIXME"/>
         </module>
         <module name="GenericWhitespace"/>
         <module name="AvoidStarImport"/>
