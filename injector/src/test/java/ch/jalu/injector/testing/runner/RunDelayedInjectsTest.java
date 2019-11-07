@@ -4,7 +4,7 @@ import ch.jalu.injector.testing.DelayedInjectionRunnerIntegrationTest;
 import ch.jalu.injector.testing.InjectDelayed;
 import ch.jalu.injector.testing.SampleInjectClass;
 import ch.jalu.injector.utils.ReflectionUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;

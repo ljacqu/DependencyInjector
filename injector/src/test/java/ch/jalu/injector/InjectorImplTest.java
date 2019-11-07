@@ -1,6 +1,5 @@
 package ch.jalu.injector;
 
-import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
@@ -28,10 +27,8 @@ import ch.jalu.injector.samples.SampleInstantiationImpl;
 import ch.jalu.injector.samples.Size;
 import ch.jalu.injector.samples.StaticFieldInjection;
 import ch.jalu.injector.samples.inheritance.Child;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -56,6 +53,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -73,14 +71,8 @@ public class InjectorImplTest {
     private Injector injector;
     private InjectorConfig config;
 
-    // As we test many cases that throw exceptions, we use JUnit's ExpectedException Rule
-    // to make sure that we receive the exception we expect
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
-
-    @Before
-    public void initialize() throws NoSuchFieldException {
+    @BeforeEach
+    public void initialize() {
         injector = new InjectorBuilder()
             .addDefaultHandlers(ALLOWED_PACKAGE)
             .create();
@@ -109,16 +101,20 @@ public class InjectorImplTest {
 
     @Test
     public void shouldThrowForInvalidPackage() {
-        // given / when / then
-        exceptionCatcher.expect("outside of the allowed packages");
-        injector.getSingleton(InvalidClass.class);
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(InvalidClass.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("outside of the allowed packages"));
     }
 
     @Test
     public void shouldThrowForUnregisteredPrimitiveType() {
-        // given / when / then
-        exceptionCatcher.expect("Primitive types must be provided");
-        injector.getSingleton(int.class);
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(int.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Primitive types must be provided"));
     }
 
     @Test
@@ -142,16 +138,20 @@ public class InjectorImplTest {
 
     @Test
     public void shouldRecognizeCircularReferences() {
-        // given / when / then
-        exceptionCatcher.expect("Found cyclic dependency");
-        injector.getSingleton(CircularClasses.Circular3.class);
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(CircularClasses.Circular3.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Found cyclic dependency"));
     }
 
     @Test
     public void shouldThrowForFieldInjectionWithoutNoArgsConstructor() {
-        // given / when / then
-        exceptionCatcher.expect("Did not find instantiation method");
-        injector.getSingleton(BadFieldInjection.class);
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(BadFieldInjection.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Did not find instantiation method"));
     }
 
     @Test
@@ -174,23 +174,29 @@ public class InjectorImplTest {
 
     @Test
     public void shouldThrowForSecondRegistration() {
-        // given / when / then
-        exceptionCatcher.expect("There is already an object present");
-        injector.register(ProvidedClass.class, new ProvidedClass(""));
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(BadFieldInjection.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Did not find instantiation method"));
     }
 
     @Test
     public void shouldThrowForRegisterWithNull() {
-        // given / when / then
-        exceptionCatcher.expect("may not be null");
-        injector.register(String.class, null);
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.register(String.class, null));
+
+        // then
+        assertThat(ex.getMessage(), containsString("may not be null"));
     }
 
     @Test
     public void shouldThrowForAbstractNonRegisteredDependency() {
-        // given / when / then
-        exceptionCatcher.expect("cannot be instantiated");
-        injector.getSingleton(ClassWithAbstractDependency.class);
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(ClassWithAbstractDependency.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("cannot be instantiated"));
     }
 
     @Test
@@ -212,9 +218,11 @@ public class InjectorImplTest {
         // given
         injector.register(BetaManager.class, new BetaManager());
 
-        // when / then
-        exceptionCatcher.expect("There is already an object present");
-        injector.register(BetaManager.class, new BetaManager());
+        // when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.register(BetaManager.class, new BetaManager()));
+
+        // then
+        assertThat(ex.getMessage(), containsString("There is already an object present"));
     }
 
     @Test
@@ -231,11 +239,11 @@ public class InjectorImplTest {
 
     @Test
     public void shouldThrowForStaticFieldToInject() {
-        // expect
-        exceptionCatcher.expect("@Inject may not be placed on static fields");
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.newInstance(StaticFieldInjection.class));
 
-        // when
-        injector.newInstance(StaticFieldInjection.class);
+        // then
+        assertThat(ex.getMessage(), containsString("@Inject may not be placed on static fields"));
     }
 
     @Test
@@ -321,13 +329,11 @@ public class InjectorImplTest {
 
     @Test
     public void shouldThrowForNullAsAnnotation() {
-        // given
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.provide(null, new Object()));
 
-        // expect
-        exceptionCatcher.expect("annotation may not be null");
-
-        // when
-        injector.provide(null, new Object());
+        // then
+        assertThat(ex.getMessage(), containsString("annotation may not be null"));
     }
 
     @Test
@@ -339,47 +345,47 @@ public class InjectorImplTest {
         doThrow(Exception.class).when(annoValHandler).onAnnotation(annotation, object);
         config.addHandlers(Collections.singletonList(annoValHandler));
 
-        // expect
-        exceptionCatcher.expect("An error occurred");
-
         // when
-        injector.provide(annotation, object);
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.provide(annotation, object));
+
+        // then
+        assertThat(ex.getMessage(), containsString("An error occurred"));
     }
 
     @Test
     public void shouldThrowForNullProvider() {
-        // expect
-        exceptionCatcher.expect("may not be null");
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.registerProvider(Delta.class, (Provider<Delta>) null));
 
-        // when
-        injector.registerProvider(Delta.class, (Provider<Delta>) null);
+        // then
+        assertThat(ex.getMessage(), containsString("may not be null"));
     }
 
     @Test
     public void shouldThrowForNullClassWithProvider() {
-        // expect
-        exceptionCatcher.expect("may not be null");
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.registerProvider(null, mock(Provider.class)));
 
-        // when
-        injector.registerProvider(null, mock(Provider.class));
+        // then
+        assertThat(ex.getMessage(), containsString("may not be null"));
     }
 
     @Test
     public void shouldThrowForNullProviderClass() {
-        // expect
-        exceptionCatcher.expect("may not be null");
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.registerProvider(BetaManager.class, (Class<Provider<BetaManager>>) null));
 
-        // when
-        injector.registerProvider(BetaManager.class, (Class<Provider<BetaManager>>) null);
+        // then
+        assertThat(ex.getMessage(), containsString("may not be null"));
     }
 
     @Test
     public void shouldThrowForNullClassWithProviderClass() {
-        // expect
-        exceptionCatcher.expect("may not be null");
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.registerProvider(null, Provider.class));
 
-        // when
-        injector.registerProvider(null, Provider.class);
+        // then
+        assertThat(ex.getMessage(), containsString("may not be null"));
     }
 
     @Test
@@ -543,11 +549,11 @@ public class InjectorImplTest {
         );
         config.getHandlers().add(1, handler);
 
-        // expect
-        exceptionCatcher.expect("Found null returned as dependency");
-
         // when
-        injector.getSingleton(Child.class);
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(Child.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Found null returned as dependency"));
     }
 
     private static void assertAreAllSameInstance(Object... objects) {

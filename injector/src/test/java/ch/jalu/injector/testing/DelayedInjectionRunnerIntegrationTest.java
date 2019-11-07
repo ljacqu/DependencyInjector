@@ -60,7 +60,7 @@ public class DelayedInjectionRunnerIntegrationTest {
     public void runBeforeMethod() {
         if (alphaService == null || abstractDependency == null || sampleInjectClass == null) {
             throw new IllegalStateException("Found null field annotated with @InjectDelayed or @Mock. "
-                + "This should not be the case in the @Before method.");
+                + "This should not be the case in the @BeforeEach method.");
         }
         executionOrder.add("Before");
     }
@@ -75,7 +75,7 @@ public class DelayedInjectionRunnerIntegrationTest {
         assertThat(sampleInjectClass.getStringField(), equalTo(stringFieldSample));
 
         // Otherwise not much to check, having landed here means the test was run successfully.
-        // @BeforeInjecting and @Before methods check that they were run under the expected conditions.
+        // @BeforeInjecting and @BeforeEach methods check that they were run under the expected conditions.
         assertThat(executionOrder, contains("BeforeInjecting", "Before"));
     }
 

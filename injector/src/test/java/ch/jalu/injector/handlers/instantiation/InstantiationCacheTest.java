@@ -8,8 +8,8 @@ import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.utils.ReflectionUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.lang.ref.WeakReference;
@@ -38,7 +38,7 @@ public class InstantiationCacheTest {
     private DefaultInjectionProvider defaultInjectionProvider;
     private InstantiationCache instantiationCache;
 
-    @Before
+    @BeforeEach
     public void setUpInjector() {
         List<Handler> handlers = InjectorBuilder.createDefaultHandlers("ch.jalu.injector.samples");
         InstantiationCache instantiationCache = new InstantiationCache();

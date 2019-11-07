@@ -8,12 +8,12 @@ import ch.jalu.injector.handlers.instantiation.Resolution;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.ClassWithAbstractDependency;
 import ch.jalu.injector.testing.DelayedInjectionRunnerIntegrationTest;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runners.model.TestClass;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static ch.jalu.injector.InjectorTestHelper.unwrapFromSimpleResolution;
 import static org.hamcrest.Matchers.containsString;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Test for {@link MockDependencyHandler}.
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MockDependencyHandlerTest {
 
     @Mock

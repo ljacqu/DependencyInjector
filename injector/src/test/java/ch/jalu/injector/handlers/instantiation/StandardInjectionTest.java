@@ -1,6 +1,5 @@
 package ch.jalu.injector.handlers.instantiation;
 
-import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.annotations.NoFieldScan;
 import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.exceptions.InjectorException;
@@ -24,9 +23,7 @@ import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.samples.Size;
 import ch.jalu.injector.samples.StaticFieldInjection;
 import ch.jalu.injector.samples.inheritance.Child;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.lang.annotation.Annotation;
@@ -35,6 +32,7 @@ import java.util.List;
 
 import static ch.jalu.injector.TestUtils.annotationOf;
 import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
@@ -43,6 +41,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test for {@link StandardInjectionProvider} and {@link StandardInjection}.
@@ -50,10 +49,6 @@ import static org.junit.Assert.fail;
 public class StandardInjectionTest {
     
     private StandardInjectionProvider provider = new StandardInjectionProvider();
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
 
     @Test
     public void shouldReturnDependencies() {
@@ -119,14 +114,15 @@ public class StandardInjectionTest {
         assertThat(gammaService, not(nullValue()));
     }
 
-    @Test(expected = InjectorException.class)
+    @Test
     public void shouldThrowUponInstantiationError() {
         // given
         AlphaService alphaService = AlphaService.newInstance(new ProvidedClass(""));
         Resolution<InvalidClass> injection = provider.safeGet(InvalidClass.class);
 
-        // when
-        injection.instantiateWith(alphaService, 5);
+        // when / then
+        assertThrows(InjectorException.class,
+            () -> injection.instantiateWith(alphaService, 5));
     }
 
     @Test
@@ -184,7 +180,7 @@ public class StandardInjectionTest {
         }
     }
 
-    @Test(expected = InjectorReflectionException.class)
+    @Test
     public void shouldThrowForInvalidFieldValue() {
         // given
         ProvidedClass providedClass = new ProvidedClass("");
@@ -194,7 +190,8 @@ public class StandardInjectionTest {
 
         // when / then
         // Correct order is provided, gamma, alpha
-        injection.instantiateWith(providedClass, alphaService, gammaService);
+        assertThrows(InjectorReflectionException.class,
+            () -> injection.instantiateWith(providedClass, alphaService, gammaService));
     }
 
     @Test
@@ -252,14 +249,15 @@ public class StandardInjectionTest {
         assertThat(dependencies, empty());
     }
 
-    @Test(expected = InjectorException.class)
+    @Test
     public void shouldThrowIfArgumentsAreSupplied() {
         // given
         Resolution<FallbackClass> instantiation =
             provider.safeGet(FallbackClass.class);
 
         // when / then
-        instantiation.instantiateWith("some argument");
+        assertThrows(InjectorException.class,
+            () -> instantiation.instantiateWith("some argument"));
     }
 
     @Test
@@ -291,29 +289,29 @@ public class StandardInjectionTest {
 
     @Test
     public void shouldThrowDueToFinalField() {
-        // expect
-        exceptionCatcher.expect("may not be final and have @Inject");
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> provider.safeGet(InvalidFinalInjectField.class));
 
-        // when
-        provider.safeGet(InvalidFinalInjectField.class);
+        // then
+        assertThat(ex.getMessage(), containsString("may not be final and have @Inject"));
     }
 
     @Test
     public void shouldThrowForMultipleInjectConstructors() {
-        // expect
-        exceptionCatcher.expect("may not have multiple @Inject constructors");
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> provider.safeGet(InvalidMultipleInjectConstructors.class));
 
-        // when
-        provider.safeGet(InvalidMultipleInjectConstructors.class);
+        // then
+        assertThat(ex.getMessage(), containsString("may not have multiple @Inject constructors"));
     }
 
     @Test
     public void shouldThrowForClassWithInjectMethods() {
-        // expect
-        exceptionCatcher.expect("@Inject on methods is not supported");
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> provider.safeGet(ClassWithInjectMethod.class));
 
-        // when
-        provider.safeGet(ClassWithInjectMethod.class);
+        // then
+        assertThat(ex.getMessage(), containsString("@Inject on methods is not supported"));
     }
 
     @SafeVarargs

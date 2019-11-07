@@ -6,7 +6,7 @@ import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.handlers.instantiation.Resolution;
 import ch.jalu.injector.handlers.instantiation.SimpleResolution;
 import ch.jalu.injector.samples.Size;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.annotation.Nullable;
 

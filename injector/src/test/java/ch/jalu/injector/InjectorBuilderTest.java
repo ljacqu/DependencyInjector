@@ -20,7 +20,7 @@ import ch.jalu.injector.samples.vehicles.Vehicle;
 import ch.jalu.injector.samples.vehicles.VehicleWithHorn;
 import ch.jalu.injector.samples.vehicles.services.SailService;
 import ch.jalu.injector.samples.vehicles.services.SailServiceProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;

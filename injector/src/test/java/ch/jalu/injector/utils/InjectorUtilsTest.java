@@ -1,18 +1,14 @@
 package ch.jalu.injector.utils;
 
-import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.dependency.TypeSafeAnnotationHandler;
-import org.hamcrest.Matchers;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test for {@link InjectorUtils}.
@@ -20,10 +16,6 @@ import static org.junit.Assert.fail;
 public class InjectorUtilsTest {
 
     private static final String DEFAULT_NOT_NULL_MSG = "Object may not be null";
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
 
     @Test
     public void shouldPassSimpleChecks() {
@@ -41,11 +33,11 @@ public class InjectorUtilsTest {
         String message = "custom msg";
         Object o = null;
 
-        // expect
-        exceptionCatcher.expect(message);
-
         // when
-        InjectorUtils.checkNotNull(o, message);
+        InjectorException ex = assertThrows(InjectorException.class, () -> InjectorUtils.checkNotNull(o, message));
+
+        // then
+        assertThat(ex.getMessage(), equalTo(message));
     }
 
     @Test
@@ -53,11 +45,11 @@ public class InjectorUtilsTest {
         // given
         String[] elems = {"this", "is", null, "test", "array"};
 
-        // expect
-        exceptionCatcher.expect(DEFAULT_NOT_NULL_MSG);
-
         // when
-        InjectorUtils.checkNoNullValues(elems);
+        InjectorException ex = assertThrows(InjectorException.class, () -> InjectorUtils.checkNoNullValues(elems));
+
+        // then
+        assertThat(ex.getMessage(), equalTo(DEFAULT_NOT_NULL_MSG));
     }
 
     @Test
@@ -65,11 +57,11 @@ public class InjectorUtilsTest {
         // given
         Iterable<Boolean> elems = null;
 
-        // expect
-        exceptionCatcher.expect(DEFAULT_NOT_NULL_MSG);
-
         // when
-        InjectorUtils.checkNoNullValues(elems);
+        InjectorException ex = assertThrows(InjectorException.class, () -> InjectorUtils.checkNoNullValues(elems));
+
+        // then
+        assertThat(ex.getMessage(), equalTo(DEFAULT_NOT_NULL_MSG));
     }
 
     @Test
@@ -77,11 +69,11 @@ public class InjectorUtilsTest {
         // given
         String[] arr = null;
 
-        // expect
-        exceptionCatcher.expect(DEFAULT_NOT_NULL_MSG);
-
         // when
-        InjectorUtils.checkNotNull(arr);
+        InjectorException ex = assertThrows(InjectorException.class, () -> InjectorUtils.checkNotNull(arr));
+
+        // then
+        assertThat(ex.getMessage(), equalTo(DEFAULT_NOT_NULL_MSG));
     }
 
     @Test
@@ -89,11 +81,11 @@ public class InjectorUtilsTest {
         // given
         String msg = "Argument check was unsuccessful";
 
-        // expect
-        exceptionCatcher.expect(msg);
-
         // when
-        InjectorUtils.checkArgument(false, msg);
+        InjectorException ex = assertThrows(InjectorException.class, () -> InjectorUtils.checkArgument(false, msg));
+
+        // then
+        assertThat(ex.getMessage(), equalTo(msg));
     }
 
     @Test
@@ -101,14 +93,12 @@ public class InjectorUtilsTest {
         // given
         Exception e = new IllegalArgumentException("Original exception is this");
 
-        // when / then
-        try {
-            InjectorUtils.rethrowException(e);
-            fail("Expected exception to have been thrown");
-        } catch (InjectorException ex) {
-            assertThat(ex.getMessage(), containsString("An error occurred"));
-            assertThat(ex.getCause(), Matchers.<Throwable>equalTo(e));
-        }
+        // when
+        InjectorException ex = assertThrows(InjectorException.class, () -> InjectorUtils.rethrowException(e));
+
+        // then
+        assertThat(ex.getMessage(), containsString("An error occurred"));
+        assertThat(ex.getCause(), equalTo(e));
     }
 
     @Test
@@ -116,14 +106,12 @@ public class InjectorUtilsTest {
         // given
         InjectorException e = new InjectorException("Error during injection");
 
-        // when / then
-        try {
-            InjectorUtils.rethrowException(e);
-            fail("Expected exception to have been thrown");
-        } catch (InjectorException ex) {
-            assertThat(ex, equalTo(e));
-            assertThat(ex.getCause(), nullValue());
-        }
+        // when
+        InjectorException ex = assertThrows(InjectorException.class, () -> InjectorUtils.rethrowException(e));
+
+        // then
+        assertThat(ex, equalTo(e));
+        assertThat(ex.getCause(), nullValue());
     }
 
     @Test
@@ -131,14 +119,12 @@ public class InjectorUtilsTest {
         // given
         InjectorException e = null;
 
-        // when / then
-        try {
-            InjectorUtils.rethrowException(e);
-            fail("Expected exception to have been thrown");
-        } catch (InjectorException ex) {
-            assertThat(ex.getMessage(), containsString("An error occurred"));
-            assertThat(ex.getCause(), nullValue());
-        }
+        // when
+        InjectorException ex = assertThrows(InjectorException.class, () -> InjectorUtils.rethrowException(e));
+
+        // then
+        assertThat(ex.getMessage(), containsString("An error occurred"));
+        assertThat(ex.getCause(), nullValue());
     }
 
     @Test

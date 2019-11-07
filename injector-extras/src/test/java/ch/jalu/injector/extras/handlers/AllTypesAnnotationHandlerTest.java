@@ -13,13 +13,13 @@ import ch.jalu.injector.extras.samples.animals.Reptile;
 import ch.jalu.injector.extras.samples.animals.Snake;
 import ch.jalu.injector.extras.samples.animals.Sparrow;
 import ch.jalu.injector.extras.samples.animals.Turtle;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertThat;
 
 /**
  * Test for {@link AllTypesAnnotationHandler}.
@@ -28,7 +28,7 @@ public class AllTypesAnnotationHandlerTest {
 
     private Injector injector;
 
-    @Before
+    @BeforeEach
     public void initializeInjector() {
         String rootPackage = "ch.jalu.injector.extras.samples.animals";
         injector = new InjectorBuilder()
@@ -39,7 +39,7 @@ public class AllTypesAnnotationHandlerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void shouldInitializeCorrectly() throws Exception {
+    public void shouldInitializeCorrectly() {
         // given / when
         AnimalLister animalLister = injector.getSingleton(AnimalLister.class);
         Set<Class<Animal>> animalTypes = animalLister.getAnimalTypes();

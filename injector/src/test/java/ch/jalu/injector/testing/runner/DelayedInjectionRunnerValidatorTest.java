@@ -2,7 +2,7 @@ package ch.jalu.injector.testing.runner;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.testing.DelayedInjectionRunnerIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;

@@ -1,7 +1,7 @@
 package ch.jalu.injector;
 
 import ch.jalu.injector.demo.MyApp;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;

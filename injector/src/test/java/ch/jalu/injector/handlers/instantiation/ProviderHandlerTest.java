@@ -14,7 +14,7 @@ import ch.jalu.injector.handlers.dependency.providers.Delta1;
 import ch.jalu.injector.handlers.dependency.providers.Delta1Provider;
 import ch.jalu.injector.handlers.dependency.providers.Delta2;
 import ch.jalu.injector.handlers.dependency.providers.Delta2Provider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.inject.Provider;
 import java.util.List;

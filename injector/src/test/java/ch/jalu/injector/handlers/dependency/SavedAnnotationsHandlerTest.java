@@ -6,7 +6,7 @@ import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.instantiation.Resolution;
 import ch.jalu.injector.samples.Duration;
 import ch.jalu.injector.samples.Size;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 
@@ -16,6 +16,7 @@ import static ch.jalu.injector.InjectorTestHelper.unwrapFromSimpleResolution;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test for {@link SavedAnnotationsHandler}.
@@ -61,22 +62,20 @@ public class SavedAnnotationsHandlerTest {
         assertThat(result, nullValue());
     }
 
-    @Test(expected = InjectorException.class)
+    @Test
     public void shouldThrowForSecondAnnotationRegistration() {
         // given
         savedAnnotationsHandler.onAnnotation(Size.class, 12);
 
-        // when
-        savedAnnotationsHandler.onAnnotation(Size.class, -8);
-
-        // then - exception
+        // when / then
+        assertThrows(InjectorException.class,
+            () -> savedAnnotationsHandler.onAnnotation(Size.class, -8));
     }
 
-    @Test(expected = InjectorException.class)
+    @Test
     public void shouldThrowForNullValueAssociatedToAnnotation() {
-        // given / when
-        savedAnnotationsHandler.onAnnotation(Duration.class, null);
-
-        // then - exception
+        // given / when / then
+        assertThrows(InjectorException.class,
+            () -> savedAnnotationsHandler.onAnnotation(Duration.class, null));
     }
 }

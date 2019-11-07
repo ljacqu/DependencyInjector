@@ -1,18 +1,14 @@
 package ch.jalu.injector;
 
-import ch.jalu.injector.exceptions.InjectorException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.rules.ExpectedException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.function.Predicate;
-
-import static org.hamcrest.Matchers.containsString;
 
 /**
  * Utility class for testing.
@@ -66,18 +62,4 @@ public final class TestUtils {
             }
         };
     }
-
-    public static final class ExceptionCatcher {
-        private final ExpectedException expectedException;
-
-        public ExceptionCatcher(ExpectedException expectedException) {
-            this.expectedException = expectedException;
-        }
-
-        public void expect(String message) {
-            expectedException.expect(InjectorException.class);
-            expectedException.expectMessage(containsString(message));
-        }
-    }
-
 }

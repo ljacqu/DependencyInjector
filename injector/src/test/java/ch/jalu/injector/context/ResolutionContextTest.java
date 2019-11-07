@@ -1,7 +1,7 @@
 package ch.jalu.injector.context;
 
 import ch.jalu.injector.exceptions.InjectorException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;

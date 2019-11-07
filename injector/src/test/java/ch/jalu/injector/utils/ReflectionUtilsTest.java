@@ -4,7 +4,7 @@ import ch.jalu.injector.annotations.NoFieldScan;
 import ch.jalu.injector.annotations.NoMethodScan;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.exceptions.InjectorReflectionException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.inject.Provider;
 import java.lang.reflect.Constructor;
@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -49,18 +50,19 @@ public class ReflectionUtilsTest {
         assertThat(result, equalTo(str));
     }
 
-    @Test(expected = InjectorReflectionException.class)
+    @Test
     public void shouldForwardException() throws NoSuchFieldException {
         // given
         ReflectionsTestClass testClass = new ReflectionsTestClass("abc", 123);
         Field field = GenericTypesClass.class.getDeclaredField("boolList");
 
-        // when
-        ReflectionUtils.getFieldValue(field, testClass);
+        // when / then
+        assertThrows(InjectorReflectionException.class,
+            () -> ReflectionUtils.getFieldValue(field, testClass));
     }
 
     @Test
-    public void shouldGetStaticFieldValue() throws NoSuchFieldException {
+    public void shouldGetStaticFieldValue() {
         // given
         Object o = new Object();
         ReflectionsTestClass.changeStaticObject(o);
@@ -99,13 +101,14 @@ public class ReflectionUtilsTest {
         assertThat(ReflectionsTestClass.changeStaticObject(null), equalTo(o));
     }
 
-    @Test(expected = InjectorReflectionException.class)
+    @Test
     public void shouldForwardExceptionWhenSettingField() {
         // given
         Field field = getField("integer");
 
-        // when
-        ReflectionUtils.setField(field, new Object(), 3);
+        // when / then
+        assertThrows(InjectorReflectionException.class,
+            () -> ReflectionUtils.setField(field, new Object(), 3));
     }
 
     @Test
@@ -137,14 +140,15 @@ public class ReflectionUtilsTest {
         assertThat(ReflectionsTestClass.changeStaticObject(null), equalTo(o));
     }
 
-    @Test(expected = InjectorReflectionException.class)
+    @Test
     public void shouldForwardExceptionFromMethod() {
         // given
         ReflectionsTestClass testClass = new ReflectionsTestClass("", 123);
         Method method = getMethod("throwingMethod");
 
-        // when
-        ReflectionUtils.invokeMethod(method, testClass);
+        // when / then
+        assertThrows(InjectorException.class,
+            () -> ReflectionUtils.invokeMethod(method, testClass));
     }
 
     @Test
@@ -160,14 +164,15 @@ public class ReflectionUtilsTest {
         assertThat(testClass.getInteger(), equalTo(543));
     }
 
-    @Test(expected = InjectorReflectionException.class)
+    @Test
     public void shouldForwardExceptionFromConstructor() throws NoSuchMethodException {
         // given
         Constructor<ReflectionsTestClass> constr = ReflectionsTestClass.class
             .getDeclaredConstructor(boolean.class);
 
         // when
-        ReflectionUtils.newInstance(constr, true);
+        assertThrows(InjectorException.class,
+            () -> ReflectionUtils.newInstance(constr, true));
     }
 
     @Test
@@ -277,14 +282,15 @@ public class ReflectionUtilsTest {
         assertThat(result == set, equalTo(true));
     }
 
-    @Test(expected = InjectorException.class)
+    @Test
     public void shouldThrowForUnmatchedType() {
         // given
         Set<Character> set = new HashSet<>(Arrays.asList('a', 'b', 'c', 'd'));
         Class<?> rawType = Map.class;
 
-        // when
-        ReflectionUtils.toSuitableCollectionType(rawType, set);
+        // when / then
+        assertThrows(InjectorException.class,
+            () -> ReflectionUtils.toSuitableCollectionType(rawType, set));
     }
 
     @Test
