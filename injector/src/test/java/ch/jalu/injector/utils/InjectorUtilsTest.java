@@ -13,12 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Test for {@link InjectorUtils}.
  */
-public class InjectorUtilsTest {
+class InjectorUtilsTest {
 
     private static final String DEFAULT_NOT_NULL_MSG = "Object may not be null";
 
     @Test
-    public void shouldPassSimpleChecks() {
+    void shouldPassSimpleChecks() {
         InjectorUtils.checkNotNull(new Object());
         InjectorUtils.checkNotNull(new Object(), "New Object should not be null");
 
@@ -28,7 +28,7 @@ public class InjectorUtilsTest {
     }
 
     @Test
-    public void shouldThrowWithCustomMessage() {
+    void shouldThrowWithCustomMessage() {
         // given
         String message = "custom msg";
         Object o = null;
@@ -41,7 +41,7 @@ public class InjectorUtilsTest {
     }
 
     @Test
-    public void shouldThrowForArrayWithNullValue() {
+    void shouldThrowForArrayWithNullValue() {
         // given
         String[] elems = {"this", "is", null, "test", "array"};
 
@@ -53,7 +53,7 @@ public class InjectorUtilsTest {
     }
 
     @Test
-    public void shouldThrowForNullIterable() {
+    void shouldThrowForNullIterable() {
         // given
         Iterable<Boolean> elems = null;
 
@@ -65,7 +65,7 @@ public class InjectorUtilsTest {
     }
 
     @Test
-    public void shouldThrowForNullArray() {
+    void shouldThrowForNullArray() {
         // given
         String[] arr = null;
 
@@ -77,7 +77,7 @@ public class InjectorUtilsTest {
     }
 
     @Test
-    public void shouldThrowForInvalidArgumentCheck() {
+    void shouldThrowForInvalidArgumentCheck() {
         // given
         String msg = "Argument check was unsuccessful";
 
@@ -89,7 +89,7 @@ public class InjectorUtilsTest {
     }
 
     @Test
-    public void shouldRethrowException() {
+    void shouldRethrowException() {
         // given
         Exception e = new IllegalArgumentException("Original exception is this");
 
@@ -102,7 +102,7 @@ public class InjectorUtilsTest {
     }
 
     @Test
-    public void shouldForwardException() {
+    void shouldForwardException() {
         // given
         InjectorException e = new InjectorException("Error during injection");
 
@@ -115,7 +115,7 @@ public class InjectorUtilsTest {
     }
 
     @Test
-    public void shouldHandleNullExceptionProperly() {
+    void shouldHandleNullExceptionProperly() {
         // given
         InjectorException e = null;
 
@@ -128,14 +128,14 @@ public class InjectorUtilsTest {
     }
 
     @Test
-    public void shouldReturnFirstNotNull() {
+    void shouldReturnFirstNotNull() {
         assertThat(InjectorUtils.firstNotNull(null, "test"), equalTo("test"));
         assertThat(InjectorUtils.firstNotNull("rest", "pest"), equalTo("rest"));
         assertThat(InjectorUtils.firstNotNull(null, null), nullValue());
     }
 
     @Test
-    public void shouldEvaluateIfInstantiable() {
+    void shouldEvaluateIfInstantiable() {
         // interface
         assertThat(InjectorUtils.canInstantiate(Iterable.class), equalTo(false));
         // enum
@@ -149,7 +149,7 @@ public class InjectorUtilsTest {
     }
 
     @Test
-    public void shouldFindNullInArray() {
+    void shouldFindNullInArray() {
         // given
         String[] arr1 = {"a", "b", "c", "d", "e"};
         Double[] arr2 = {2.0, 3.1, 4.4, null, 6.7};

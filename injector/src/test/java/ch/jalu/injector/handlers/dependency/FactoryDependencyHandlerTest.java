@@ -39,18 +39,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Test for {@link FactoryDependencyHandler}.
  */
 @ExtendWith(MockitoExtension.class)
-public class FactoryDependencyHandlerTest {
+class FactoryDependencyHandlerTest {
 
     private Injector injector;
 
     @BeforeEach
-    public void setUpInjector() {
+    void setUpInjector() {
         injector = new InjectorBuilder().addHandlers(createHandlers()).create();
         injector.register(ProvidedClass.class, new ProvidedClass(""));
     }
 
     @Test
-    public void shouldCreateGrandparentTypes() {
+    void shouldCreateGrandparentTypes() {
         // given
         Factory<Grandparent> factory = getFactoryForClass(Grandparent.class);
 
@@ -67,7 +67,7 @@ public class FactoryDependencyHandlerTest {
     }
 
     @Test
-    public void shouldThrowForClassNotWithinBounds() {
+    void shouldThrowForClassNotWithinBounds() {
         // given
         Factory<Parent> factory = getFactoryForClass(Parent.class);
 
@@ -79,7 +79,7 @@ public class FactoryDependencyHandlerTest {
     }
 
     @Test
-    public void shouldAllowObjectAsClass() {
+    void shouldAllowObjectAsClass() {
         // given
         Factory<Object> factory = getFactoryForClass(Object.class);
 
@@ -94,7 +94,7 @@ public class FactoryDependencyHandlerTest {
     }
 
     @Test
-    public void shouldThrowForUnspecifiedGenerics() {
+    void shouldThrowForUnspecifiedGenerics() {
         // given
         ResolutionContext context = new ResolutionContext(injector, newIdentifier(Factory.class));
 
@@ -106,7 +106,7 @@ public class FactoryDependencyHandlerTest {
     }
 
     @Test
-    public void shouldReturnNullForNonFactoryType() {
+    void shouldReturnNullForNonFactoryType() {
         // given
         ResolutionContext context = new ResolutionContext(injector, newIdentifier(Parent.class));
 

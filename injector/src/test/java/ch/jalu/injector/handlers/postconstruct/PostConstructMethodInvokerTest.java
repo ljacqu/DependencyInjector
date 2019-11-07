@@ -17,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Test for {@link PostConstructMethodInvoker}.
  */
-public class PostConstructMethodInvokerTest {
+class PostConstructMethodInvokerTest {
 
     private PostConstructMethodInvoker postConstructInvoker = new PostConstructMethodInvoker();
 
     @Test
-    public void shouldExecutePostConstructMethod() {
+    void shouldExecutePostConstructMethod() {
         // given
         PostConstructTestClass testClass = new PostConstructTestClass(123, new ProvidedClass(""));
 
@@ -34,7 +34,7 @@ public class PostConstructMethodInvokerTest {
     }
 
     @Test
-    public void shouldThrowForInvalidPostConstructMethod() {
+    void shouldThrowForInvalidPostConstructMethod() {
         // given
         WithParams withParams = new WithParams();
 
@@ -47,7 +47,7 @@ public class PostConstructMethodInvokerTest {
     }
 
     @Test
-    public void shouldThrowForStaticPostConstructMethod() {
+    void shouldThrowForStaticPostConstructMethod() {
         // given
         Static classWithStaticMethod = new Static();
 
@@ -60,7 +60,7 @@ public class PostConstructMethodInvokerTest {
     }
 
     @Test
-    public void shouldForwardExceptionFromPostConstruct() {
+    void shouldForwardExceptionFromPostConstruct() {
         // given
         ThrowsException throwsException = new ThrowsException();
 
@@ -73,7 +73,7 @@ public class PostConstructMethodInvokerTest {
     }
 
     @Test
-    public void shouldThrowForMultiplePostConstructMethods() {
+    void shouldThrowForMultiplePostConstructMethods() {
         // given
         MultiplePostConstructs multiplePostConstructs =
             new MultiplePostConstructs();
@@ -87,7 +87,7 @@ public class PostConstructMethodInvokerTest {
     }
 
     @Test
-    public void shouldThrowForPostConstructNotReturningVoid() {
+    void shouldThrowForPostConstructNotReturningVoid() {
         // given
         NotVoidReturnType notVoidReturnType = new NotVoidReturnType();
 
@@ -100,7 +100,7 @@ public class PostConstructMethodInvokerTest {
     }
 
     @Test
-    public void shouldCallPostConstructOnParentsButNotOnNoMethodScanClasses() {
+    void shouldCallPostConstructOnParentsButNotOnNoMethodScanClasses() {
         // given
         ChildClass childClass = new ChildClass();
 

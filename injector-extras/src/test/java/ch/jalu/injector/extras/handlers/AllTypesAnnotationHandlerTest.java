@@ -24,12 +24,12 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 /**
  * Test for {@link AllTypesAnnotationHandler}.
  */
-public class AllTypesAnnotationHandlerTest {
+class AllTypesAnnotationHandlerTest {
 
     private Injector injector;
 
     @BeforeEach
-    public void initializeInjector() {
+    void initializeInjector() {
         String rootPackage = "ch.jalu.injector.extras.samples.animals";
         injector = new InjectorBuilder()
             .addHandlers(new AllTypesAnnotationHandler(rootPackage))
@@ -39,7 +39,7 @@ public class AllTypesAnnotationHandlerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void shouldInitializeCorrectly() {
+    void shouldInitializeCorrectly() {
         // given / when
         AnimalLister animalLister = injector.getSingleton(AnimalLister.class);
         Set<Class<Animal>> animalTypes = animalLister.getAnimalTypes();

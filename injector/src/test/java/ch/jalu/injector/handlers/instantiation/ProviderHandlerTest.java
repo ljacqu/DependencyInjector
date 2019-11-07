@@ -35,12 +35,12 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 /**
  * Test for {@link ProviderHandler}.
  */
-public class ProviderHandlerTest {
+class ProviderHandlerTest {
 
     private ProviderHandler providerHandler = new ProviderHandler();
 
     @Test
-    public void shouldThrowForAlreadyRegisteredProvider() {
+    void shouldThrowForAlreadyRegisteredProvider() {
         // given
         Charlie charlie = mock(Charlie.class);
         providerHandler.onProvider(Delta.class, new Delta2Provider(charlie));
@@ -55,7 +55,7 @@ public class ProviderHandlerTest {
     }
 
     @Test
-    public void shouldThrowForAlreadyRegisteredProvider2() {
+    void shouldThrowForAlreadyRegisteredProvider2() {
         // given
         Charlie charlie = mock(Charlie.class);
         providerHandler.onProvider(Delta.class, new Delta2Provider(charlie));
@@ -70,7 +70,7 @@ public class ProviderHandlerTest {
     }
 
     @Test
-    public void shouldReturnNullForClassWithoutProvider() {
+    void shouldReturnNullForClassWithoutProvider() {
         // given
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
 
@@ -82,7 +82,7 @@ public class ProviderHandlerTest {
     }
 
     @Test
-    public void shouldReturnWrappedProviderAsInstantiation() {
+    void shouldReturnWrappedProviderAsInstantiation() {
         // given
         Charlie charlie = mock(Charlie.class);
         providerHandler.onProvider(Delta.class, new Delta2Provider(charlie));
@@ -96,7 +96,7 @@ public class ProviderHandlerTest {
     }
 
     @Test
-    public void shouldReturnProviderClassWrappedAsInstantiation() {
+    void shouldReturnProviderClassWrappedAsInstantiation() {
         // given
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
 
@@ -120,7 +120,7 @@ public class ProviderHandlerTest {
     }
 
     @Test
-    public void shouldThrowForInvalidArgument() {
+    void shouldThrowForInvalidArgument() {
         // given
         providerHandler.onProviderClass(Delta.class, Delta2Provider.class);
         Resolution<?> instantiation = providerHandler.resolve(newContext(Delta.class));
@@ -135,7 +135,7 @@ public class ProviderHandlerTest {
     }
 
     @Test
-    public void shouldInstantiateClassWithProvider() {
+    void shouldInstantiateClassWithProvider() {
         // given
         Injector injector = new InjectorBuilder()
             .addDefaultHandlers("ch.jalu.injector")
@@ -152,7 +152,7 @@ public class ProviderHandlerTest {
     }
 
     @Test
-    public void shouldInstantiateClassWithProviderClass() {
+    void shouldInstantiateClassWithProviderClass() {
         // given
         Injector injector = new InjectorBuilder()
             .addDefaultHandlers("ch.jalu.injector")
@@ -168,7 +168,7 @@ public class ProviderHandlerTest {
     }
 
     @Test
-    public void shouldInjectProviderAndCustomProvider() {
+    void shouldInjectProviderAndCustomProvider() {
         // given
         Injector injector = new InjectorBuilder()
             .addDefaultHandlers("ch.jalu.injector")
@@ -190,7 +190,7 @@ public class ProviderHandlerTest {
     }
 
     @Test
-    public void shouldInjectProviderAndCustomProviderClass() {
+    void shouldInjectProviderAndCustomProviderClass() {
         // given
         Injector injector = new InjectorBuilder()
                 .addDefaultHandlers("ch.jalu.injector")
@@ -211,7 +211,7 @@ public class ProviderHandlerTest {
     }
 
     @Test
-    public void shouldThrowForMissingGenericInfo() {
+    void shouldThrowForMissingGenericInfo() {
         // given
         ProviderHandler providerHandler = new ProviderHandler();
         Injector injector = mock(Injector.class);
@@ -229,7 +229,7 @@ public class ProviderHandlerTest {
     }
 
     @Test
-    public void shouldIgnoreNonProviderDependency() {
+    void shouldIgnoreNonProviderDependency() {
         // given
         ProviderHandler providerHandler = new ProviderHandler();
         Injector injector = mock(Injector.class);

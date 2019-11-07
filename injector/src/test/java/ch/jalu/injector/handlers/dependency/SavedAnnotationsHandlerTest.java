@@ -21,12 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Test for {@link SavedAnnotationsHandler}.
  */
-public class SavedAnnotationsHandlerTest {
+class SavedAnnotationsHandlerTest {
 
     private SavedAnnotationsHandler savedAnnotationsHandler = new SavedAnnotationsHandler();
 
     @Test
-    public void shouldReturnRegisteredValue() {
+    void shouldReturnRegisteredValue() {
         // given
         Object object = "value for @Duration";
         savedAnnotationsHandler.onAnnotation(Duration.class, object);
@@ -45,7 +45,7 @@ public class SavedAnnotationsHandlerTest {
     }
 
     @Test
-    public void shouldReturnNullForUnregisteredAnnotation() {
+    void shouldReturnNullForUnregisteredAnnotation() {
         // given
         Annotation[] annotations = {
             newSizeAnnotation("value"), newDurationAnnotation()
@@ -63,7 +63,7 @@ public class SavedAnnotationsHandlerTest {
     }
 
     @Test
-    public void shouldThrowForSecondAnnotationRegistration() {
+    void shouldThrowForSecondAnnotationRegistration() {
         // given
         savedAnnotationsHandler.onAnnotation(Size.class, 12);
 
@@ -73,7 +73,7 @@ public class SavedAnnotationsHandlerTest {
     }
 
     @Test
-    public void shouldThrowForNullValueAssociatedToAnnotation() {
+    void shouldThrowForNullValueAssociatedToAnnotation() {
         // given / when / then
         assertThrows(InjectorException.class,
             () -> savedAnnotationsHandler.onAnnotation(Duration.class, null));

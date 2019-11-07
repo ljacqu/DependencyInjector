@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Test for {@link ObjectIdentifier}.
  */
-public class ObjectIdentifierTest {
+class ObjectIdentifierTest {
 
     @Test
-    public void shouldReturnValues() {
+    void shouldReturnValues() {
         // given
         ObjectIdentifier identifier = new ObjectIdentifier(StandardResolutionType.REQUEST_SCOPED, Charlie.class,
             newSizeAnnotation("3245"), newDurationAnnotation());
@@ -40,7 +40,7 @@ public class ObjectIdentifierTest {
     }
 
     @Test
-    public void shouldReturnParameterizedTypeAsClass() {
+    void shouldReturnParameterizedTypeAsClass() {
         // given
         Type type1 = createParameterizedType(List.class, Double.class);
         ObjectIdentifier identifier1 = new ObjectIdentifier(null, type1);
@@ -53,7 +53,7 @@ public class ObjectIdentifierTest {
     }
 
     @Test
-    public void shouldThrowForUnknownRawParameterizedType() {
+    void shouldThrowForUnknownRawParameterizedType() {
         // given
         Type type = createParameterizedType(createParameterizedType(Object.class), Object.class);
         ObjectIdentifier identifier = new ObjectIdentifier(null, type);
@@ -66,7 +66,7 @@ public class ObjectIdentifierTest {
     }
 
     @Test
-    public void shouldThrowForUnknownTypeImplementation() {
+    void shouldThrowForUnknownTypeImplementation() {
         // given
         Type type = new WildcardTypeImpl();
         ObjectIdentifier identifier = new ObjectIdentifier(null, type);

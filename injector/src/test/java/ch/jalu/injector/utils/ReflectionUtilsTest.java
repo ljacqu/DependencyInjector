@@ -34,10 +34,10 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 /**
  * Test for {@link ReflectionUtils}.
  */
-public class ReflectionUtilsTest {
+class ReflectionUtilsTest {
 
     @Test
-    public void shouldGetFieldValue() {
+    void shouldGetFieldValue() {
         // given
         String str = "string value sample";
         ReflectionsTestClass testClass = new ReflectionsTestClass(str, 123);
@@ -51,7 +51,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldForwardException() throws NoSuchFieldException {
+    void shouldForwardException() throws NoSuchFieldException {
         // given
         ReflectionsTestClass testClass = new ReflectionsTestClass("abc", 123);
         Field field = GenericTypesClass.class.getDeclaredField("boolList");
@@ -62,7 +62,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldGetStaticFieldValue() {
+    void shouldGetStaticFieldValue() {
         // given
         Object o = new Object();
         ReflectionsTestClass.changeStaticObject(o);
@@ -76,7 +76,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldSetField() {
+    void shouldSetField() {
         // given
         ReflectionsTestClass testClass = new ReflectionsTestClass("abc", 123);
         Field field = getField("integer");
@@ -89,7 +89,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldSetStaticField() {
+    void shouldSetStaticField() {
         // given
         Field field = getField("staticObject");
         Object o = new Object();
@@ -102,7 +102,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldForwardExceptionWhenSettingField() {
+    void shouldForwardExceptionWhenSettingField() {
         // given
         Field field = getField("integer");
 
@@ -112,7 +112,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldInvokeMethod() {
+    void shouldInvokeMethod() {
         // given
         ReflectionsTestClass testClass = new ReflectionsTestClass("", 123);
         Method method = getMethod("setIntegerField", Integer.class);
@@ -125,7 +125,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldInvokeStaticMethod() {
+    void shouldInvokeStaticMethod() {
         // given
         Object oldValue = new Object();
         ReflectionsTestClass.changeStaticObject(oldValue);
@@ -141,7 +141,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldForwardExceptionFromMethod() {
+    void shouldForwardExceptionFromMethod() {
         // given
         ReflectionsTestClass testClass = new ReflectionsTestClass("", 123);
         Method method = getMethod("throwingMethod");
@@ -152,7 +152,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldCreateNewInstance() throws NoSuchMethodException {
+    void shouldCreateNewInstance() throws NoSuchMethodException {
         // given
         Constructor<ReflectionsTestClass> constr = ReflectionsTestClass.class
             .getDeclaredConstructor(int.class);
@@ -165,7 +165,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldForwardExceptionFromConstructor() throws NoSuchMethodException {
+    void shouldForwardExceptionFromConstructor() throws NoSuchMethodException {
         // given
         Constructor<ReflectionsTestClass> constr = ReflectionsTestClass.class
             .getDeclaredConstructor(boolean.class);
@@ -176,7 +176,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldGetClassOfArray() {
+    void shouldGetClassOfArray() {
         // given
         Class<?> mainType = Exception[].class;
 
@@ -188,7 +188,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldReturnNullForNonGenericClass() {
+    void shouldReturnNullForNonGenericClass() {
         // given
         Class<?> mainType = Exception.class;
         Type genericType = mock(ParameterizedType.class);
@@ -202,7 +202,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldReturnGenericTypeOfList() throws NoSuchFieldException {
+    void shouldReturnGenericTypeOfList() throws NoSuchFieldException {
         // given
         Field boolList = GenericTypesClass.class.getDeclaredField("boolList");
 
@@ -214,7 +214,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldNotGetGenericTypeIfNotIterableSubtype() throws NoSuchFieldException {
+    void shouldNotGetGenericTypeIfNotIterableSubtype() throws NoSuchFieldException {
         // given
         // take genericType from the List<Boolean> field again, avoids us having to mock
         Field boolList = GenericTypesClass.class.getDeclaredField("boolList");
@@ -227,7 +227,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldReturnArray() {
+    void shouldReturnArray() {
         // given
         Set<String> set = new HashSet<>(Arrays.asList("This", "is", "a", "test", "set", "wooo"));
         Class<?> rawType = String[].class;
@@ -242,7 +242,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldReturnSameList() {
+    void shouldReturnSameList() {
         // given
         Set<Integer> set = new HashSet<>(Arrays.asList(123, 456, 789, 12, 3, 45, 66, 78));
         Class<?> rawType = Set.class;
@@ -255,7 +255,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldReturnList() {
+    void shouldReturnList() {
         // given
         Set<Double> set = new HashSet<>(Arrays.asList(123.0, 11.2, 40.30, -198.432));
         Class<?> rawType = List.class;
@@ -270,7 +270,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldReturnSetForSupertype() {
+    void shouldReturnSetForSupertype() {
         // given
         Set<Integer> set = new HashSet<>(Arrays.asList(123, 456, 789, 12, 3, 45, 66, 78));
         Class<?> rawType = Collection.class;
@@ -283,7 +283,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldThrowForUnmatchedType() {
+    void shouldThrowForUnmatchedType() {
         // given
         Set<Character> set = new HashSet<>(Arrays.asList('a', 'b', 'c', 'd'));
         Class<?> rawType = Map.class;
@@ -294,21 +294,21 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldReturnEmptyMethodListForNoMethodScanClass() {
+    void shouldReturnEmptyMethodListForNoMethodScanClass() {
         assertThat(ReflectionUtils.safeGetDeclaredMethods(NoMethodScanClass.class), emptyArray());
         // Note: We need to check the size >= expected because plugins like Jacoco may add additional members
         assertThat(ReflectionUtils.safeGetDeclaredMethods(ReflectionsTestClass.class).length, greaterThanOrEqualTo(4));
     }
 
     @Test
-    public void shouldReturnEmptyFieldListForNoFieldScanClass() {
+    void shouldReturnEmptyFieldListForNoFieldScanClass() {
         assertThat(ReflectionUtils.safeGetDeclaredFields(NoFieldScanClass.class), emptyArray());
         // Note: We need to check the size >= expected because plugins like Jacoco may add additional members
         assertThat(ReflectionUtils.safeGetDeclaredFields(ReflectionsTestClass.class).length, greaterThanOrEqualTo(4));
     }
 
     @Test
-    public void shouldGetTypedValue() throws ReflectiveOperationException {
+    void shouldGetTypedValue() throws ReflectiveOperationException {
         // given
         Field field = GenericTypesClass.class.getDeclaredField("stringProvider");
         Type constrParam = GenericTypesClass.class.getDeclaredConstructor(Set.class, List.class)
@@ -328,7 +328,7 @@ public class ReflectionUtilsTest {
     }
 
     @Test
-    public void shouldReturnNullForNotPresentGenerics() throws ReflectiveOperationException {
+    void shouldReturnNullForNotPresentGenerics() throws ReflectiveOperationException {
         // given
         Field field1 = GenericTypesClass.class.getDeclaredField("untypedIterable");
         Field field2 = GenericTypesClass.class.getDeclaredField("booleanField");

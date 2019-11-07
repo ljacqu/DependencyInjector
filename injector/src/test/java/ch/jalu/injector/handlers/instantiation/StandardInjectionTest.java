@@ -46,12 +46,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Test for {@link StandardInjectionProvider} and {@link StandardInjection}.
  */
-public class StandardInjectionTest {
+class StandardInjectionTest {
     
     private StandardInjectionProvider provider = new StandardInjectionProvider();
 
     @Test
-    public void shouldReturnDependencies() {
+    void shouldReturnDependencies() {
         // given
         Resolution<ClassWithAnnotations> injection = provider.safeGet(ClassWithAnnotations.class);
 
@@ -67,7 +67,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldReturnDependenciesForFieldInjection() {
+    void shouldReturnDependenciesForFieldInjection() {
         // given
         Resolution<FieldInjectionWithAnnotations> injection =
             provider.safeGet(FieldInjectionWithAnnotations.class);
@@ -86,7 +86,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldInstantiate() {
+    void shouldInstantiate() {
         // given
         GammaService gammaService = new GammaService(
             AlphaService.newInstance(new ProvidedClass("")));
@@ -103,7 +103,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldInstantiateClassWithConstructorInjection() {
+    void shouldInstantiateClassWithConstructorInjection() {
         // given
         Resolution<GammaService> instantiation = provider.safeGet(GammaService.class);
 
@@ -115,7 +115,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldThrowUponInstantiationError() {
+    void shouldThrowUponInstantiationError() {
         // given
         AlphaService alphaService = AlphaService.newInstance(new ProvidedClass(""));
         Resolution<InvalidClass> injection = provider.safeGet(InvalidClass.class);
@@ -126,7 +126,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldSupportMixedInjectionTypes() {
+    void shouldSupportMixedInjectionTypes() {
         // given
         Resolution<InjectOnDifferentMembersClass> injection = provider.safeGet(InjectOnDifferentMembersClass.class);
 
@@ -141,7 +141,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldInstantiateClass() {
+    void shouldInstantiateClass() {
         // given
         Resolution<BetaManager> injection = provider.safeGet(BetaManager.class);
         ProvidedClass providedClass = new ProvidedClass("");
@@ -157,7 +157,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldThrowForNoSuitableConstructor() {
+    void shouldThrowForNoSuitableConstructor() {
         // given / when
         Resolution<BadFieldInjection> injection = provider.safeGet(BadFieldInjection.class);
 
@@ -166,7 +166,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldForwardExceptionDuringInstantiation() {
+    void shouldForwardExceptionDuringInstantiation() {
         // given
         Resolution<ThrowingConstructor> injection = provider.safeGet(ThrowingConstructor.class);
 
@@ -181,7 +181,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldThrowForInvalidFieldValue() {
+    void shouldThrowForInvalidFieldValue() {
         // given
         ProvidedClass providedClass = new ProvidedClass("");
         AlphaService alphaService = AlphaService.newInstance(providedClass);
@@ -195,7 +195,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldSupportInjectionOnStaticFields() {
+    void shouldSupportInjectionOnStaticFields() {
         // given
         Resolution<StaticFieldInjection> injection = provider.safeGet(StaticFieldInjection.class);
 
@@ -206,7 +206,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldAllowPrivateDefaultConstructorForPrivateInnerClass() {
+    void shouldAllowPrivateDefaultConstructorForPrivateInnerClass() {
         // given / when
         Resolution<InnerClassWithPrivateConstructor> injection = provider.safeGet(InnerClassWithPrivateConstructor.class);
 
@@ -216,7 +216,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldNotFindFieldDependencies() {
+    void shouldNotFindFieldDependencies() {
         // given / when
         Resolution<NoFieldScanClass> injection = provider.safeGet(NoFieldScanClass.class);
 
@@ -225,7 +225,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldInstantiateClassWithNoInjectAnnotation() {
+    void shouldInstantiateClassWithNoInjectAnnotation() {
         // given
         Resolution<FallbackClass> instantiation = provider.safeGet(FallbackClass.class);
 
@@ -237,7 +237,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldHaveEmptyDependenciesAndAnnotations() {
+    void shouldHaveEmptyDependenciesAndAnnotations() {
         // given
         Resolution<FallbackClass> instantiation =
             provider.safeGet(FallbackClass.class);
@@ -250,7 +250,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldThrowIfArgumentsAreSupplied() {
+    void shouldThrowIfArgumentsAreSupplied() {
         // given
         Resolution<FallbackClass> instantiation =
             provider.safeGet(FallbackClass.class);
@@ -261,13 +261,13 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldReturnNullForMissingNoArgsConstructor() {
+    void shouldReturnNullForMissingNoArgsConstructor() {
         // given / when / then
         assertThat(provider.safeGet(InvalidNoArgConstructorClass.class), nullValue());
     }
 
     @Test
-    public void shouldInstantiateNoDependencyClass() {
+    void shouldInstantiateNoDependencyClass() {
         // given
         Resolution<ClassWithPostConstruct> instantiation = provider.safeGet(ClassWithPostConstruct.class);
 
@@ -279,7 +279,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldHandleInheritance() {
+    void shouldHandleInheritance() {
         // given / when
         Resolution<Child> instantiation = provider.safeGet(Child.class);
 
@@ -288,7 +288,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldThrowDueToFinalField() {
+    void shouldThrowDueToFinalField() {
         // given / when
         InjectorException ex = assertThrows(InjectorException.class, () -> provider.safeGet(InvalidFinalInjectField.class));
 
@@ -297,7 +297,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldThrowForMultipleInjectConstructors() {
+    void shouldThrowForMultipleInjectConstructors() {
         // given / when
         InjectorException ex = assertThrows(InjectorException.class, () -> provider.safeGet(InvalidMultipleInjectConstructors.class));
 
@@ -306,7 +306,7 @@ public class StandardInjectionTest {
     }
 
     @Test
-    public void shouldThrowForClassWithInjectMethods() {
+    void shouldThrowForClassWithInjectMethods() {
         // given / when
         InjectorException ex = assertThrows(InjectorException.class, () -> provider.safeGet(ClassWithInjectMethod.class));
 
@@ -329,7 +329,7 @@ public class StandardInjectionTest {
         @Inject
         private ProvidedClass providedClass;
 
-        public ThrowingConstructor() {
+        ThrowingConstructor() {
             throw new UnsupportedOperationException("Exception in constructor");
         }
     }

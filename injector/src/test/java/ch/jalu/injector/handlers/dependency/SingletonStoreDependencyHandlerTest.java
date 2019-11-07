@@ -45,12 +45,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Test for {@link SingletonStoreDependencyHandler}.
  */
 @ExtendWith(MockitoExtension.class)
-public class SingletonStoreDependencyHandlerTest {
+class SingletonStoreDependencyHandlerTest {
 
     private Injector injector;
 
     @BeforeEach
-    public void setUpInjector() {
+    void setUpInjector() {
         injector = new InjectorBuilder().addHandlers(createHandlers()).create();
         injector.register(ProvidedClass.class, new ProvidedClass(""));
 
@@ -62,7 +62,7 @@ public class SingletonStoreDependencyHandlerTest {
     }
 
     @Test
-    public void shouldReturnAllGrandparentTypes() {
+    void shouldReturnAllGrandparentTypes() {
         // given
         SingletonStore<Grandparent> store = getSingletonStoreForClass(Grandparent.class);
 
@@ -84,7 +84,7 @@ public class SingletonStoreDependencyHandlerTest {
     }
 
     @Test
-    public void shouldThrowForClassNotWithinBounds() {
+    void shouldThrowForClassNotWithinBounds() {
         // given
         SingletonStore<Parent> store = getSingletonStoreForClass(Parent.class);
 
@@ -97,7 +97,7 @@ public class SingletonStoreDependencyHandlerTest {
     }
 
     @Test
-    public void shouldThrowForSingletonCreationWithClassOutOfBounds() {
+    void shouldThrowForSingletonCreationWithClassOutOfBounds() {
         // given
         SingletonStore<Child> store = getSingletonStoreForClass(Child.class);
 
@@ -110,7 +110,7 @@ public class SingletonStoreDependencyHandlerTest {
     }
 
     @Test
-    public void shouldAllowObjectAsClass() {
+    void shouldAllowObjectAsClass() {
         // given
         SingletonStore<Object> store = getSingletonStoreForClass(Object.class);
 
@@ -129,7 +129,7 @@ public class SingletonStoreDependencyHandlerTest {
     }
 
     @Test
-    public void shouldThrowForUnspecifiedGenerics() {
+    void shouldThrowForUnspecifiedGenerics() {
         // given
         ResolutionContext context = newContext(SingletonStore.class);
 
@@ -142,7 +142,7 @@ public class SingletonStoreDependencyHandlerTest {
     }
 
     @Test
-    public void shouldReturnNullForOtherType() {
+    void shouldReturnNullForOtherType() {
         // given
         ResolutionContext context = newContext(Parent.class);
 

@@ -19,10 +19,10 @@ import static org.junit.Assert.assertThat;
 /**
  * Test for {@link TypeSafeAnnotationHandler}.
  */
-public class TypeSafeAnnotationHandlerTest {
+class TypeSafeAnnotationHandlerTest {
 
     @Test
-    public void shouldCallResolveSafelyMethod() throws Exception {
+    void shouldCallResolveSafelyMethod() throws Exception {
         // given
         ObjectIdentifier identifier = new ObjectIdentifier(null, String.class,
             newDurationAnnotation(), newSizeAnnotation("0.52"));
@@ -38,7 +38,7 @@ public class TypeSafeAnnotationHandlerTest {
     }
 
     @Test
-    public void shouldNotForwardToHandlerIfIrrelevant() throws Exception {
+    void shouldNotForwardToHandlerIfIrrelevant() throws Exception {
         // given
         ObjectIdentifier identifier = new ObjectIdentifier(null, String.class, newDurationAnnotation());
         ResolutionContext context = new ResolutionContext(null, identifier);
@@ -53,7 +53,7 @@ public class TypeSafeAnnotationHandlerTest {
     }
 
     @Test
-    public void shouldHandleContextWithNoAnnotations() throws Exception {
+    void shouldHandleContextWithNoAnnotations() throws Exception {
         // given
         ObjectIdentifier identifier = new ObjectIdentifier(null, String.class);
         ResolutionContext context = new ResolutionContext(null, identifier);

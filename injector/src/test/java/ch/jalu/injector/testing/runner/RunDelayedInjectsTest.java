@@ -24,10 +24,10 @@ import static org.mockito.Mockito.verify;
 /**
  * Test for {@link RunDelayedInjects}.
  */
-public class RunDelayedInjectsTest {
+class RunDelayedInjectsTest {
 
     @Test
-    public void shouldInitializeInjectDelayedField() throws Throwable {
+    void shouldInitializeInjectDelayedField() throws Throwable {
         // given - test class with initialized @Mock fields
         DelayedInjectionRunnerIntegrationTest runnerTest = new DelayedInjectionRunnerIntegrationTest();
         MockitoAnnotations.initMocks(runnerTest);
@@ -48,7 +48,7 @@ public class RunDelayedInjectsTest {
     }
 
     @Test
-    public void shouldThrowForAlreadyInitializedField() throws Throwable {
+    void shouldThrowForAlreadyInitializedField() throws Throwable {
         // given - test class with initialized @Mock fields
         DelayedInjectionRunnerIntegrationTest runnerTest = new DelayedInjectionRunnerIntegrationTest();
         MockitoAnnotations.initMocks(runnerTest);

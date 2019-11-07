@@ -32,14 +32,14 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 /**
  * Test for {@link InstantiationCache}.
  */
-public class InstantiationCacheTest {
+class InstantiationCacheTest {
 
     private Injector injector;
     private DefaultInjectionProvider defaultInjectionProvider;
     private InstantiationCache instantiationCache;
 
     @BeforeEach
-    public void setUpInjector() {
+    void setUpInjector() {
         List<Handler> handlers = InjectorBuilder.createDefaultHandlers("ch.jalu.injector.samples");
         InstantiationCache instantiationCache = new InstantiationCache();
         handlers.add(0, instantiationCache);
@@ -58,7 +58,7 @@ public class InstantiationCacheTest {
     }
 
     @Test
-    public void shouldNotCacheInstantiation() {
+    void shouldNotCacheInstantiation() {
         // given
         injector.register(ProvidedClass.class, new ProvidedClass(""));
         injector.getSingleton(GammaService.class);
@@ -69,7 +69,7 @@ public class InstantiationCacheTest {
     }
 
     @Test
-    public void shouldCacheRequestScopedInstantiations() {
+    void shouldCacheRequestScopedInstantiations() {
         // given
         injector.register(ProvidedClass.class, new ProvidedClass(""));
         injector.getSingleton(GammaService.class);

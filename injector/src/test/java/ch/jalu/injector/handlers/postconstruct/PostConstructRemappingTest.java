@@ -23,12 +23,12 @@ import static org.junit.Assert.assertThat;
 /**
  * Tests that handler implementations can change the object that will be stored on post construct.
  */
-public class PostConstructRemappingTest {
+class PostConstructRemappingTest {
 
     private static final String PACKAGE = "ch.jalu.injector";
 
     @Test
-    public void shouldInitializeProfiledClassesWithProxy() {
+    void shouldInitializeProfiledClassesWithProxy() {
         // given
         InjectorImpl injector = (InjectorImpl) new InjectorBuilder()
             .addDefaultHandlers(PACKAGE)

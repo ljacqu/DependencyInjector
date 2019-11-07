@@ -20,7 +20,7 @@ import static org.mockito.BDDMockito.given;
  * Integration test for {@link DelayedInjectionExtension} with multiple {@link InjectDelayed} annotations.
  */
 @ExtendWith(DelayedInjectionExtension.class)
-public class MultipleDelayedInjectExtensionIntegrationTest {
+class MultipleDelayedInjectExtensionIntegrationTest {
 
     @InjectDelayed
     private GammaService gammaService;
@@ -60,7 +60,7 @@ public class MultipleDelayedInjectExtensionIntegrationTest {
     }
 
     @Test
-    public void shouldSetUpProperly() {
+    void shouldSetUpProperly() {
         // If we're in here it means we could set up successfully; some validation has already been done
         // in the Before methods, but we can also check that we only have one instance per class
         assertThat(sampleInjectClass.getStringField(), equalTo(name));

@@ -19,13 +19,13 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 /**
  * Test for {@link DelayedInjectionRunnerValidator}.
  */
-public class DelayedInjectionRunnerValidatorTest {
+class DelayedInjectionRunnerValidatorTest {
 
     @InjectMocks
     private Injector injector; // this field is null (no runner set) and serves as test setup
 
     @Test
-    public void shouldValidateSuccessfully() throws Exception {
+    void shouldValidateSuccessfully() throws Exception {
         // given
         RunNotifier notifier = mock(RunNotifier.class);
         TestClass testClass = new TestClass(DelayedInjectionRunnerIntegrationTest.class);
@@ -41,7 +41,7 @@ public class DelayedInjectionRunnerValidatorTest {
     }
 
     @Test
-    public void shouldValidateUnsuccessfullyForInjectMocksPresence() throws Exception {
+    void shouldValidateUnsuccessfullyForInjectMocksPresence() throws Exception {
         // given
         RunNotifier notifier = mock(RunNotifier.class);
         TestClass testClass = new TestClass(getClass());

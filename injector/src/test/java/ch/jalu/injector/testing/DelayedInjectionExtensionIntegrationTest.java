@@ -24,7 +24,7 @@ import static org.mockito.Mockito.mock;
  * Some sample tests with {@link DelayedInjectionExtension} test extension for JUnit 5.
  */
 @ExtendWith(DelayedInjectionExtension.class)
-public class DelayedInjectionExtensionIntegrationTest {
+class DelayedInjectionExtensionIntegrationTest {
 
     private List<String> executionOrder = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public class DelayedInjectionExtensionIntegrationTest {
     private String stringFieldSample = "Test value";
 
     @BeforeInjecting
-    public void initBeforeInject() {
+    void initBeforeInject() {
         if (alphaService == null || abstractDependency == null) {
             throw new IllegalStateException("@Mock fields should be initialized in @BeforeInject");
         }
@@ -57,7 +57,7 @@ public class DelayedInjectionExtensionIntegrationTest {
     }
 
     @BeforeEach
-    public void runBeforeMethod() {
+    void runBeforeMethod() {
         if (alphaService == null || abstractDependency == null || sampleInjectClass == null) {
             throw new IllegalStateException("Found null field annotated with @InjectDelayed or @Mock. "
                 + "This should not be the case in the @BeforeEach method.");
@@ -66,7 +66,7 @@ public class DelayedInjectionExtensionIntegrationTest {
     }
 
     @Test
-    public void shouldHaveInjectedProperly() {
+    void shouldHaveInjectedProperly() {
         // The providedClass is set in a @PostConstruct method, so check that this worked
         ProvidedClass providedClass = sampleInjectClass.getProvidedClass();
         assertThat(providedClass, not(nullValue()));

@@ -31,13 +31,13 @@ import static org.mockito.Mockito.verify;
  * Test for {@link MockDependencyHandler}.
  */
 @ExtendWith(MockitoExtension.class)
-public class MockDependencyHandlerTest {
+class MockDependencyHandlerTest {
 
     @Mock
     private Injector injector;
 
     @Test
-    public void shouldProvideMock() throws Exception {
+    void shouldProvideMock() throws Exception {
         // given
         DelayedInjectionRunnerIntegrationTest runnerTest = new DelayedInjectionRunnerIntegrationTest();
         MockitoAnnotations.initMocks(runnerTest);
@@ -58,7 +58,7 @@ public class MockDependencyHandlerTest {
     }
 
     @Test
-    public void shouldThrowForUnavailableMock() {
+    void shouldThrowForUnavailableMock() {
         // given
         DelayedInjectionRunnerIntegrationTest runnerTest = new DelayedInjectionRunnerIntegrationTest();
         MockitoAnnotations.initMocks(runnerTest);

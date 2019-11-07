@@ -9,10 +9,10 @@ import static org.junit.Assert.assertThat;
 /**
  * Test for {@link MyApp} to ensure it returns the expected result.
  */
-public class InjectorDemoTest {
+class InjectorDemoTest {
 
     @Test
-    public void shouldRunDemo() {
+    void shouldRunDemo() {
         assertThat(MyApp.setUpAndRun(), equalTo("Result of the calculation: 754.7579"));
     }
 

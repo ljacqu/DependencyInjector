@@ -24,12 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Test for {@link DefaultInjectionProvider}.
  */
-public class DefaultInjectionProviderTest {
+class DefaultInjectionProviderTest {
 
     private DefaultInjectionProvider provider = new DefaultInjectionProvider("ch.jalu");
 
     @Test
-    public void shouldProvideInstantiation() {
+    void shouldProvideInstantiation() {
         // given / when
         Resolution<BetaManager> injection = provider.safeGet(BetaManager.class);
 
@@ -39,7 +39,7 @@ public class DefaultInjectionProviderTest {
     }
 
     @Test
-    public void shouldProvideInstantiationForClassWithInheritance() {
+    void shouldProvideInstantiationForClassWithInheritance() {
         // given / when
         Resolution<Child> injection = provider.safeGet(Child.class);
 
@@ -49,7 +49,7 @@ public class DefaultInjectionProviderTest {
     }
 
     @Test
-    public void shouldThrowForStaticField() {
+    void shouldThrowForStaticField() {
         // given / when
         InjectorException ex = assertThrows(InjectorException.class, () -> provider.resolve(contextOf(StaticFieldInjection.class)));
 
@@ -58,7 +58,7 @@ public class DefaultInjectionProviderTest {
     }
 
     @Test
-    public void shouldThrowForMixedInjection() {
+    void shouldThrowForMixedInjection() {
         // given / when
         InjectorException ex = assertThrows(InjectorException.class, () -> provider.resolve(contextOf(InjectOnDifferentMembersClass.class)));
 
@@ -67,7 +67,7 @@ public class DefaultInjectionProviderTest {
     }
 
     @Test
-    public void shouldInjectClass() {
+    void shouldInjectClass() {
         // given / when
         Resolution<ChildWithNoInjection> injection = provider.safeGet(ChildWithNoInjection.class);
 
@@ -77,7 +77,7 @@ public class DefaultInjectionProviderTest {
     }
 
     @Test
-    public void shouldThrowForInjectMethodInParent() {
+    void shouldThrowForInjectMethodInParent() {
         // given / when
         InjectorException ex = assertThrows(InjectorException.class, () -> provider.safeGet(ChildOfParentWithInjectMethod.class));
 
@@ -86,7 +86,7 @@ public class DefaultInjectionProviderTest {
     }
 
     @Test
-    public void shouldRejectClassWithInvalidPackage() {
+    void shouldRejectClassWithInvalidPackage() {
         // given / when
         InjectorException ex = assertThrows(InjectorException.class, () -> provider.resolve(contextOf(Object.class)));
 

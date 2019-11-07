@@ -44,14 +44,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 /**
  * Test for {@link AllInstancesAnnotationHandler}.
  */
-public class AllInstancesAnnotationHandlerTest {
+class AllInstancesAnnotationHandlerTest {
 
     private static final String ROOT_PACKAGE = "ch.jalu.injector";
 
     private Injector injector;
 
     @BeforeEach
-    public void initializeInjector() {
+    void initializeInjector() {
         AllInstancesAnnotationHandler allInstancesHandler = new AllInstancesAnnotationHandler(ROOT_PACKAGE);
         AllTypesAnnotationHandler allTypesHandler = new AllTypesAnnotationHandler(ROOT_PACKAGE);
         injector = new InjectorBuilder()
@@ -63,7 +63,7 @@ public class AllInstancesAnnotationHandlerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void shouldInstantiateAllSubTypes() {
+    void shouldInstantiateAllSubTypes() {
         // given / when
         SoundServiceSupervisor supervisor = injector.getSingleton(SoundServiceSupervisor.class);
 
@@ -74,7 +74,7 @@ public class AllInstancesAnnotationHandlerTest {
     }
 
     @Test
-    public void shouldInstantiateSubTypesWithDeclaredType() {
+    void shouldInstantiateSubTypesWithDeclaredType() {
         // given / when
         CorrectFields correctFields = injector.getSingleton(CorrectFields.class);
 
@@ -86,13 +86,13 @@ public class AllInstancesAnnotationHandlerTest {
     }
 
     @Test
-    public void shouldThrowForInvalidFieldType() {
+    void shouldThrowForInvalidFieldType() {
         // given / when / then
         assertThrows(InjectorException.class, () -> injector.getSingleton(InvalidFields.class));
     }
 
     @Test
-    public void shouldThrowForMissingGenericType() {
+    void shouldThrowForMissingGenericType() {
         // given / when / then
         assertThrows(InjectorException.class, () -> injector.getSingleton(MissingGenericType.class));
     }
@@ -104,7 +104,7 @@ public class AllInstancesAnnotationHandlerTest {
      */
     @Test
     @SuppressWarnings("unchecked")
-    public void shouldPerformFullIntegrationTest() {
+    void shouldPerformFullIntegrationTest() {
         // Configuration setup
         Configuration configuration = injector.getSingleton(Configuration.class);
         configuration.setLang("de");

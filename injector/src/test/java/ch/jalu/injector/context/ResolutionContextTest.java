@@ -10,10 +10,10 @@ import static org.junit.Assert.fail;
 /**
  * Test for {@link ResolutionContext}.
  */
-public class ResolutionContextTest {
+class ResolutionContextTest {
 
     @Test
-    public void shouldThrowForMappedClassThatIsNotChild() {
+    void shouldThrowForMappedClassThatIsNotChild() {
         // given
         ResolutionContext context =
             new ResolutionContext(null, new ObjectIdentifier(StandardResolutionType.SINGLETON, Number.class));
