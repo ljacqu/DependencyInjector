@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Test for {@link ProviderHandler}.
@@ -224,7 +224,7 @@ class ProviderHandlerTest {
             fail("Expected exception to be thrown");
         } catch (InjectorException e) {
             assertThat(e.getMessage(), equalTo("Injection of a provider was requested but no generic type was given"));
-            verifyZeroInteractions(injector);
+            verifyNoInteractions(injector);
         }
     }
 
@@ -241,7 +241,7 @@ class ProviderHandlerTest {
 
         // then
         assertThat(value, nullValue());
-        verifyZeroInteractions(injector);
+        verifyNoInteractions(injector);
     }
 
     private static ResolutionContext newContext(Class<?> clz) {

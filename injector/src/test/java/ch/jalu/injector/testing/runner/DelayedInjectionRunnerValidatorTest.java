@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Test for {@link DelayedInjectionRunnerValidator}.
@@ -37,7 +37,7 @@ class DelayedInjectionRunnerValidatorTest {
 
         // then
         // nothing happens: successful validation
-        verifyZeroInteractions(notifier, description);
+        verifyNoInteractions(notifier, description);
     }
 
     @Test

@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Test for {@link ReflectionUtils}.
@@ -198,7 +198,7 @@ class ReflectionUtilsTest {
 
         // then
         assertThat(result, nullValue());
-        verifyZeroInteractions(genericType);
+        verifyNoInteractions(genericType);
     }
 
     @Test
