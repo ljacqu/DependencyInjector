@@ -3,9 +3,9 @@ package ch.jalu.injector.handlers.dependency;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import ch.jalu.injector.InjectorImpl;
-import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.context.ResolutionContext;
+import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.factory.Factory;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DefaultInjectionProvider;
@@ -17,12 +17,10 @@ import ch.jalu.injector.samples.inheritance.Child;
 import ch.jalu.injector.samples.inheritance.Grandparent;
 import ch.jalu.injector.samples.inheritance.Parent;
 import ch.jalu.injector.utils.InjectorUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -30,31 +28,29 @@ import java.util.List;
 import static ch.jalu.injector.TestUtils.createParameterizedType;
 import static ch.jalu.injector.TestUtils.findOrThrow;
 import static ch.jalu.injector.context.StandardResolutionType.SINGLETON;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test for {@link FactoryDependencyHandler}.
  */
-@RunWith(MockitoJUnitRunner.class)
-public class FactoryDependencyHandlerTest {
+@ExtendWith(MockitoExtension.class)
+class FactoryDependencyHandlerTest {
 
     private Injector injector;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
-
-    @Before
-    public void setUpInjector() {
+    @BeforeEach
+    void setUpInjector() {
         injector = new InjectorBuilder().addHandlers(createHandlers()).create();
         injector.register(ProvidedClass.class, new ProvidedClass(""));
     }
 
     @Test
-    public void shouldCreateGrandparentTypes() {
+    void shouldCreateGrandparentTypes() {
         // given
         Factory<Grandparent> factory = getFactoryForClass(Grandparent.class);
 
@@ -71,19 +67,19 @@ public class FactoryDependencyHandlerTest {
     }
 
     @Test
-    public void shouldThrowForClassNotWithinBounds() {
+    void shouldThrowForClassNotWithinBounds() {
         // given
         Factory<Parent> factory = getFactoryForClass(Parent.class);
 
-        // expect
-        exceptionCatcher.expect("not child of " + Parent.class);
-
         // when
-        factory.newInstance((Class) Grandparent.class);
+        InjectorException ex = assertThrows(InjectorException.class, () -> factory.newInstance((Class) Grandparent.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("not child of " + Parent.class));
     }
 
     @Test
-    public void shouldAllowObjectAsClass() {
+    void shouldAllowObjectAsClass() {
         // given
         Factory<Object> factory = getFactoryForClass(Object.class);
 
@@ -98,23 +94,21 @@ public class FactoryDependencyHandlerTest {
     }
 
     @Test
-    public void shouldThrowForUnspecifiedGenerics() {
+    void shouldThrowForUnspecifiedGenerics() {
         // given
-        ResolutionContext context = new ResolutionContext(
-            injector, newIdentifier(Factory.class));
-
-        // expect
-        exceptionCatcher.expect("Factory fields must have concrete generic type.");
+        ResolutionContext context = new ResolutionContext(injector, newIdentifier(Factory.class));
 
         // when
-        getFactoryHandler().resolve(context);
+        InjectorException ex = assertThrows(InjectorException.class, () -> getFactoryHandler().resolve(context));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Factory fields must have concrete generic type."));
     }
 
     @Test
-    public void shouldReturnNullForNonFactoryType() {
+    void shouldReturnNullForNonFactoryType() {
         // given
-        ResolutionContext context = new ResolutionContext(
-            injector, newIdentifier(Parent.class));
+        ResolutionContext context = new ResolutionContext(injector, newIdentifier(Parent.class));
 
         // when
         Resolution<?> result = getFactoryHandler().resolve(context);

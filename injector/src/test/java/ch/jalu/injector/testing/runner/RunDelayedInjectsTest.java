@@ -4,7 +4,7 @@ import ch.jalu.injector.testing.DelayedInjectionRunnerIntegrationTest;
 import ch.jalu.injector.testing.InjectDelayed;
 import ch.jalu.injector.testing.SampleInjectClass;
 import ch.jalu.injector.utils.ReflectionUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
@@ -24,10 +24,10 @@ import static org.mockito.Mockito.verify;
 /**
  * Test for {@link RunDelayedInjects}.
  */
-public class RunDelayedInjectsTest {
+class RunDelayedInjectsTest {
 
     @Test
-    public void shouldInitializeInjectDelayedField() throws Throwable {
+    void shouldInitializeInjectDelayedField() throws Throwable {
         // given - test class with initialized @Mock fields
         DelayedInjectionRunnerIntegrationTest runnerTest = new DelayedInjectionRunnerIntegrationTest();
         MockitoAnnotations.initMocks(runnerTest);
@@ -48,7 +48,7 @@ public class RunDelayedInjectsTest {
     }
 
     @Test
-    public void shouldThrowForAlreadyInitializedField() throws Throwable {
+    void shouldThrowForAlreadyInitializedField() throws Throwable {
         // given - test class with initialized @Mock fields
         DelayedInjectionRunnerIntegrationTest runnerTest = new DelayedInjectionRunnerIntegrationTest();
         MockitoAnnotations.initMocks(runnerTest);

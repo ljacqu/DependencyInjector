@@ -1,6 +1,5 @@
 package ch.jalu.injector;
 
-import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.context.ResolutionContext;
 import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.Handler;
@@ -28,10 +27,8 @@ import ch.jalu.injector.samples.SampleInstantiationImpl;
 import ch.jalu.injector.samples.Size;
 import ch.jalu.injector.samples.StaticFieldInjection;
 import ch.jalu.injector.samples.inheritance.Child;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -56,6 +53,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -73,14 +71,8 @@ public class InjectorImplTest {
     private Injector injector;
     private InjectorConfig config;
 
-    // As we test many cases that throw exceptions, we use JUnit's ExpectedException Rule
-    // to make sure that we receive the exception we expect
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
-
-    @Before
-    public void initialize() throws NoSuchFieldException {
+    @BeforeEach
+    void initialize() {
         injector = new InjectorBuilder()
             .addDefaultHandlers(ALLOWED_PACKAGE)
             .create();
@@ -96,7 +88,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldInitializeElements() {
+    void shouldInitializeElements() {
         // given / when
         BetaManager betaManager = injector.getSingleton(BetaManager.class);
 
@@ -108,21 +100,25 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldThrowForInvalidPackage() {
-        // given / when / then
-        exceptionCatcher.expect("outside of the allowed packages");
-        injector.getSingleton(InvalidClass.class);
+    void shouldThrowForInvalidPackage() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(InvalidClass.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("outside of the allowed packages"));
     }
 
     @Test
-    public void shouldThrowForUnregisteredPrimitiveType() {
-        // given / when / then
-        exceptionCatcher.expect("Primitive types must be provided");
-        injector.getSingleton(int.class);
+    void shouldThrowForUnregisteredPrimitiveType() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(int.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Primitive types must be provided"));
     }
 
     @Test
-    public void shouldPassValueByAnnotation() {
+    void shouldPassValueByAnnotation() {
         // given
         int size = 12;
         long duration = -15482L;
@@ -141,21 +137,25 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldRecognizeCircularReferences() {
-        // given / when / then
-        exceptionCatcher.expect("Found cyclic dependency");
-        injector.getSingleton(CircularClasses.Circular3.class);
+    void shouldRecognizeCircularReferences() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(CircularClasses.Circular3.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Found cyclic dependency"));
     }
 
     @Test
-    public void shouldThrowForFieldInjectionWithoutNoArgsConstructor() {
-        // given / when / then
-        exceptionCatcher.expect("Did not find instantiation method");
-        injector.getSingleton(BadFieldInjection.class);
+    void shouldThrowForFieldInjectionWithoutNoArgsConstructor() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(BadFieldInjection.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Did not find instantiation method"));
     }
 
     @Test
-    public void shouldInjectFieldsWithAnnotationsProperly() {
+    void shouldInjectFieldsWithAnnotationsProperly() {
         // given
         injector.provide(Size.class, 2809375);
         injector.provide(Duration.class, 13095L);
@@ -173,28 +173,34 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldThrowForSecondRegistration() {
-        // given / when / then
-        exceptionCatcher.expect("There is already an object present");
-        injector.register(ProvidedClass.class, new ProvidedClass(""));
+    void shouldThrowForSecondRegistration() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(BadFieldInjection.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Did not find instantiation method"));
     }
 
     @Test
-    public void shouldThrowForRegisterWithNull() {
-        // given / when / then
-        exceptionCatcher.expect("may not be null");
-        injector.register(String.class, null);
+    void shouldThrowForRegisterWithNull() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.register(String.class, null));
+
+        // then
+        assertThat(ex.getMessage(), containsString("may not be null"));
     }
 
     @Test
-    public void shouldThrowForAbstractNonRegisteredDependency() {
-        // given / when / then
-        exceptionCatcher.expect("cannot be instantiated");
-        injector.getSingleton(ClassWithAbstractDependency.class);
+    void shouldThrowForAbstractNonRegisteredDependency() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(ClassWithAbstractDependency.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("cannot be instantiated"));
     }
 
     @Test
-    public void shouldInstantiateWithImplementationOfAbstractDependency() {
+    void shouldInstantiateWithImplementationOfAbstractDependency() {
         // given
         ClassWithAbstractDependency.ConcreteDependency concrete = new ClassWithAbstractDependency.ConcreteDependency();
         injector.register(ClassWithAbstractDependency.AbstractDependency.class, concrete);
@@ -208,17 +214,19 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldThrowForAlreadyRegisteredClass() {
+    void shouldThrowForAlreadyRegisteredClass() {
         // given
         injector.register(BetaManager.class, new BetaManager());
 
-        // when / then
-        exceptionCatcher.expect("There is already an object present");
-        injector.register(BetaManager.class, new BetaManager());
+        // when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.register(BetaManager.class, new BetaManager()));
+
+        // then
+        assertThat(ex.getMessage(), containsString("There is already an object present"));
     }
 
     @Test
-    public void shouldCreateNewUntrackedInstance() {
+    void shouldCreateNewUntrackedInstance() {
         // given / when
         AlphaService singletonScoped = injector.getSingleton(AlphaService.class);
         AlphaService requestScoped = injector.newInstance(AlphaService.class);
@@ -230,16 +238,16 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldThrowForStaticFieldToInject() {
-        // expect
-        exceptionCatcher.expect("@Inject may not be placed on static fields");
+    void shouldThrowForStaticFieldToInject() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.newInstance(StaticFieldInjection.class));
 
-        // when
-        injector.newInstance(StaticFieldInjection.class);
+        // then
+        assertThat(ex.getMessage(), containsString("@Inject may not be placed on static fields"));
     }
 
     @Test
-    public void shouldFallbackToSimpleInstantiationForPlainClass() {
+    void shouldFallbackToSimpleInstantiationForPlainClass() {
         // given / when
         InstantiationFallbackClasses.HasFallbackDependency result =
             injector.getSingleton(InstantiationFallbackClasses.HasFallbackDependency.class);
@@ -251,7 +259,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldRetrieveExistingInstancesOnly() {
+    void shouldRetrieveExistingInstancesOnly() {
         // given
         injector.getSingleton(GammaService.class);
 
@@ -267,7 +275,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldGetAllSingletonsOfGivenType() {
+    void shouldGetAllSingletonsOfGivenType() {
         // given
         // trigger singleton registration
         injector.getSingleton(AlphaService.class);
@@ -286,7 +294,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldUseCustomInstantiation() {
+    void shouldUseCustomInstantiation() {
         // given
         List<Handler> handlers = new ArrayList<>(config.getHandlers());
         // hack: the inline class is not within the allowed packages, so clear the package validator for this test
@@ -304,7 +312,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldForwardToAnnotationValueHandlers() throws Exception {
+    void shouldForwardToAnnotationValueHandlers() throws Exception {
         // given
         Handler annoValHandler1 = mock(Handler.class);
         Handler annoValHandler2 = mock(Handler.class);
@@ -320,18 +328,16 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldThrowForNullAsAnnotation() {
-        // given
+    void shouldThrowForNullAsAnnotation() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.provide(null, new Object()));
 
-        // expect
-        exceptionCatcher.expect("annotation may not be null");
-
-        // when
-        injector.provide(null, new Object());
+        // then
+        assertThat(ex.getMessage(), containsString("annotation may not be null"));
     }
 
     @Test
-    public void shouldForwardException() throws Exception {
+    void shouldForwardException() throws Exception {
         // given
         Class<? extends Annotation> annotation = Size.class;
         Object object = 123;
@@ -339,51 +345,51 @@ public class InjectorImplTest {
         doThrow(Exception.class).when(annoValHandler).onAnnotation(annotation, object);
         config.addHandlers(Collections.singletonList(annoValHandler));
 
-        // expect
-        exceptionCatcher.expect("An error occurred");
-
         // when
-        injector.provide(annotation, object);
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.provide(annotation, object));
+
+        // then
+        assertThat(ex.getMessage(), containsString("An error occurred"));
     }
 
     @Test
-    public void shouldThrowForNullProvider() {
-        // expect
-        exceptionCatcher.expect("may not be null");
+    void shouldThrowForNullProvider() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.registerProvider(Delta.class, (Provider<Delta>) null));
 
-        // when
-        injector.registerProvider(Delta.class, (Provider<Delta>) null);
+        // then
+        assertThat(ex.getMessage(), containsString("may not be null"));
     }
 
     @Test
-    public void shouldThrowForNullClassWithProvider() {
-        // expect
-        exceptionCatcher.expect("may not be null");
+    void shouldThrowForNullClassWithProvider() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.registerProvider(null, mock(Provider.class)));
 
-        // when
-        injector.registerProvider(null, mock(Provider.class));
+        // then
+        assertThat(ex.getMessage(), containsString("may not be null"));
     }
 
     @Test
-    public void shouldThrowForNullProviderClass() {
-        // expect
-        exceptionCatcher.expect("may not be null");
+    void shouldThrowForNullProviderClass() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.registerProvider(BetaManager.class, (Class<Provider<BetaManager>>) null));
 
-        // when
-        injector.registerProvider(BetaManager.class, (Class<Provider<BetaManager>>) null);
+        // then
+        assertThat(ex.getMessage(), containsString("may not be null"));
     }
 
     @Test
-    public void shouldThrowForNullClassWithProviderClass() {
-        // expect
-        exceptionCatcher.expect("may not be null");
+    void shouldThrowForNullClassWithProviderClass() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.registerProvider(null, Provider.class));
 
-        // when
-        injector.registerProvider(null, Provider.class);
+        // then
+        assertThat(ex.getMessage(), containsString("may not be null"));
     }
 
     @Test
-    public void shouldInstantiateForAllAvailableDependencies() {
+    void shouldInstantiateForAllAvailableDependencies() {
         // given
         // Trigger initialization of AlphaService
         injector.getSingleton(AlphaService.class);
@@ -397,7 +403,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldNotInstantiateForMissingDependencies() {
+    void shouldNotInstantiateForMissingDependencies() {
         // given / when
         GammaService gammaService = injector.createIfHasDependencies(GammaService.class);
 
@@ -406,7 +412,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldInstantiateForAllAvailableDependenciesAndAnnotations() {
+    void shouldInstantiateForAllAvailableDependenciesAndAnnotations() {
         // given
         injector.provide(Size.class, 2809375);
         injector.provide(Duration.class, 13095L);
@@ -421,7 +427,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldReturnNullForMissingDependency() {
+    void shouldReturnNullForMissingDependency() {
         // given
         injector.provide(Size.class, 2809375);
         injector.provide(Duration.class, 13095L);
@@ -435,7 +441,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldInstantiateClassWithInheritedInjects() {
+    void shouldInstantiateClassWithInheritedInjects() {
         // given / when
         Child child = injector.getSingleton(Child.class);
 
@@ -449,7 +455,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldRunPostConstructHandlersOnNewlyCreatedObjects() {
+    void shouldRunPostConstructHandlersOnNewlyCreatedObjects() {
         // given
         injector.provide(Duration.class, 3);
         injector.provide(Size.class, 3);
@@ -471,7 +477,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldRunPostConstructOnNewInstances() {
+    void shouldRunPostConstructOnNewInstances() {
         // given
         config.getHandlers().removeIf(h -> h instanceof PostConstructMethodInvoker);
         PostConstructMethodInvoker postConstructInvoker = Mockito.spy(new PostConstructMethodInvoker());
@@ -496,7 +502,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldForwardExceptionFromProviderHandler() throws Exception {
+    void shouldForwardExceptionFromProviderHandler() throws Exception {
         // given
         Handler handler = mock(Handler.class);
         doThrow(IllegalStateException.class).when(handler).onProvider(any(Class.class), any(Provider.class));
@@ -514,7 +520,7 @@ public class InjectorImplTest {
     }
 
     @Test
-    public void shouldForwardExceptionFromProviderClassHandler() throws Exception {
+    void shouldForwardExceptionFromProviderClassHandler() throws Exception {
         // given
         Handler handler = mock(Handler.class);
         doThrow(UnsupportedOperationException.class).when(handler).onProviderClass(any(Class.class), any(Class.class));
@@ -533,7 +539,7 @@ public class InjectorImplTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void shouldThrowForNullReturnedAsDependency() throws Exception {
+    void shouldThrowForNullReturnedAsDependency() throws Exception {
         // given
         Handler handler = mock(Handler.class);
         given(handler.resolve(any(ResolutionContext.class))).willAnswer(
@@ -543,11 +549,11 @@ public class InjectorImplTest {
         );
         config.getHandlers().add(1, handler);
 
-        // expect
-        exceptionCatcher.expect("Found null returned as dependency");
-
         // when
-        injector.getSingleton(Child.class);
+        InjectorException ex = assertThrows(InjectorException.class, () -> injector.getSingleton(Child.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Found null returned as dependency"));
     }
 
     private static void assertAreAllSameInstance(Object... objects) {

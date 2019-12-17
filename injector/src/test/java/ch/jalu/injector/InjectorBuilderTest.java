@@ -20,7 +20,7 @@ import ch.jalu.injector.samples.vehicles.Vehicle;
 import ch.jalu.injector.samples.vehicles.VehicleWithHorn;
 import ch.jalu.injector.samples.vehicles.services.SailService;
 import ch.jalu.injector.samples.vehicles.services.SailServiceProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,14 +39,14 @@ import static org.junit.Assert.fail;
 /**
  * Test for {@link InjectorBuilder}.
  */
-public class InjectorBuilderTest {
+class InjectorBuilderTest {
 
     /**
      * Tests that the allowed packages are set from the builder ot the injector,
      * and tests that the feature works as expected in {@link InjectorImpl}.
      */
     @Test
-    public void shouldSupplyInjectorWithPackageSetting() {
+    void shouldSupplyInjectorWithPackageSetting() {
         // create injector via builder
         Injector injector = new InjectorBuilder()
             .addDefaultHandlers(getClass().getPackage().getName() + ".samples.subpackage")
@@ -75,7 +75,7 @@ public class InjectorBuilderTest {
      * Tests the order of handlers (important!) and that custom handlers are included.
      */
     @Test
-    public void shouldAllowCustomHandlers() {
+    void shouldAllowCustomHandlers() {
         // Instantiate handlers
         ImplementationClassHandler implementationClassHandler = new ImplementationClassHandler();
         implementationClassHandler.register(Vehicle.class, UnidentifiableVehicle.class);

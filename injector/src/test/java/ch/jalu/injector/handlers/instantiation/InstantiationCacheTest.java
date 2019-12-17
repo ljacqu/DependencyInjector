@@ -8,8 +8,8 @@ import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.GammaService;
 import ch.jalu.injector.samples.ProvidedClass;
 import ch.jalu.injector.utils.ReflectionUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.lang.ref.WeakReference;
@@ -32,14 +32,14 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 /**
  * Test for {@link InstantiationCache}.
  */
-public class InstantiationCacheTest {
+class InstantiationCacheTest {
 
     private Injector injector;
     private DefaultInjectionProvider defaultInjectionProvider;
     private InstantiationCache instantiationCache;
 
-    @Before
-    public void setUpInjector() {
+    @BeforeEach
+    void setUpInjector() {
         List<Handler> handlers = InjectorBuilder.createDefaultHandlers("ch.jalu.injector.samples");
         InstantiationCache instantiationCache = new InstantiationCache();
         handlers.add(0, instantiationCache);
@@ -58,7 +58,7 @@ public class InstantiationCacheTest {
     }
 
     @Test
-    public void shouldNotCacheInstantiation() {
+    void shouldNotCacheInstantiation() {
         // given
         injector.register(ProvidedClass.class, new ProvidedClass(""));
         injector.getSingleton(GammaService.class);
@@ -69,7 +69,7 @@ public class InstantiationCacheTest {
     }
 
     @Test
-    public void shouldCacheRequestScopedInstantiations() {
+    void shouldCacheRequestScopedInstantiations() {
         // given
         injector.register(ProvidedClass.class, new ProvidedClass(""));
         injector.getSingleton(GammaService.class);

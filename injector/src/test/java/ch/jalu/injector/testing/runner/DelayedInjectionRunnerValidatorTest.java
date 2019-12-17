@@ -2,7 +2,7 @@ package ch.jalu.injector.testing.runner;
 
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.testing.DelayedInjectionRunnerIntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.Description;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
@@ -14,18 +14,18 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Test for {@link DelayedInjectionRunnerValidator}.
  */
-public class DelayedInjectionRunnerValidatorTest {
+class DelayedInjectionRunnerValidatorTest {
 
     @InjectMocks
     private Injector injector; // this field is null (no runner set) and serves as test setup
 
     @Test
-    public void shouldValidateSuccessfully() throws Exception {
+    void shouldValidateSuccessfully() throws Exception {
         // given
         RunNotifier notifier = mock(RunNotifier.class);
         TestClass testClass = new TestClass(DelayedInjectionRunnerIntegrationTest.class);
@@ -37,11 +37,11 @@ public class DelayedInjectionRunnerValidatorTest {
 
         // then
         // nothing happens: successful validation
-        verifyZeroInteractions(notifier, description);
+        verifyNoInteractions(notifier, description);
     }
 
     @Test
-    public void shouldValidateUnsuccessfullyForInjectMocksPresence() throws Exception {
+    void shouldValidateUnsuccessfullyForInjectMocksPresence() throws Exception {
         // given
         RunNotifier notifier = mock(RunNotifier.class);
         TestClass testClass = new TestClass(getClass());

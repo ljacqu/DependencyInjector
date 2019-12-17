@@ -1,8 +1,8 @@
 package ch.jalu.injector.handlers.instantiation;
 
-import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.context.ResolutionContext;
+import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.samples.AlphaService;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.ClassWithInjectMethod;
@@ -10,30 +10,26 @@ import ch.jalu.injector.samples.InjectOnDifferentMembersClass;
 import ch.jalu.injector.samples.StaticFieldInjection;
 import ch.jalu.injector.samples.inheritance.Child;
 import ch.jalu.injector.samples.inheritance.ChildWithNoInjection;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test for {@link DefaultInjectionProvider}.
  */
-public class DefaultInjectionProviderTest {
+class DefaultInjectionProviderTest {
 
     private DefaultInjectionProvider provider = new DefaultInjectionProvider("ch.jalu");
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
-
     @Test
-    public void shouldProvideInstantiation() {
+    void shouldProvideInstantiation() {
         // given / when
         Resolution<BetaManager> injection = provider.safeGet(BetaManager.class);
 
@@ -43,7 +39,7 @@ public class DefaultInjectionProviderTest {
     }
 
     @Test
-    public void shouldProvideInstantiationForClassWithInheritance() {
+    void shouldProvideInstantiationForClassWithInheritance() {
         // given / when
         Resolution<Child> injection = provider.safeGet(Child.class);
 
@@ -53,25 +49,25 @@ public class DefaultInjectionProviderTest {
     }
 
     @Test
-    public void shouldThrowForStaticField() {
-        // expect
-        exceptionCatcher.expect("@Inject may not be placed on static fields");
+    void shouldThrowForStaticField() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> provider.resolve(contextOf(StaticFieldInjection.class)));
 
-        // when
-        provider.resolve(contextOf(StaticFieldInjection.class));
+        // then
+        assertThat(ex.getMessage(), containsString("@Inject may not be placed on static fields"));
     }
 
     @Test
-    public void shouldThrowForMixedInjection() {
-        // expect
-        exceptionCatcher.expect("may not have @Inject constructor and @Inject fields");
+    void shouldThrowForMixedInjection() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> provider.resolve(contextOf(InjectOnDifferentMembersClass.class)));
 
-        // when
-        provider.resolve(contextOf(InjectOnDifferentMembersClass.class));
+        // then
+        assertThat(ex.getMessage(), containsString("may not have @Inject constructor and @Inject fields"));
     }
 
     @Test
-    public void shouldInjectClass() {
+    void shouldInjectClass() {
         // given / when
         Resolution<ChildWithNoInjection> injection = provider.safeGet(ChildWithNoInjection.class);
 
@@ -81,21 +77,21 @@ public class DefaultInjectionProviderTest {
     }
 
     @Test
-    public void shouldThrowForInjectMethodInParent() {
-        // expect
-        exceptionCatcher.expect("@Inject on methods is not supported");
+    void shouldThrowForInjectMethodInParent() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> provider.safeGet(ChildOfParentWithInjectMethod.class));
 
-        // when
-        provider.safeGet(ChildOfParentWithInjectMethod.class);
+        // then
+        assertThat(ex.getMessage(), containsString("@Inject on methods is not supported"));
     }
 
     @Test
-    public void shouldRejectClassWithInvalidPackage() {
-        // expect
-        exceptionCatcher.expect("outside of the allowed packages");
+    void shouldRejectClassWithInvalidPackage() {
+        // given / when
+        InjectorException ex = assertThrows(InjectorException.class, () -> provider.resolve(contextOf(Object.class)));
 
-        // when
-        provider.resolve(contextOf(Object.class));
+        // then
+        assertThat(ex.getMessage(), containsString("outside of the allowed packages"));
     }
 
     private static ResolutionContext contextOf(Class<?> clazz) {

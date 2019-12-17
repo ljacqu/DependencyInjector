@@ -3,9 +3,9 @@ package ch.jalu.injector.handlers.dependency;
 import ch.jalu.injector.Injector;
 import ch.jalu.injector.InjectorBuilder;
 import ch.jalu.injector.InjectorImpl;
-import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.context.ObjectIdentifier;
 import ch.jalu.injector.context.ResolutionContext;
+import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.factory.SingletonStore;
 import ch.jalu.injector.handlers.Handler;
 import ch.jalu.injector.handlers.instantiation.DefaultInjectionProvider;
@@ -19,12 +19,10 @@ import ch.jalu.injector.samples.inheritance.Grandparent;
 import ch.jalu.injector.samples.inheritance.Parent;
 import ch.jalu.injector.utils.InjectorUtils;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -34,27 +32,25 @@ import static ch.jalu.injector.TestUtils.createParameterizedType;
 import static ch.jalu.injector.TestUtils.findOrThrow;
 import static ch.jalu.injector.context.StandardResolutionType.SINGLETON;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test for {@link SingletonStoreDependencyHandler}.
  */
-@RunWith(MockitoJUnitRunner.class)
-public class SingletonStoreDependencyHandlerTest {
+@ExtendWith(MockitoExtension.class)
+class SingletonStoreDependencyHandlerTest {
 
     private Injector injector;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
-
-    @Before
-    public void setUpInjector() {
+    @BeforeEach
+    void setUpInjector() {
         injector = new InjectorBuilder().addHandlers(createHandlers()).create();
         injector.register(ProvidedClass.class, new ProvidedClass(""));
 
@@ -66,7 +62,7 @@ public class SingletonStoreDependencyHandlerTest {
     }
 
     @Test
-    public void shouldReturnAllGrandparentTypes() {
+    void shouldReturnAllGrandparentTypes() {
         // given
         SingletonStore<Grandparent> store = getSingletonStoreForClass(Grandparent.class);
 
@@ -88,31 +84,33 @@ public class SingletonStoreDependencyHandlerTest {
     }
 
     @Test
-    public void shouldThrowForClassNotWithinBounds() {
+    void shouldThrowForClassNotWithinBounds() {
         // given
         SingletonStore<Parent> store = getSingletonStoreForClass(Parent.class);
 
-        // expect
-        exceptionCatcher.expect("not child of " + Parent.class);
-
         // when
-        store.retrieveAllOfType((Class) Grandparent.class);
+        InjectorException ex = assertThrows(InjectorException.class,
+            () -> store.retrieveAllOfType((Class) Grandparent.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("not child of " + Parent.class));
     }
 
     @Test
-    public void shouldThrowForSingletonCreationWithClassOutOfBounds() {
+    void shouldThrowForSingletonCreationWithClassOutOfBounds() {
         // given
         SingletonStore<Child> store = getSingletonStoreForClass(Child.class);
 
-        // expect
-        exceptionCatcher.expect("not child of " + Child.class);
-
         // when
-        store.getSingleton((Class) Parent.class);
+        InjectorException ex = assertThrows(InjectorException.class,
+            () -> store.getSingleton((Class) Parent.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("not child of " + Child.class));
     }
 
     @Test
-    public void shouldAllowObjectAsClass() {
+    void shouldAllowObjectAsClass() {
         // given
         SingletonStore<Object> store = getSingletonStoreForClass(Object.class);
 
@@ -131,19 +129,20 @@ public class SingletonStoreDependencyHandlerTest {
     }
 
     @Test
-    public void shouldThrowForUnspecifiedGenerics() {
+    void shouldThrowForUnspecifiedGenerics() {
         // given
         ResolutionContext context = newContext(SingletonStore.class);
 
-        // expect
-        exceptionCatcher.expect("Singleton store fields must have concrete generic type.");
-
         // when
-        getSingletonStoreHandler().resolve(context);
+        InjectorException ex = assertThrows(InjectorException.class,
+            () -> getSingletonStoreHandler().resolve(context));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Singleton store fields must have concrete generic type."));
     }
 
     @Test
-    public void shouldReturnNullForOtherType() {
+    void shouldReturnNullForOtherType() {
         // given
         ResolutionContext context = newContext(Parent.class);
 

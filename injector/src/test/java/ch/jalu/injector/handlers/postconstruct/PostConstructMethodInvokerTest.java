@@ -1,32 +1,28 @@
 package ch.jalu.injector.handlers.postconstruct;
 
-import ch.jalu.injector.TestUtils.ExceptionCatcher;
 import ch.jalu.injector.annotations.NoMethodScan;
+import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.samples.BetaManager;
 import ch.jalu.injector.samples.PostConstructTestClass;
 import ch.jalu.injector.samples.ProvidedClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import javax.annotation.PostConstruct;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test for {@link PostConstructMethodInvoker}.
  */
-public class PostConstructMethodInvokerTest {
+class PostConstructMethodInvokerTest {
 
     private PostConstructMethodInvoker postConstructInvoker = new PostConstructMethodInvoker();
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
-
     @Test
-    public void shouldExecutePostConstructMethod() {
+    void shouldExecutePostConstructMethod() {
         // given
         PostConstructTestClass testClass = new PostConstructTestClass(123, new ProvidedClass(""));
 
@@ -38,68 +34,73 @@ public class PostConstructMethodInvokerTest {
     }
 
     @Test
-    public void shouldThrowForInvalidPostConstructMethod() {
+    void shouldThrowForInvalidPostConstructMethod() {
         // given
         WithParams withParams = new WithParams();
 
-        // expect
-        exceptionCatcher.expect("@PostConstruct method may not be static or have any parameters");
-
         // when
-        postConstructInvoker.postProcess(withParams, null, null);
+        InjectorException ex = assertThrows(InjectorException.class,
+            () -> postConstructInvoker.postProcess(withParams, null, null));
+
+        // then
+        assertThat(ex.getMessage(), containsString("@PostConstruct method may not be static or have any parameters"));
     }
 
     @Test
-    public void shouldThrowForStaticPostConstructMethod() {
+    void shouldThrowForStaticPostConstructMethod() {
         // given
         Static classWithStaticMethod = new Static();
 
-        // expect
-        exceptionCatcher.expect("@PostConstruct method may not be static or have any parameters");
-
         // when
-        postConstructInvoker.postProcess(classWithStaticMethod, null, null);
+        InjectorException ex = assertThrows(InjectorException.class,
+            () -> postConstructInvoker.postProcess(classWithStaticMethod, null, null));
+
+        // then
+        assertThat(ex.getMessage(), containsString("@PostConstruct method may not be static or have any parameters"));
     }
 
     @Test
-    public void shouldForwardExceptionFromPostConstruct() {
+    void shouldForwardExceptionFromPostConstruct() {
         // given
         ThrowsException throwsException = new ThrowsException();
 
-        // expect
-        exceptionCatcher.expect("Could not invoke method");
-
         // when
-        postConstructInvoker.postProcess(throwsException, null, null);
+        InjectorException ex = assertThrows(InjectorException.class,
+            () -> postConstructInvoker.postProcess(throwsException, null, null));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Could not invoke method"));
     }
 
     @Test
-    public void shouldThrowForMultiplePostConstructMethods() {
+    void shouldThrowForMultiplePostConstructMethods() {
         // given
         MultiplePostConstructs multiplePostConstructs =
             new MultiplePostConstructs();
 
-        // expect
-        exceptionCatcher.expect("Multiple methods with @PostConstruct");
-
         // when
-        postConstructInvoker.postProcess(multiplePostConstructs, null, null);
+        InjectorException ex = assertThrows(InjectorException.class,
+            () -> postConstructInvoker.postProcess(multiplePostConstructs, null, null));
+
+        // then
+        assertThat(ex.getMessage(), containsString("Multiple methods with @PostConstruct"));
     }
 
     @Test
-    public void shouldThrowForPostConstructNotReturningVoid() {
+    void shouldThrowForPostConstructNotReturningVoid() {
         // given
         NotVoidReturnType notVoidReturnType = new NotVoidReturnType();
 
-        // expect
-        exceptionCatcher.expect("@PostConstruct method must have return type void");
-
         // when
-        postConstructInvoker.postProcess(notVoidReturnType, null, null);
+        InjectorException ex = assertThrows(InjectorException.class,
+            () -> postConstructInvoker.postProcess(notVoidReturnType, null, null));
+
+        // then
+        assertThat(ex.getMessage(), containsString("@PostConstruct method must have return type void"));
     }
 
     @Test
-    public void shouldCallPostConstructOnParentsButNotOnNoMethodScanClasses() {
+    void shouldCallPostConstructOnParentsButNotOnNoMethodScanClasses() {
         // given
         ChildClass childClass = new ChildClass();
 

@@ -19,8 +19,8 @@ import ch.jalu.injector.extras.samples.animals.services.HissServiceProvider;
 import ch.jalu.injector.extras.samples.animals.services.RoarService;
 import ch.jalu.injector.extras.samples.animals.services.SoundServiceSupervisor;
 import ch.jalu.injector.extras.samples.animals.services.SqueakService;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
@@ -38,19 +39,19 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test for {@link AllInstancesAnnotationHandler}.
  */
-public class AllInstancesAnnotationHandlerTest {
+class AllInstancesAnnotationHandlerTest {
 
     private static final String ROOT_PACKAGE = "ch.jalu.injector";
 
     private Injector injector;
 
-    @Before
-    public void initializeInjector() {
+    @BeforeEach
+    void initializeInjector() {
         AllInstancesAnnotationHandler allInstancesHandler = new AllInstancesAnnotationHandler(ROOT_PACKAGE);
         AllTypesAnnotationHandler allTypesHandler = new AllTypesAnnotationHandler(ROOT_PACKAGE);
         injector = new InjectorBuilder()
@@ -62,7 +63,7 @@ public class AllInstancesAnnotationHandlerTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void shouldInstantiateAllSubTypes() {
+    void shouldInstantiateAllSubTypes() {
         // given / when
         SoundServiceSupervisor supervisor = injector.getSingleton(SoundServiceSupervisor.class);
 
@@ -73,7 +74,7 @@ public class AllInstancesAnnotationHandlerTest {
     }
 
     @Test
-    public void shouldInstantiateSubTypesWithDeclaredType() {
+    void shouldInstantiateSubTypesWithDeclaredType() {
         // given / when
         CorrectFields correctFields = injector.getSingleton(CorrectFields.class);
 
@@ -84,16 +85,16 @@ public class AllInstancesAnnotationHandlerTest {
         assertThat(correctFields.lilacServices, empty());
     }
 
-    @Test(expected = InjectorException.class)
-    public void shouldThrowForInvalidFieldType() {
+    @Test
+    void shouldThrowForInvalidFieldType() {
         // given / when / then
-        injector.getSingleton(InvalidFields.class);
+        assertThrows(InjectorException.class, () -> injector.getSingleton(InvalidFields.class));
     }
 
-    @Test(expected = InjectorException.class)
-    public void shouldThrowForMissingGenericType() {
+    @Test
+    void shouldThrowForMissingGenericType() {
         // given / when / then
-        injector.getSingleton(MissingGenericType.class);
+        assertThrows(InjectorException.class, () -> injector.getSingleton(MissingGenericType.class));
     }
 
     /**
@@ -103,7 +104,7 @@ public class AllInstancesAnnotationHandlerTest {
      */
     @Test
     @SuppressWarnings("unchecked")
-    public void shouldPerformFullIntegrationTest() {
+    void shouldPerformFullIntegrationTest() {
         // Configuration setup
         Configuration configuration = injector.getSingleton(Configuration.class);
         configuration.setLang("de");

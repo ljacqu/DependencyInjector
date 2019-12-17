@@ -1,12 +1,10 @@
 package ch.jalu.injector.context;
 
-import ch.jalu.injector.TestUtils.ExceptionCatcher;
+import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.dependency.providers.Charlie;
 import ch.jalu.injector.samples.Duration;
 import ch.jalu.injector.samples.Size;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
@@ -17,21 +15,19 @@ import static ch.jalu.injector.InjectorTestHelper.newDurationAnnotation;
 import static ch.jalu.injector.InjectorTestHelper.newSizeAnnotation;
 import static ch.jalu.injector.TestUtils.createParameterizedType;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test for {@link ObjectIdentifier}.
  */
-public class ObjectIdentifierTest {
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    private ExceptionCatcher exceptionCatcher = new ExceptionCatcher(expectedException);
+class ObjectIdentifierTest {
 
     @Test
-    public void shouldReturnValues() {
+    void shouldReturnValues() {
         // given
         ObjectIdentifier identifier = new ObjectIdentifier(StandardResolutionType.REQUEST_SCOPED, Charlie.class,
             newSizeAnnotation("3245"), newDurationAnnotation());
@@ -44,7 +40,7 @@ public class ObjectIdentifierTest {
     }
 
     @Test
-    public void shouldReturnParameterizedTypeAsClass() {
+    void shouldReturnParameterizedTypeAsClass() {
         // given
         Type type1 = createParameterizedType(List.class, Double.class);
         ObjectIdentifier identifier1 = new ObjectIdentifier(null, type1);
@@ -57,29 +53,29 @@ public class ObjectIdentifierTest {
     }
 
     @Test
-    public void shouldThrowForUnknownRawParameterizedType() {
+    void shouldThrowForUnknownRawParameterizedType() {
         // given
         Type type = createParameterizedType(createParameterizedType(Object.class), Object.class);
         ObjectIdentifier identifier = new ObjectIdentifier(null, type);
 
-        // expect
-        exceptionCatcher.expect("does not have a Class as its raw type");
-
         // when
-        identifier.getTypeAsClass();
+        InjectorException ex = assertThrows(InjectorException.class, () -> identifier.getTypeAsClass());
+
+        // then
+        assertThat(ex.getMessage(), containsString("does not have a Class as its raw type"));
     }
 
     @Test
-    public void shouldThrowForUnknownTypeImplementation() {
+    void shouldThrowForUnknownTypeImplementation() {
         // given
         Type type = new WildcardTypeImpl();
         ObjectIdentifier identifier = new ObjectIdentifier(null, type);
 
-        // expect
-        exceptionCatcher.expect("Unknown Type");
-
         // when
-        identifier.getTypeAsClass();
+        InjectorException ex = assertThrows(InjectorException.class, () -> identifier.getTypeAsClass());
+
+        // then
+        assertThat(ex.getMessage(), containsString("Unknown type"));
     }
 
     private static final class WildcardTypeImpl implements WildcardType {

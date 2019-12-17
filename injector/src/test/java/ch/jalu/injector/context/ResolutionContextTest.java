@@ -1,7 +1,7 @@
 package ch.jalu.injector.context;
 
 import ch.jalu.injector.exceptions.InjectorException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
@@ -10,10 +10,10 @@ import static org.junit.Assert.fail;
 /**
  * Test for {@link ResolutionContext}.
  */
-public class ResolutionContextTest {
+class ResolutionContextTest {
 
     @Test
-    public void shouldThrowForMappedClassThatIsNotChild() {
+    void shouldThrowForMappedClassThatIsNotChild() {
         // given
         ResolutionContext context =
             new ResolutionContext(null, new ObjectIdentifier(StandardResolutionType.SINGLETON, Number.class));

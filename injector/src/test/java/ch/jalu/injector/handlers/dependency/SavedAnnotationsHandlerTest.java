@@ -6,7 +6,7 @@ import ch.jalu.injector.exceptions.InjectorException;
 import ch.jalu.injector.handlers.instantiation.Resolution;
 import ch.jalu.injector.samples.Duration;
 import ch.jalu.injector.samples.Size;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
 
@@ -16,16 +16,17 @@ import static ch.jalu.injector.InjectorTestHelper.unwrapFromSimpleResolution;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Test for {@link SavedAnnotationsHandler}.
  */
-public class SavedAnnotationsHandlerTest {
+class SavedAnnotationsHandlerTest {
 
     private SavedAnnotationsHandler savedAnnotationsHandler = new SavedAnnotationsHandler();
 
     @Test
-    public void shouldReturnRegisteredValue() {
+    void shouldReturnRegisteredValue() {
         // given
         Object object = "value for @Duration";
         savedAnnotationsHandler.onAnnotation(Duration.class, object);
@@ -44,7 +45,7 @@ public class SavedAnnotationsHandlerTest {
     }
 
     @Test
-    public void shouldReturnNullForUnregisteredAnnotation() {
+    void shouldReturnNullForUnregisteredAnnotation() {
         // given
         Annotation[] annotations = {
             newSizeAnnotation("value"), newDurationAnnotation()
@@ -61,22 +62,20 @@ public class SavedAnnotationsHandlerTest {
         assertThat(result, nullValue());
     }
 
-    @Test(expected = InjectorException.class)
-    public void shouldThrowForSecondAnnotationRegistration() {
+    @Test
+    void shouldThrowForSecondAnnotationRegistration() {
         // given
         savedAnnotationsHandler.onAnnotation(Size.class, 12);
 
-        // when
-        savedAnnotationsHandler.onAnnotation(Size.class, -8);
-
-        // then - exception
+        // when / then
+        assertThrows(InjectorException.class,
+            () -> savedAnnotationsHandler.onAnnotation(Size.class, -8));
     }
 
-    @Test(expected = InjectorException.class)
-    public void shouldThrowForNullValueAssociatedToAnnotation() {
-        // given / when
-        savedAnnotationsHandler.onAnnotation(Duration.class, null);
-
-        // then - exception
+    @Test
+    void shouldThrowForNullValueAssociatedToAnnotation() {
+        // given / when / then
+        assertThrows(InjectorException.class,
+            () -> savedAnnotationsHandler.onAnnotation(Duration.class, null));
     }
 }

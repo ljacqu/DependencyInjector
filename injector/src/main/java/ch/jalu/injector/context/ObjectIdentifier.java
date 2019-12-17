@@ -65,7 +65,7 @@ public class ObjectIdentifier {
                 throw new InjectorException("Parameterized type '" + type + "' does not have a Class as its raw type");
             }
         }
-        throw new InjectorException("Unknown Type '" + type + "' (" + type.getClass()
+        throw new InjectorException("Unknown type '" + type + "' (" + type.getClass()
             + ") cannot be converted to Class");
     }
 

@@ -10,6 +10,11 @@
 
     <module name="SuppressWarningsFilter" />
 
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+    </module>
+
     <module name="TreeWalker">
         <module name="SuppressWarningsHolder"/>
         <module name="OuterTypeFilename"/>
@@ -23,12 +28,9 @@
             <property name="allowByTailComment" value="true"/>
             <property name="allowNonPrintableEscapes" value="true"/>
         </module>
-        <module name="LineLength">
-            <property name="max" value="120"/>
-            <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
-        </module>
         <module name="TodoComment">
-            <property name="format" value="TODO|FIXME"/>
+            <!-- Allow comments which have an issue number as they are accounted for in the issue tracker -->
+            <property name="format" value="TODO(?! #\d+:)|FIXME"/>
         </module>
         <module name="GenericWhitespace"/>
         <module name="AvoidStarImport"/>
@@ -144,6 +146,11 @@
         <module name="JavadocMethod">
             <property name="scope" value="package"/>
             <property name="allowMissingThrowsTags" value="true"/>
+            <property name="allowedAnnotations" value="Override, Test"/>
+            <property name="tokens" value="METHOD_DEF, ANNOTATION_FIELD_DEF"/>
+        </module>
+        <module name="MissingJavadocMethod">
+            <property name="scope" value="package"/>
             <property name="minLineCount" value="4"/>
             <property name="allowedAnnotations" value="Override, Test"/>
             <property name="tokens" value="METHOD_DEF, ANNOTATION_FIELD_DEF"/>
