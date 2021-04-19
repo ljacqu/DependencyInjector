@@ -14,7 +14,7 @@ import static ch.jalu.injector.InjectorTestHelper.newDurationAnnotation;
 import static ch.jalu.injector.InjectorTestHelper.newSizeAnnotation;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * Test for {@link TypeSafeAnnotationHandler}.

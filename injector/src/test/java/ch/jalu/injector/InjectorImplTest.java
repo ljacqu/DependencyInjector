@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
@@ -51,8 +52,6 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -508,15 +507,13 @@ public class InjectorImplTest {
         doThrow(IllegalStateException.class).when(handler).onProvider(any(Class.class), any(Provider.class));
         config.getHandlers().add(handler);
 
-        try {
-            // when
-            injector.registerProvider(Delta.class, new Delta1Provider());
-            fail("Expected exception");
-        } catch (InjectorException e) {
-            // then
-            assertThat(e.getMessage(), containsString("An error occurred"));
-            assertThat(e.getCause(), instanceOf(IllegalStateException.class));
-        }
+        // when
+        InjectorException ex = assertThrows(InjectorException.class,
+            () -> injector.registerProvider(Delta.class, new Delta1Provider()));
+
+        // then
+        assertThat(ex.getMessage(), containsString("An error occurred"));
+        assertThat(ex.getCause(), instanceOf(IllegalStateException.class));
     }
 
     @Test
@@ -526,19 +523,16 @@ public class InjectorImplTest {
         doThrow(UnsupportedOperationException.class).when(handler).onProviderClass(any(Class.class), any(Class.class));
         config.getHandlers().add(handler);
 
-        try {
-            // when
-            injector.registerProvider(Delta.class, Delta1Provider.class);
-            fail("Expected exception");
-        } catch (InjectorException e) {
-            // then
-            assertThat(e.getMessage(), containsString("An error occurred"));
-            assertThat(e.getCause(), instanceOf(UnsupportedOperationException.class));
-        }
+        // when
+        InjectorException ex = assertThrows(InjectorException.class,
+            () -> injector.registerProvider(Delta.class, Delta1Provider.class));
+
+        // then
+        assertThat(ex.getMessage(), containsString("An error occurred"));
+        assertThat(ex.getCause(), instanceOf(UnsupportedOperationException.class));
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void shouldThrowForNullReturnedAsDependency() throws Exception {
         // given
         Handler handler = mock(Handler.class);

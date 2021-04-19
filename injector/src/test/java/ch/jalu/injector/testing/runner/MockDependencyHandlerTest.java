@@ -18,8 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static ch.jalu.injector.InjectorTestHelper.unwrapFromSimpleResolution;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -37,7 +37,7 @@ class MockDependencyHandlerTest {
     private Injector injector;
 
     @Test
-    void shouldProvideMock() throws Exception {
+    void shouldProvideMock() {
         // given
         DelayedInjectionRunnerIntegrationTest runnerTest = new DelayedInjectionRunnerIntegrationTest();
         MockitoAnnotations.initMocks(runnerTest);
