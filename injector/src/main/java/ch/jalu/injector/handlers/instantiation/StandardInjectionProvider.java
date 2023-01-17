@@ -53,7 +53,7 @@ public class StandardInjectionProvider extends DirectInstantiationProvider {
      * are multiple {@code @Inject} constructors.
      *
      * @param clazz the class to process
-     * @param <T> the class' type
+     * @param <T> the class's type
      * @return the constructor, or {@code null} if there is no constructor suitable for injection
      */
     @Nullable

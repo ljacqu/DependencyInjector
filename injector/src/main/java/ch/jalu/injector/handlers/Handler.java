@@ -62,7 +62,7 @@ public interface Handler {
      *
      * @param clazz the class to associate the provider with
      * @param provider the provider
-     * @param <T> the class' type
+     * @param <T> the class's type
      * @throws Exception for unsuccessful validation, etc.
      */
     default <T> void onProvider(Class<T> clazz, Provider<? extends T> provider) throws Exception {
@@ -73,8 +73,8 @@ public interface Handler {
      *
      * @param clazz the class to associate the provider class with
      * @param providerClass the provider class
-     * @param <T> the class' type
-     * @param <P> the provider class' type
+     * @param <T> the class's type
+     * @param <P> the provider class's type
      * @throws Exception for unsuccessful validation, etc.
      */
     default <T, P extends Provider<? extends T>> void onProviderClass(Class<T> clazz,

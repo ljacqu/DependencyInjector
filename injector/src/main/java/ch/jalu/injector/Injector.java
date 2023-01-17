@@ -30,7 +30,7 @@ public interface Injector {
      *
      * @param clazz the class to register the provider for
      * @param provider the provider
-     * @param <T> the class' type
+     * @param <T> the class's type
      * @since 0.3
      */
     <T> void registerProvider(Class<T> clazz, Provider<? extends T> provider);
@@ -41,7 +41,7 @@ public interface Injector {
      *
      * @param clazz the class to register the provider for
      * @param providerClass the class of the provider
-     * @param <T> the class' type
+     * @param <T> the class's type
      * @param <P> the provider's type
      * @since 0.3
      */
@@ -49,7 +49,7 @@ public interface Injector {
 
     /**
      * Processes an annotation with an associated object. The actual behavior of this method depends on the
-     * configured handlers of the injector. By default it register the given object for the annotation such
+     * configured handlers of the injector. By default it registers the given object for the annotation such
      * that it may be later injected with the annotation as identifier.
      *
      * @param annotation the annotation
@@ -62,8 +62,8 @@ public interface Injector {
      * Retrieves or instantiates an object of the given type (singleton scope).
      *
      * @param clazz the class to retrieve the value for
-     * @param <T> the class' type
-     * @return object of the class' type
+     * @param <T> the class's type
+     * @return object of the class's type
      * @since 0.1
      */
     <T> T getSingleton(Class<T> clazz);
@@ -73,7 +73,7 @@ public interface Injector {
      * of it afterwards; it will always return a new instance and forget about it.
      *
      * @param clazz the class to instantiate
-     * @param <T> the class' type
+     * @param <T> the class's type
      * @return new instance of class T
      * @since 0.1
      */
@@ -84,7 +84,7 @@ public interface Injector {
      * otherwise {@code null}. Calling this method will never create any new objects.
      *
      * @param clazz the class to retrieve the instance for
-     * @param <T> the class' type
+     * @param <T> the class's type
      * @return instance or null if not available
      * @since 0.1
      */
@@ -99,7 +99,7 @@ public interface Injector {
      * instance to be created. This limitation may be lifted in future versions.
      *
      * @param clazz the class to construct if possible
-     * @param <T> the class' type
+     * @param <T> the class's type
      * @return instance of the class, or {@code null} if any dependency does not already exist
      */
     @Nullable
@@ -111,7 +111,7 @@ public interface Injector {
      * Trivially, using {@link Object} as {@code clazz} will return all known singletons.
      *
      * @param clazz the class to retrieve singletons of
-     * @param <T> the class' type
+     * @param <T> the class's type
      * @return list of singletons of the given type
      * @since 0.1
      */
