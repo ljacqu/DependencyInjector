@@ -30,7 +30,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <junit.version>5.10.0</junit.version>
-        <mockito.version>4.11.0</mockito.version><!-- Cannot use Mockito 5 as long as we use Java 8 -->
+        <mockito.version>5.4.0</mockito.version><!-- Cannot use Mockito 5 as long as we use Java 8 -->
     </properties>
 
     <scm>
