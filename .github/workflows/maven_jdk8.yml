@@ -6,6 +6,8 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      coveralls_repo_token: ${{ secrets.COVERALLS_REPO_TOKEN }}
 
     steps:
       - uses: actions/checkout@v1
@@ -16,4 +18,12 @@ jobs:
           java-version: 8
 
       - name: Build with Maven
-        run: mvn -B --file pom.xml package
+        run: mvn -B --file pom.xml package jacoco:report
+
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        if: github.event_name != 'pull_request'
+        with:
+          base-path: src/main/java
+          # The file is optional, but the documentation says it's better to specify it.
+          file: target/site/jacoco/jacoco.xml
