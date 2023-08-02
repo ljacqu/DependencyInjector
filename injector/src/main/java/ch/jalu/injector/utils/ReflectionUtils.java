@@ -157,7 +157,7 @@ public final class ReflectionUtils {
      * Returns all methods of a class if not annotated with {@link NoMethodScan}. Otherwise returns an empty array.
      *
      * @param clazz the class to process
-     * @return the class' methods or empty array if methods should not be scanned
+     * @return the class's methods or empty array if methods should not be scanned
      */
     public static Method[] safeGetDeclaredMethods(Class<?> clazz) {
         return clazz.isAnnotationPresent(NoMethodScan.class)
@@ -169,7 +169,7 @@ public final class ReflectionUtils {
      * Returns all fields of a class if not annotated with {@link NoFieldScan}. Otherwise returns an empty array.
      *
      * @param clazz the class to process
-     * @return the class' fields or empty array if fields should not be scanned
+     * @return the class's fields or empty array if fields should not be scanned
      */
     public static Field[] safeGetDeclaredFields(Class<?> clazz) {
         return clazz.isAnnotationPresent(NoFieldScan.class)

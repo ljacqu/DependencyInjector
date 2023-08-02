@@ -26,7 +26,7 @@ public abstract class DirectInstantiationProvider implements Handler {
      * is only called with classes which can be instantiated.
      *
      * @param clazz the class to process
-     * @param <T> the class' type
+     * @param <T> the class's type
      * @return the instantiation, or null if not applicable
      */
     @Nullable

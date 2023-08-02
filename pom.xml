@@ -56,7 +56,7 @@
             <name>ljacqu</name>
             <email>.</email>
             <organization>jalu.ch</organization>
-            <organizationUrl>http://jalu.ch</organizationUrl>
+            <organizationUrl>https://jalu.ch</organizationUrl>
         </developer>
     </developers>
 
@@ -141,15 +141,6 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <version>4.3.0</version>
-                <configuration>
-                    <!-- Provided by Travis CI -->
-                    <repoToken>${env.coveralls_repo_token}</repoToken>
                 </configuration>
             </plugin>
             <plugin>
