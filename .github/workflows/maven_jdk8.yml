@@ -26,5 +26,5 @@ jobs:
         if: github.event_name != 'pull_request'
         with:
           base-path: src/main/java
-          # The file is optional, but the documentation says it's better to specify it.
-          file: target/site/jacoco/jacoco.xml
+          # Note the path: need to specify the right Maven module
+          file: injector/target/site/jacoco/jacoco.xml
