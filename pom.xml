@@ -29,7 +29,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.junit>5.11.2</version.junit>
+        <version.junit>5.11.3</version.junit>
         <version.mockito>4.11.0</version.mockito><!-- Cannot use Mockito 5 as long as we use Java 8 -->
     </properties>
 
