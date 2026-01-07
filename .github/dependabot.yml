@@ -7,6 +7,18 @@ updates:
     time: "11:00"
   open-pull-requests-limit: 10
   target-branch: dependencies
+  ignore:
+    # Mockito 5 requires Java 11
+    - dependency-name: "org.mockito:mockito-core"
+      versions: ">= 5"
+    - dependency-name: "org.mockito:mockito-junit-jupiter"
+      versions: ">= 5"
+    - dependency-name: "org.junit.jupiter:junit-jupiter-api"
+      versions: ">= 6"
+    - dependency-name: "org.junit.jupiter:junit-jupiter-engine"
+      versions: ">= 6"
+    - dependency-name: "org.junit.jupiter:junit-vintage-engine"
+      versions: ">= 6"
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule:
