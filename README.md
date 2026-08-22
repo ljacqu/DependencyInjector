@@ -1,5 +1,5 @@
 ## Lightweight Dependency Injector
-[![Build Status](https://travis-ci.org/ljacqu/DependencyInjector.svg?branch=master)](https://travis-ci.org/ljacqu/DependencyInjector)
+[![Build Status](https://github.com/ljacqu/DependencyInjector/actions/workflows/maven_jdk8.yml/badge.svg)](https://github.com/ljacqu/DependencyInjector/actions?query=branch%3Amaster)
 [![Coverage Status](https://coveralls.io/repos/github/ljacqu/DependencyInjector/badge.svg?branch=master)](https://coveralls.io/github/ljacqu/DependencyInjector?branch=master)
 [![Javadocs](http://www.javadoc.io/badge/ch.jalu/injector.svg)](http://www.javadoc.io/doc/ch.jalu/injector)
 [![Code Climate](https://codeclimate.com/github/ljacqu/DependencyInjector/badges/gpa.svg)](https://codeclimate.com/github/ljacqu/DependencyInjector)
